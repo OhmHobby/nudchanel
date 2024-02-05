@@ -1,0 +1,6 @@
+http:
+  port: 4000
+
+log:
+  level: info
+  buffer: true

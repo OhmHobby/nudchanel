@@ -1,0 +1,31 @@
+include:
+  - project: nudchannel/ci/gitlab-ci-templates
+    file:
+      - build/default.gitlab-ci.yml
+      - lint/default.gitlab-ci.yml
+      - node/node.gitlab-ci.yml
+      - node/test-coverage.gitlab-ci.yml
+      - release/default.gitlab-ci.yml
+      - rules/test.yml
+  - local: .gitlab/ci/*.gitlab-ci.yml
+
+stages:
+  - lint
+  - build
+  - test
+  - release
+  - deploy
+
+default:
+  interruptible: true
+
+.node:
+  variables:
+    NODE_IMAGE_TAG: 20-alpine
+
+lint:
+  stage: lint
+  needs: []
+
+build:
+  needs: []
