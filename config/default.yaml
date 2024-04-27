@@ -1,6 +1,41 @@
 http:
   port: 4000
+  swagger:
+    path: "swagger"
 
 log:
   level: info
   buffer: true
+
+database:
+  mongodb:
+    default: ""
+    accounts: ""
+    mailer: ""
+  redis:
+    default:
+      host: ""
+      pass: ""
+      port: 6379
+      db: 0
+
+googleapis:
+  email: ""
+  client_id: ""
+  client_secret: ""
+  callback: ""
+
+authentication:
+  accessToken:
+    issuer: accounts.nudchannel.com
+    publicKey: ""
+    privateKey: ""
+  refreshToken:
+    secure: true
+
+delivery:
+  upcomingEvent:
+    cron: 0 9,21 * * *
+    lookAheadHour: 9
+    rangeHour: 12
+    discordWebhook: ""

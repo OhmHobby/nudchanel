@@ -1,0 +1,9 @@
+{
+  "target": "targetless",
+  "feature": {
+    "network": {
+      "incoming": "off",
+      "outgoing": true
+    }
+  }
+}
