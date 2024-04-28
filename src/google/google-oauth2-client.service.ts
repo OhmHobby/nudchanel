@@ -7,9 +7,7 @@ import { Config } from 'src/enums/config.enum'
 import { GoogleCredentialModel } from 'src/models/google-credential.model'
 
 @Injectable()
-export class GoogleService {
-  protected readonly SCOPES = ['https://www.googleapis.com/auth/calendar']
-
+export class GoogleOauth2ClientService {
   protected readonly email: string
 
   constructor(
@@ -28,13 +26,6 @@ export class GoogleService {
       clientId,
       clientSecret,
       redirectUri,
-    })
-  }
-
-  generateAuthUrl(): string {
-    return this.createClient().generateAuthUrl({
-      access_type: 'offline',
-      scope: this.SCOPES,
     })
   }
 

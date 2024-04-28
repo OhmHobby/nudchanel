@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { calendar_v3, google } from 'googleapis'
-import { GoogleService } from 'src/google/google.service'
+import { GoogleOauth2ClientService } from 'src/google/google-oauth2-client.service'
 
 @Injectable()
 export class GoogleCalendarService {
+  protected readonly SCOPES = ['https://www.googleapis.com/auth/calendar']
+
   private readonly calendarId = 'primary'
 
-  constructor(private readonly googleService: GoogleService) {}
+  constructor(private readonly googleService: GoogleOauth2ClientService) {}
 
   async getCalendar() {
     const client = await this.googleService.getClientWithCredential()
@@ -35,5 +37,12 @@ export class GoogleCalendarService {
         (!summary || event.summary === summary) &&
         (!email || event?.attendees?.some((attendee) => attendee.email === email)),
     )
+  }
+
+  generateAuthUrl(): string {
+    return this.googleService.createClient().generateAuthUrl({
+      access_type: 'offline',
+      scope: this.SCOPES,
+    })
   }
 }
