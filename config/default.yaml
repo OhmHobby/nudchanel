@@ -11,6 +11,7 @@ database:
   mongodb:
     default: ""
     accounts: ""
+    gallery: ""
     mailer: ""
   redis:
     default:
@@ -20,10 +21,13 @@ database:
       db: 0
 
 googleapis:
-  email: ""
-  client_id: ""
-  client_secret: ""
+  clientId: ""
+  clientSecret: ""
   callback: ""
+  email: ""
+  service:
+    email: ""
+    privateKey: ""
 
 authentication:
   accessToken:
