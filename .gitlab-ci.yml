@@ -26,6 +26,3 @@ default:
 lint:
   stage: lint
   needs: []
-
-build:
-  needs: []

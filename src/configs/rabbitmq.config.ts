@@ -5,18 +5,22 @@ import { ConfigService } from '@nestjs/config'
 import { Config } from 'src/enums/config.enum'
 import { RabbitExchange } from 'src/enums/rabbit-exchange.enum'
 
+type Exchange = { name: string; type: string }
+
 @Injectable()
 export class RabbitMQConfigService implements ModuleConfigFactory<RabbitMQConfig> {
+  protected exchanges: Exchange[] = [
+    {
+      name: RabbitExchange.AccountsEvent,
+      type: 'topic',
+    },
+  ]
+
   constructor(private readonly configService: ConfigService) {}
 
   createModuleConfig(): RabbitMQConfig {
     return {
-      exchanges: [
-        {
-          name: RabbitExchange.AccountsEvent,
-          type: 'topic',
-        },
-      ],
+      exchanges: this.exchanges,
       uri: this.configService.get(Config.RABBITMQ_URI)!,
       connectionInitOptions: {
         wait: this.configService.get<boolean>(Config.RABBITMQ_WAIT_ENABLED),

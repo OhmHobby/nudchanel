@@ -14,7 +14,7 @@ import { CookieToken } from 'src/auth/cookie-token'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { RefreshTokenService } from './refresh-token.service'
 
-@Controller({ path: 'refresh-token', version: '1' })
+@Controller({ path: 'accounts/refresh-token', version: '1' })
 @ApiTags('RefreshTokenV1')
 export class RefreshTokenV1Controller {
   private readonly cookieToken: CookieToken

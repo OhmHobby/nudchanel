@@ -1,21 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import { HttpStatus, INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
-import { AppModule } from './../src/app.module'
+import { TestData } from './test-data'
 
-describe('AppController (e2e)', () => {
+describe('App', () => {
   let app: INestApplication
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile()
-
-    app = moduleFixture.createNestApplication()
-    await app.init()
+  beforeAll(async () => {
+    app = await TestData.aValidApp().build()
   })
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!')
+  it('GET /ping', () => {
+    return request(app.getHttpServer()).get('/ping').expect(HttpStatus.OK).expect('pong')
+  })
+
+  it('GET /bullboard (Unauthorized)', () => {
+    return request(app.getHttpServer()).get('/bullboard/').expect(HttpStatus.UNAUTHORIZED)
+  })
+
+  it('GET /bullboard (Forbidden)', async () => {
+    const accessToken = await TestData.aValidAccessToken().build()
+    const cookies = TestData.aValidSupertestCookies().withAccessToken(accessToken).build()
+    return request(app.getHttpServer()).get('/bullboard/').set('Cookie', cookies).expect(HttpStatus.FORBIDDEN)
   })
 })

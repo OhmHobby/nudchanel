@@ -1,0 +1,11 @@
+build:
+  needs: []
+
+build:openapi:
+  extends:
+    - build:node
+  script: npm run generate:openapi
+  artifacts:
+    paths:
+      - openapi.json
+      - openapi.yaml

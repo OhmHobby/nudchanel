@@ -5,3 +5,30 @@ test:unit:
     - .node-test-coverage
     - .default-test-rules
   script: npm run test
+
+test:it:
+  stage: test
+  needs: []
+  extends:
+    - .node-test-coverage
+    - .use-dependencies
+    - .default-test-rules
+  script: npm run test:it
+
+test:e2e:
+  stage: test
+  needs: []
+  extends:
+    - .node-test-coverage
+    - .default-test-rules
+  script: npm run test:e2e
+
+test:image:
+  stage: test
+  image: curlimages/curl
+  needs:
+    - build:image
+  extends:
+    - .use-app
+    - .default-test-rules
+  script: curl --retry 300 -f --retry-all-errors --retry-delay 1 http://webservice:4000/ping
