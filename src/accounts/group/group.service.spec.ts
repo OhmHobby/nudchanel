@@ -4,7 +4,7 @@ import { getModelForClass } from '@typegoose/typegoose'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { GroupService } from './group.service'
 
-describe('GroupService', () => {
+describe(GroupService.name, () => {
   let service: GroupService
   const groupModel = getModelForClass(GroupModel)
 

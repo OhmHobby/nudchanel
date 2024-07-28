@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { WinstonModule } from 'nest-winston'
 import { AccountsModule } from './accounts/accounts.module'
+import { AmqpModule } from './amqp/amqp.module'
 import { AppController } from './app.controller'
 import { AuthGroupGuard } from './auth/auth-group.guard'
 import { AuthMiddleware } from './auth/auth.middleware'
@@ -40,9 +41,11 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     WinstonModule.forRootAsync({
       useClass: WinstonConfig,
     }),
+    AmqpModule,
     AccountsModule,
     BullBoardModule,
     DeliveryModule,

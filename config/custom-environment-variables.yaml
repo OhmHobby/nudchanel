@@ -4,3 +4,22 @@ http:
 log:
   level: LOG_LEVEL
   buffer: BUFFER
+
+processor:
+  enabled: PROCESSOR_ENABLED
+
+rabbitmq:
+  uri: RABBITMQ_URI
+  wait:
+    enabled: RABBITMQ_WAIT_ENABLED
+    timeout: RABBITMQ_WAIT_TIMEOUT
+
+delivery:
+  sendgrid:
+    apiKey: DELIVERY_SENDGRID_API_KEY
+  smtp:
+    host: DELIVERY_SMTP_HOST
+    port: DELIVERY_SMTP_PORT
+    secure: DELIVERY_SMTP_SECURE
+    username: DELIVERY_SMTP_USERNAME
+    password: DELIVERY_SMTP_PASSWORD

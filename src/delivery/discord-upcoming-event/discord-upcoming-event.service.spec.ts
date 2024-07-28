@@ -9,7 +9,7 @@ jest.mock('@nestjs/config')
 jest.mock('src/google/google-calendar.service')
 jest.mock('src/accounts/profile/profile.service')
 
-describe('DiscordUpcomingEventService', () => {
+describe(DiscordUpcomingEventService.name, () => {
   let service: DiscordUpcomingEventService
 
   beforeEach(async () => {

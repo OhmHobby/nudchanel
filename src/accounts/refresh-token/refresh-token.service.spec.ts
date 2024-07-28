@@ -8,7 +8,7 @@ import { RefreshTokenService } from './refresh-token.service'
 
 jest.mock('@nestjs/config')
 
-describe('RefreshTokenService', () => {
+describe(RefreshTokenService.name, () => {
   let service: RefreshTokenService
   const refreshTokenModel = getModelForClass(RefreshTokenModel)
 
