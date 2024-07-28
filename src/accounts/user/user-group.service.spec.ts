@@ -7,7 +7,7 @@ import { UserGroupService } from './user-group.service'
 
 jest.mock('../group/group.service')
 
-describe('UserGroupService', () => {
+describe(UserGroupService.name, () => {
   let service: UserGroupService
   let groupService: GroupService
   const userGroupModel = getModelForClass(UserGroupModel)

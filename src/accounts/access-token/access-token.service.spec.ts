@@ -12,7 +12,7 @@ jest.mock('../profile/profile-name.service')
 jest.mock('../profile/profile.service')
 jest.mock('../user/user-group.service')
 
-describe('AccessTokenService', () => {
+describe(AccessTokenService.name, () => {
   let service: AccessTokenService
   let profileService: ProfileService
   let profileNameService: ProfileNameService

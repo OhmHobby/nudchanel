@@ -2,6 +2,9 @@ log:
   level: debug
   buffer: false
 
+processor:
+  enabled: true
+
 database:
   mongodb:
     default: mongodb://root:nudchDev!123@mongodb/main?authSource=admin
@@ -14,6 +17,9 @@ database:
       pass: nudchDev!123
       port: 6379
       db: 15
+
+rabbitmq:
+  uri: amqp://dev:nudchDev!123@rabbitmq.nudch-prod/dev
 
 authentication:
   accessToken:

@@ -7,6 +7,9 @@ log:
   level: info
   buffer: true
 
+processor:
+  enabled: false
+
 database:
   mongodb:
     default: ""
@@ -19,6 +22,12 @@ database:
       pass: ""
       port: 6379
       db: 0
+
+rabbitmq:
+  uri:
+  wait:
+    enabled: false
+    timeout: 5000
 
 googleapis:
   clientId: ""
@@ -43,3 +52,11 @@ delivery:
     lookAheadHour: 9
     rangeHour: 12
     discordWebhook: ""
+  sendgrid:
+    apiKey:
+  smtp:
+    host:
+    port:
+    secure:
+    username:
+    password:
