@@ -12,6 +12,7 @@ import { ProfileNameService } from './profile/profile-name.service'
 import { ProfileService } from './profile/profile.service'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { UserGroupService } from './user/user-group.service'
+import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserGroupService } from './user/user-group.service'
     UserGroupService,
     GroupService,
   ],
+  controllers: [RefreshTokenV1Controller],
   exports: [ProfileService, AccessTokenService, RefreshTokenService],
 })
 export class AccountsModule {}

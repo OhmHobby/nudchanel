@@ -1,0 +1,66 @@
+log:
+  level: debug
+  buffer: false
+
+processor:
+  enabled: true
+
+database:
+  mongodb:
+    default: mongodb://mongodb/main
+    accounts: mongodb://mongodb/accounts
+    gallery: mongodb://mongodb/gallery
+    mailer: mongodb://mongodb/mailer
+  redis:
+    default:
+      host: redis
+
+rabbitmq:
+  uri: amqp://guest:guest@rabbitmq
+  wait:
+    enabled: true
+    timeout: 30000
+
+authentication:
+  accessToken:
+    publicKey: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz0Qx2z/NTkZFmC0p4BmJ
+      L02ZG1xsUDoidllghcx7GkqTOQIeepP3QoJoFlDG1iVerhtb98sUQB4SrXKdjyc+
+      EhcIt53Cfn2IJvo9IrlxkCR3fyhGmrsblb+wNvC4QBh+3FC9Mqx+1EHSpAJLIYVz
+      BDOwLBv7K4TmHtTRHI3ZkDPR4WgRD4tJTKMILtLeIb9K6bBWSMTTkb6X2xxdlzzC
+      Z5X8o5TANUOK3JMZp1uZI/DaDJt/4tomNJahpnnqi0/9qkxIlQcm5111EGSRVkan
+      cCIwf1wsgSF+ykeoJIN82AaozC3HIbV0NKGDKcv+tFhgtS3OiG9MwYfm0v0NUuEu
+      XwIDAQAB
+      -----END PUBLIC KEY-----
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDPRDHbP81ORkWY
+      LSngGYkvTZkbXGxQOiJ2WWCFzHsaSpM5Ah56k/dCgmgWUMbWJV6uG1v3yxRAHhKt
+      cp2PJz4SFwi3ncJ+fYgm+j0iuXGQJHd/KEaauxuVv7A28LhAGH7cUL0yrH7UQdKk
+      AkshhXMEM7AsG/srhOYe1NEcjdmQM9HhaBEPi0lMowgu0t4hv0rpsFZIxNORvpfb
+      HF2XPMJnlfyjlMA1Q4rckxmnW5kj8NoMm3/i2iY0lqGmeeqLT/2qTEiVBybnXXUQ
+      ZJFWRqdwIjB/XCyBIX7KR6gkg3zYBqjMLcchtXQ0oYMpy/60WGC1Lc6Ib0zBh+bS
+      /Q1S4S5fAgMBAAECggEALNBX30nqQBRdk8ugFD4xNTMX+ZyAJtCLBv/IKOXPcB3T
+      uy3EHUjE23KKwthwRXkLAaYUun0EQeC+tRXlD0Cy4QJt9hV8KhFGUPcmJM3nyfy4
+      gZvZuDbgff5WQWrGy8UAGO60GbLGMWqR+rgsOnE6Lxxl6QObyQsRHnVxSTU6Zz0J
+      PYN1klkXzjyeN3aRRMI1rTuQt9V8H7QPo6Wgb719pqQZZ8vVrwk3UM9DikcFz7CV
+      kMolWBYzOc2mKbWsE4mo7nCzTui25iasIdy6z+KCifiIV8gwzChodo0/PiS3yOFo
+      cNlsT8Q9ULsDLaz5rOfUlLg9slOhzS9oAaX1XdE4MQKBgQD2MHpvqQPZYFYqS7m+
+      xxwB+d88Ux1DeGdHaMVti2ttF4AeqwPHiRufXCFB7pKLf7xB1s2TdrKSfic1jC2a
+      f0KRO8XOEQ3dkvbnyJdhbBr2B9RlM79xF40ipq7NeBS4eJ8Q+DDubLYfgSipoaG9
+      Cd3Cybjtgdrd1sZzo7Bg/j6WbQKBgQDXhqPvtBgJkj/+zXDEYlfwvztnlVt33l6E
+      OuOjBdIs4MPhlgvU9Snv35JR0omsywE6NErCbp6uxqScNPeMnqXAHPsC0KWbTJFK
+      raTZ1emZQxqf5PMdZd9Jsa0OWrOHY1JSvN1/nlUN3Q4LDq8qCY2PRq09C51IkMNz
+      q+v2u1mIewKBgHpTlEKvRI5aY/YYMm8tGCmTMu0Sj1PbG9ZLpO3NfM90AeE7MGGR
+      KvyAFrZgCMjv62b7iKJhNFG+BVWCFZbS7QylGqBNsQoL4EtDTJTH1o2xTkQK9nEH
+      NsWk9O57YDBZHxCbghS2R7hXwRCok2kO4fXLreu1vj7EXU9QYm+PZSHxAoGAVAOl
+      JgyTDjAXiDD3U2Zul2dENeWv6TMirvLxx5u+SUY4tVgzNol3Fo2VURX8GwJrcQ/v
+      UImki8bdZhLzqLozLIdfhcJlu/sF7BFyYIQVcmwJFek+p+gNOYHsTtsmfpFGBwCe
+      a2ACEcxo7ACGYaGlsANCBrjfT+k2d4G+EskHZr8CgYEA0ctodUZm+/loDaHe0ojT
+      5t70R59f2nmX4IR07NRz0+8OvpSX7duSihBLfkCu5XVxZMGDQsiOMqrRRkTX8ncZ
+      tViQhduA9T4EaTNMvj88RFZStvesM9v3Sg+0hTQ+sapjkHghoXM03oalqA8J/BnN
+      ccOIb5DqYZIF9L/MqLqfDK4=
+      -----END PRIVATE KEY-----
+  refreshToken:
+    secure: false

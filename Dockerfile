@@ -15,4 +15,4 @@ COPY ./config/ ./config/
 COPY ./dist/ ./dist/
 EXPOSE 4000
 ENV NODE_CONFIG_DIR=/usr/src/app/config
-CMD pnpm run start
+CMD pnpm run start:prod
