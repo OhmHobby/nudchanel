@@ -1,7 +1,7 @@
 import { Process, Processor } from '@nestjs/bull'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import { WebhookClient } from 'discord.js'
 import { calendar_v3 } from 'googleapis'
 import { ProfileService } from 'src/accounts/profile/profile.service'

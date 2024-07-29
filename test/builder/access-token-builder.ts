@@ -1,5 +1,5 @@
 import { SignAccessToken } from '@nudchannel/auth'
-import * as config from 'config'
+import config from 'config'
 import { Config } from 'src/enums/config.enum'
 import { TestData } from 'test/test-data'
 

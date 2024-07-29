@@ -1,3 +1,3 @@
-import * as config from 'config'
+import config from 'config'
 
 export const configuration = () => ({ ...config })

@@ -4,6 +4,8 @@ http:
 log:
   level: LOG_LEVEL
   buffer: BUFFER
+  loki:
+    url: LOG_LOKI_URL
 
 processor:
   enabled: PROCESSOR_ENABLED

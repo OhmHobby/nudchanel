@@ -6,6 +6,8 @@ http:
 log:
   level: info
   buffer: true
+  loki:
+    url: ""
 
 processor:
   enabled: false

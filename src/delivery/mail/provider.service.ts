@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import * as sendgridMail from '@sendgrid/mail'
+import sendgridMail from '@sendgrid/mail'
 import { Types } from 'mongoose'
 import { createTransport } from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'

@@ -1,6 +1,8 @@
 log:
   level: debug
   buffer: false
+  loki:
+    url: http://nudch-wireproxy-cftunnel.nudch-internal:3100
 
 processor:
   enabled: true

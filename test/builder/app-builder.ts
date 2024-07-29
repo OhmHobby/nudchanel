@@ -1,7 +1,7 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { VersioningType } from '@nestjs/common'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
-import * as cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'

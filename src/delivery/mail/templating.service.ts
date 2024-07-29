@@ -1,8 +1,8 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
-import * as Handlebars from 'handlebars'
-import * as helperMarkdown from 'helper-markdown'
+import Handlebars from 'handlebars'
+import helperMarkdown from 'helper-markdown'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
 
 @Injectable()
