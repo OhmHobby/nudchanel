@@ -2,7 +2,7 @@
 let isEnabled: boolean
 jest.mock('config', () => {
   return {
-    __esModule: true, // for esModules
+    __esModule: false,
     get: jest.fn(() => {
       return isEnabled
     }),

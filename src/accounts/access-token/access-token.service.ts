@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { SignAccessToken } from '@nudchannel/auth'
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import { Response } from 'express'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'

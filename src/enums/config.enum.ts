@@ -3,6 +3,7 @@ export enum Config {
   HTTP_SWAGGER_PATH = 'http.swagger.path',
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
+  LOG_LOKI_URL = 'log.loki.url',
   PROCESSOR_ENABLED = 'processor.enabled',
   DATABASE_MONGODB_PREFIX = 'database.mongodb.',
   REDIS_DEFAULT_HOST = 'database.redis.default.host',

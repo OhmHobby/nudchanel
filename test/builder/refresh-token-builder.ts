@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { TestData } from 'test/test-data'
 

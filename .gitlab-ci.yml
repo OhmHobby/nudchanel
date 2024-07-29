@@ -27,3 +27,6 @@ default:
 lint:
   stage: lint
   needs: []
+
+publish:
+  stage: release

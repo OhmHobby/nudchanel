@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { writeFile } from 'fs/promises'
-import * as request from 'supertest'
+import request from 'supertest'
 import { TestData } from './test-data'
 
 describe('Swagger', () => {

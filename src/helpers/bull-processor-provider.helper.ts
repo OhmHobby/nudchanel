@@ -1,4 +1,4 @@
-import * as config from 'config'
+import config from 'config'
 import { Config } from 'src/enums/config.enum'
 
 export class BullProcessorProviderHelper {
