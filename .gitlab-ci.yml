@@ -2,6 +2,7 @@ include:
   - project: nudchannel/ci/gitlab-ci-templates
     file:
       - build/default.gitlab-ci.yml
+      - client/typescript.gitlab-ci.yml
       - lint/default.gitlab-ci.yml
       - node/node.gitlab-ci.yml
       - node/test-coverage.gitlab-ci.yml

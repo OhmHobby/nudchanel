@@ -9,3 +9,9 @@ build:openapi:
     paths:
       - openapi.json
       - openapi.yaml
+
+client:
+  needs:
+    - build:openapi
+  variables:
+    OPENAPI_SPECFILE: ./openapi.json
