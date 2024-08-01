@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { WinstonModuleOptions, WinstonModuleOptionsFactory } from 'nest-winston'
+import { ClsService } from 'nestjs-cls'
 import { Config } from 'src/enums/config.enum'
 import winston, { format } from 'winston'
 import LokiTransport from 'winston-loki'
 
 @Injectable()
 export class WinstonConfig implements WinstonModuleOptionsFactory {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly cls: ClsService,
+  ) {}
 
   private get lokiTransport() {
     const lokiUrl = this.configService.get(Config.LOG_LOKI_URL)
@@ -32,9 +36,15 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
   }
 
   createWinstonModuleOptions(): WinstonModuleOptions {
+    const cls = this.cls
     return {
       level: this.configService.get<string>(Config.LOG_LEVEL),
-      transports: [new winston.transports.Console(), ...this.lokiTransport],
+      defaultMeta: {
+        get correlationId() {
+          return cls?.getId()
+        },
+      },
+      transports: [new winston.transports.Console({}), ...this.lokiTransport],
     }
   }
 }

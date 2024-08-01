@@ -1,10 +1,12 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 
 @Injectable()
 export class GalleryActivityService {
+  private readonly logger = new Logger(GalleryActivityService.name)
+
   constructor(
     @InjectModel(GalleryActivityModel)
     private readonly activityModel: ReturnModelType<typeof GalleryActivityModel>,
