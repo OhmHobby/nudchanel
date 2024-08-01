@@ -27,7 +27,6 @@ export enum Config {
   DELIVERY_UPCOMINGEVENT_LOOKAHEADHOUR = 'delivery.upcomingEvent.lookAheadHour',
   DELIVERY_UPCOMINGEVENT_RANGEHOUR = 'delivery.upcomingEvent.rangeHour',
   DELIVERY_UPCOMINGEVENT_DISCORDWEBHOOK = 'delivery.upcomingEvent.discordWebhook',
-  DELIVERY_SENDGRID_API_KEY = 'delivery.sendgrid.apiKey',
   DELIVERY_SMTP_HOST = 'delivery.smtp.host',
   DELIVERY_SMTP_PORT = 'delivery.smtp.port',
   DELIVERY_SMTP_SECURE = 'delivery.smtp.secure',

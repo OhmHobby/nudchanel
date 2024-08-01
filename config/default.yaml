@@ -54,8 +54,6 @@ delivery:
     lookAheadHour: 9
     rangeHour: 12
     discordWebhook: ""
-  sendgrid:
-    apiKey:
   smtp:
     host:
     port:

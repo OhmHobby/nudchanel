@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+  mongodb:
+    image: ${NUDCH_IMAGE_REGISTRY-registry.nas.nudchannel.com:7171}/nudchannel/database/devdb
+    ports:
+      - 27017:27017
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
