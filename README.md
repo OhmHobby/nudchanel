@@ -51,11 +51,11 @@ $ pnpm run start:prod
 # unit tests
 $ pnpm run test
 
-# e2e tests
-$ pnpm run test:e2e
+# integration tests
+$ pnpm run test:it
 
-# test coverage
-$ pnpm run test:cov
+# functional tests
+$ pnpm run test:functional
 ```
 
 ## Support

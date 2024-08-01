@@ -1,4 +1,4 @@
-import { VersioningType } from '@nestjs/common'
+import { ValidationPipe, VersioningType } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import config from 'config'
 import cookieParser from 'cookie-parser'
@@ -17,6 +17,7 @@ async function bootstrap() {
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
   app.enableShutdownHooks()
   app.use(cookieParser())
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
   await app.get(SchedulerRegisterService).register()
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')

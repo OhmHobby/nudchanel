@@ -1,15 +1,15 @@
 import { modelOptions, prop, Ref } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
-import { ActivityModel } from './activity.model'
+import { GalleryActivityModel } from './activity.model'
 
 @modelOptions({ schemaOptions: { collection: 'videos.youtube' } })
-export class YoutubeVideoModel {
+export class YouTubeVideoModel {
   @prop({ auto: true })
   _id: Types.ObjectId
 
   @prop({ required: true })
   youtube: string
 
-  @prop({ ref: () => ActivityModel, required: true, type: String })
-  activity: string | Ref<ActivityModel>
+  @prop({ ref: () => GalleryActivityModel, required: true, type: String })
+  activity: string | Ref<GalleryActivityModel>
 }

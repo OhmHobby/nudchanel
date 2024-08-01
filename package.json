@@ -20,7 +20,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:it": "jest --config ./test/jest-integration.json --detectOpenHandles --forceExit --ci --colors --runInBand --reporters=default --reporters=jest-junit",
-    "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit --ci --colors --runInBand --reporters=default --reporters=jest-junit"
+    "test:functional": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit --ci --colors --runInBand --reporters=default --reporters=jest-junit",
+    "test:e2e": "cucumber-js",
+    "test:cucumber:report": "cat results.json | cucumber-junit > junit.xml"
   },
   "dependencies": {
     "@bull-board/api": "^5.16.0",
@@ -41,6 +43,8 @@
     "@typegoose/auto-increment": "^4.3.0",
     "bull": "^4.12.2",
     "cache-manager": "^5.5.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "config": "^3.3.11",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.10",
@@ -59,6 +63,8 @@
     "winston-loki": "^6.1.2"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^10.8.0",
+    "@cucumber/pretty-formatter": "^1.0.1",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
@@ -71,6 +77,8 @@
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "cucumber-junit": "^1.7.1",
+    "cucumber-tsflow": "^4.4.4",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

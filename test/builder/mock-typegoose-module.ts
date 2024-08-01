@@ -6,6 +6,9 @@ import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
+import { GalleryActivityModel } from 'src/models/gallery/activity.model'
+import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import { resetMockModel } from 'test/helpers/mock-model'
 
 @Module({
@@ -29,6 +32,18 @@ import { resetMockModel } from 'test/helpers/mock-model'
     {
       provide: getModelToken(RefreshTokenModel.name),
       useValue: resetMockModel(getModelForClass(RefreshTokenModel)),
+    },
+    {
+      provide: getModelToken(GalleryActivityModel.name),
+      useValue: resetMockModel(getModelForClass(GalleryActivityModel)),
+    },
+    {
+      provide: getModelToken(GalleryAlbumModel.name),
+      useValue: resetMockModel(getModelForClass(GalleryAlbumModel)),
+    },
+    {
+      provide: getModelToken(YouTubeVideoModel.name),
+      useValue: resetMockModel(getModelForClass(YouTubeVideoModel)),
     },
   ],
 })
