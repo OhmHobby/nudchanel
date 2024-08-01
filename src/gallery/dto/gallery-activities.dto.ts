@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
-import { IsDate, IsInt, IsOptional, Max } from 'class-validator'
+import { IsDate, IsInt, IsOptional, Max, MaxLength } from 'class-validator'
 
 const MAX_LIMIT = 100
 const DEFAULT_LIMIT = 10
@@ -21,5 +21,6 @@ export class GalleryActivitesDto {
 
   @IsOptional()
   @ApiPropertyOptional()
+  @MaxLength(MAX_LIMIT)
   search?: string
 }
