@@ -5,6 +5,8 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
+import { uuidv4 } from 'uuidv7'
 import { AccountsModule } from './accounts/accounts.module'
 import { AmqpModule } from './amqp/amqp.module'
 import { AppController } from './app.controller'
@@ -28,6 +30,10 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+    }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true, generateId: true, idGenerator: uuidv4 },
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
