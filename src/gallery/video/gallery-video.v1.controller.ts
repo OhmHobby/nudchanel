@@ -5,7 +5,7 @@ import { GalleryVideoResponseModel } from '../dto/gallery-video-response.model'
 import { GalleryVideoService } from './gallery-video.service'
 
 @Controller({ path: 'gallery/videos', version: '1' })
-@ApiTags('GalleryVideoV1Controller')
+@ApiTags('GalleryVideoV1')
 export class GalleryVideoV1Controller {
   constructor(private readonly galleryVideoService: GalleryVideoService) {}
 

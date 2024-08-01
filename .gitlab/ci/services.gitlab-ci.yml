@@ -6,11 +6,13 @@
       name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/rabbitmq:3.11
       alias: rabbitmq
     - &mongodb
-      name: $NUDCH_IMAGE_REGISTRY/nudchannel/database/cidb
+      name: $NUDCH_IMAGE_REGISTRY/nudchannel/database/devdb
       alias: mongodb
     - &redis
       name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/redis:7-alpine
       alias: redis
+  tags:
+    - docker
 
 .use-app:
   variables:
@@ -23,3 +25,5 @@
       alias: webservice
       variables:
         NODE_ENV: test
+  tags:
+    - docker

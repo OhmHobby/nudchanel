@@ -15,20 +15,25 @@ test:it:
     - .default-test-rules
   script: npm run test:it
 
-test:e2e:
+test:functional:
   stage: test
   needs: []
   extends:
     - .node-test-coverage
     - .default-test-rules
-  script: npm run test:e2e
+  script: npm run test:functional
 
-test:image:
+test:e2e:
   stage: test
-  image: curlimages/curl
   needs:
     - build:image
   extends:
+    - .node-test-coverage
     - .use-app
     - .default-test-rules
-  script: curl --retry 300 -f --retry-all-errors --retry-delay 1 http://webservice:4000/ping
+  variables:
+    SERVER_URL: http://webservice:4000
+  script:
+    - npm run test:e2e
+  after_script:
+    - npm run test:cucumber:report

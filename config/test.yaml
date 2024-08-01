@@ -64,3 +64,36 @@ authentication:
       -----END PRIVATE KEY-----
   refreshToken:
     secure: false
+
+googleapis:
+  service:
+    email: dev-85@nudchannel.iam.gserviceaccount.com
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDOTI47cdivt2JS
+      0vU72qEI3S+QaeC+s54ar64dprfd4iqzjzx7h33vQ1sGWNH0HRZFZKnfHaWwh8z7
+      TkVXlAI0lnwIwsrt93plvTyFozUzfP7F8xRVXHTr71vCU8l7n/NzKThbwqLo6UBX
+      ZBBFpzG72ffMMX1/1Pho4pvJn3ZCgkiCwxmUo9rq6bUqAHtBSSWMUmyZKEnhufII
+      PhDeUcepU5bsWp0CKrMv+D3iLoQpoPyrNpvsDTVbWduOTnmYQTTDBy3FA4O/LarP
+      pwwayb4vkEfpJ5KxiOae15j0Jbp56/zqhQghlylzKplwCqCkll/CrszU0C1csmHp
+      QwYfI2nZAgMBAAECggEAFsWSTys/UBEh7jLJXVqiGy6AJzSauW4uAfPZuD3sjpZe
+      II0rb9bKTsh8chhIj6XMzSriCeX1wcVRuf0/L/4/WpLwXM60s/0U8olHlphIAXeX
+      D15oRI5kvRziH/Kb+1SR/MikZxOWZDeIEcVyut+MYLgcD1r4p41IgNpfuCstFITm
+      YSVhC7ChaqDzMankakLcqDTzKBCUfON/WftOGmQ0TIXgRAoHGaAf6iMLpgoPVQI1
+      VYOeaCsGupiiVUe30yErIToi9eAJlbcZGNu+ks5TgbttXic5zBt2SZ6IoYwHB6QP
+      0ggoX7PYzVcrHVr6Zj56vwvGMh7ZfEHXDoZxJNo0MQKBgQD7IkAwDn/Y0UFCdgev
+      Ku01HsK+4hS/AKqvTBqQymzEH5m8vWwyKrqVCj98SOLEkgvh+kYEYLk6y/PwHaVT
+      dfd789mLsSdpcKLQIJE+SVuwhDFojjji7/ehnZF5zBZwmUxOk8Q6gWLz57P3gJIO
+      e2U4u1Q+nTxbyiX2Qoo2pqfd8QKBgQDSS+bu/Sy22iMbyniWt5FEYPWa04z93lt9
+      qAmKUwrJu5cQjiiPHhTxqzpnGavQL8QxfsQV8aC2ScuMFO3i2E43QPMWDm2FiUi+
+      PhRpuesRSklSelKOo5bWh7bU+e9W6XICjLzwwM95HZpZbMfKdaJOLhbjzml6T6ZK
+      ireHzeWCaQKBgActXmpBL9Qxfsz4dJXEA01+WJB+A5vF2Br0cNnsfxlH0ev7+eih
+      If36cgAKUTjO97n4niGn5gNRKuKU5lGxUGZhfLkqUfcIeg66r4v5Kr6ruIHFdsi9
+      lPUwfKTfeVC0gOLKBFSrt/lCiPks2n/BdQ4fBHRZqAzzhQw5sJuJPcjxAoGBAKmK
+      j+/1JOt2CgAJyBaaf/9EvD3KeEzjy5cOtkJSmMvy9ONf+MsJUZFUno0oYSBCokXV
+      EXkviIXuELAq326XPNfHATOzBhE2kPLvUb27KgySe3KHM6/Tq3PhjkE+Dvte0Y/E
+      rz7Z82qNtzaJQLm1BNlKxyF59Aer10EZfMV79aChAoGASA6HsxuS/U5YdGZqH0DO
+      4ldc98k4i/+gIt/NFwba6NsV70PM3Aw98DknvZfv6+552aLwpjYSM6cR20uAh2s5
+      XimmFWAjJ0TkhqmO0HqWQ9K6SiEgMVEPp0yxEQfgXh486TN4COfrmVSwvTLWShYu
+      FS8ORJ96zn4FvIZVOP0cnWk=
+      -----END PRIVATE KEY-----

@@ -1,5 +1,5 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
-import { VersioningType } from '@nestjs/common'
+import { ValidationPipe, VersioningType } from '@nestjs/common'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import cookieParser from 'cookie-parser'
 import { AmqpModule } from 'src/amqp/amqp.module'
@@ -34,6 +34,7 @@ export class AppBuilder {
       prefix: 'api/v',
       type: VersioningType.URI,
     })
+    app.useGlobalPipes(new ValidationPipe({ transform: true }))
     await app.get(SwaggerConfigBuilder).build(app)
     await app.init()
     return app

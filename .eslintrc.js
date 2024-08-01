@@ -14,7 +14,6 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
-    curly: 'error',
     eqeqeq: 'error',
     'max-classes-per-file': ['error', 1],
     'no-lonely-if': 'error',
@@ -46,7 +45,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.spec.ts', 'test/*', 'features/**'],
+      files: ['*.spec.ts', 'test/**', 'features/**'],
       rules: {
         '@typescript-eslint/no-magic-numbers': ['off'],
       },
