@@ -17,8 +17,6 @@ rabbitmq:
     timeout: RABBITMQ_WAIT_TIMEOUT
 
 delivery:
-  sendgrid:
-    apiKey: DELIVERY_SENDGRID_API_KEY
   smtp:
     host: DELIVERY_SMTP_HOST
     port: DELIVERY_SMTP_PORT

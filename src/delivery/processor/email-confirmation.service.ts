@@ -1,6 +1,7 @@
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq'
 import { Injectable, Logger } from '@nestjs/common'
 import { EmailConfirmation } from '@nudchannel/protobuf/dist/email_confirmation'
+import { BullPriority } from 'src/enums/bull-priority.enum'
 import { RabbitExchange } from 'src/enums/rabbit-exchange.enum'
 import { RabbitQueue } from 'src/enums/rabbit-queue.enum'
 import { RabbitRoutingKey } from 'src/enums/rabbit-routing-key.enum'
@@ -30,7 +31,7 @@ export class EmailConfirmationDeliveryProcessorService {
       return this.logger.error(`Template for ${this.requestEmailConfirmationEvent.name} not found`)
     }
     const mailData = await this.mailService.prepareMailData([message.email], template)
-    await this.mailService.send(mailData)
+    await this.mailService.send(mailData, BullPriority.High)
   }
 
   @RabbitRPC({

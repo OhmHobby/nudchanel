@@ -1,0 +1,17 @@
+database:
+  mongodb:
+    default: mongodb://localhost/main
+    accounts: mongodb://localhost/accounts
+    gallery: mongodb://localhost/gallery
+    mailer: mongodb://localhost/mailer
+  redis:
+    default:
+      host: localhost
+      pass: ""
+      port: 6379
+      db: 0
+
+rabbitmq:
+  uri: amqp://guest:guest@localhost/
+  wait:
+    enabled: false
