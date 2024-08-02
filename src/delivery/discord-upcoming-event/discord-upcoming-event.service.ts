@@ -75,7 +75,7 @@ export class DiscordUpcomingEventService {
     return this.triggerWebhook()
   }
 
-  async triggerWebhook(hourLookAhead?: number, range?: number) {
+  async triggerWebhook(hourLookAhead?: number, range?: number, dryrun = false) {
     hourLookAhead = hourLookAhead ?? this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENT_LOOKAHEADHOUR)
     range = range ?? this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENT_RANGEHOUR)
     const from = this.getHourAhead(hourLookAhead)
@@ -83,11 +83,10 @@ export class DiscordUpcomingEventService {
     const calendarEvents = await this.googleCalendarService.list(from, to)
     const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(calendarEvents.items)
     const content = this.generateContent(embedEvents)
-    if (embedEvents.length) {
+    this.logger.log(`${embedEvents.length} events from ${from.toISOString()} to ${to.toISOString()}`)
+    if (embedEvents.length && !dryrun) {
       await this.executeWebhook(content, embedEvents, new Saiko())
-      this.logger.log(`${embedEvents.length} events from ${from.toISOString()} to ${to.toISOString()}`)
-    } else {
-      this.logger.log(`No events from ${from.toISOString()} to ${to.toISOString()}`)
     }
+    return embedEvents
   }
 }
