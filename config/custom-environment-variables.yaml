@@ -16,6 +16,11 @@ rabbitmq:
     enabled: RABBITMQ_WAIT_ENABLED
     timeout: RABBITMQ_WAIT_TIMEOUT
 
+authentication:
+  accessToken:
+    publicKey: NUDCH_PUBLIC_KEY
+    privateKey: NUDCH_PRIVATE_KEY
+
 delivery:
   smtp:
     host: DELIVERY_SMTP_HOST
