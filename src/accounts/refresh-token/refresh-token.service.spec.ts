@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getModelForClass } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { TestData } from 'test/test-data'
 import { RefreshTokenService } from './refresh-token.service'
 
 jest.mock('@nestjs/config')
@@ -41,9 +42,9 @@ describe(RefreshTokenService.name, () => {
   describe('create', () => {
     it('should create correctly', async () => {
       const profileId = '0'
-      refreshTokenModel.create = jest.fn().mockImplementation((arg) => Promise.resolve(arg))
+      refreshTokenModel.create = jest.fn().mockResolvedValue(new RefreshTokenModel())
       const result = await service.create(profileId)
-      expect(typeof result).toBe('string')
+      expect(result).toBeInstanceOf(RefreshTokenModel)
     })
   })
 
@@ -122,14 +123,12 @@ describe(RefreshTokenService.name, () => {
     const profile = new Types.ObjectId()
 
     it('should create new refresh token when token valid without having been issue', async () => {
-      const newRefreshToken = 'new-refresh-token'
-      service.find = jest.fn().mockResolvedValue({
-        profile,
-      })
+      const newRefreshToken = TestData.aValidRefreshToken().withUuid().build()
+      service.find = jest.fn().mockResolvedValue(TestData.aValidRefreshToken().build())
       service.create = jest.fn().mockResolvedValue(newRefreshToken)
       service.revokeToken = jest.fn()
       const result = await service.use('refresh-token')
-      expect(result?._id).toBe(newRefreshToken)
+      expect(result?._id).toEqual(newRefreshToken._id)
       expect(service.revokeToken).toHaveBeenCalled()
     })
 
