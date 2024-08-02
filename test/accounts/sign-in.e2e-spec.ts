@@ -20,9 +20,10 @@ describe('Accounts - sign-in', () => {
   })
 
   it('POST /api/v1/accounts/sign-in/local (success)', async () => {
-    mockUserLocalModel.findOne = jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()) })
+    mockUserLocalModel.findOne = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
+    })
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')

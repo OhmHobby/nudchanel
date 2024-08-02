@@ -20,8 +20,10 @@ export class UserLocalService {
     return await this.userLocalModel.find().exec()
   }
 
-  async findByUsername(username: string) {
-    return await this.userLocalModel.findOne({ username }).exec()
+  async findByUsername(username: string, withPassword = false) {
+    const query = this.userLocalModel.findOne({ username })
+    if (withPassword) query.select('password')
+    return await query.exec()
   }
 
   async findByProfile(profile: Types.ObjectId) {
@@ -96,7 +98,7 @@ export class UserLocalService {
 
   async signIn(username: string, plainPassword: string) {
     try {
-      const user = await this.findByUsername(username)
+      const user = await this.findByUsername(username, true)
       if (!user) throw new Error('User not found')
       if (user.disabled) throw new Error('User has disabled')
       const hashedPassword = user.password
