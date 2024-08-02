@@ -10,9 +10,5 @@
     "^src/(.*)$": "<rootDir>/../src/$1",
     "^test/(.*)$": "<rootDir>/$1"
   },
-  "reporters": ["default", "jest-junit"],
-  "collectCoverage": true,
-  "coverageDirectory": "../coverage",
-  "collectCoverageFrom": ["**/*.ts", "!**/*.module.ts", "!**/*.model.ts", "!**/config/**", "!features/**/*.ts"],
-  "coverageReporters": ["text", "cobertura", "lcov"]
+  "reporters": ["default", "jest-junit"]
 }
