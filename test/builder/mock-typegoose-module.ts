@@ -6,6 +6,7 @@ import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
+import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
@@ -20,6 +21,10 @@ import { resetMockModel } from 'test/helpers/mock-model'
     {
       provide: getModelToken(ProfileNameModel.name),
       useValue: resetMockModel(getModelForClass(ProfileNameModel)),
+    },
+    {
+      provide: getModelToken(UserLocalModel.name),
+      useValue: resetMockModel(getModelForClass(UserLocalModel)),
     },
     {
       provide: getModelToken(UserGroupModel.name),

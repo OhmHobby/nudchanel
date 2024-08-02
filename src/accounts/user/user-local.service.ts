@@ -1,0 +1,111 @@
+import { InjectModel } from '@m8a/nestjs-typegoose'
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
+import { ReturnModelType } from '@typegoose/typegoose'
+import { argon2id, hash, verify } from 'argon2'
+import { Types } from 'mongoose'
+import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { ProfileNameService } from '../profile/profile-name.service'
+
+@Injectable()
+export class UserLocalService {
+  private readonly logger = new Logger(UserLocalService.name)
+
+  constructor(
+    @InjectModel(UserLocalModel)
+    private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
+    private readonly profileNameService: ProfileNameService,
+  ) {}
+
+  async findAll() {
+    return await this.userLocalModel.find().exec()
+  }
+
+  async findByUsername(username: string) {
+    return await this.userLocalModel.findOne({ username }).exec()
+  }
+
+  async findByProfile(profile: Types.ObjectId) {
+    return await this.userLocalModel.findOne({ profile }).exec()
+  }
+
+  async getUsersHashedPassword(username: string): Promise<string> {
+    const user = await this.userLocalModel.findOne({ username }).select('password').exec()
+    if (!user) {
+      throw new Error('Username not found')
+    }
+    return user.password
+  }
+
+  async isUsernameExists(username: string): Promise<boolean> {
+    const count = await this.userLocalModel.countDocuments({ username }).exec()
+    return !!count
+  }
+
+  usernameCleanUp(name?: string) {
+    return name?.toLocaleLowerCase()?.replace(/[^a-z]/g, '')
+  }
+
+  async requestUsername(profileId: Types.ObjectId | string): Promise<string> {
+    const name = await this.profileNameService.getProfileName(profileId, 'en')
+    const firstname = this.usernameCleanUp(name?.firstname)
+    const lastname = this.usernameCleanUp(name?.lastname)
+
+    if (name.lang !== 'en') {
+      throw new Error('English fullname not found')
+    }
+
+    const hasFullname = firstname && lastname
+    if (!hasFullname) {
+      throw new Error('Fullname required')
+    }
+
+    for (let i = 1; i < lastname.length; i++) {
+      const username = firstname + lastname.slice(0, i)
+      const isExists = await this.isUsernameExists(username)
+      if (!isExists) {
+        return username
+      }
+    }
+
+    throw new Error('No username available')
+  }
+
+  hashPassword(plain: string): Promise<string> {
+    return hash(plain, { type: argon2id })
+  }
+
+  async changePassword(username: string, plainPassword: string) {
+    const hashedPassword = await this.hashPassword(plainPassword)
+    return this.userLocalModel
+      .findOneAndUpdate({ username }, { password: hashedPassword, password_last_set: new Date() })
+      .exec()
+  }
+
+  async create(username: string, plainPassword: string, profile?: Types.ObjectId) {
+    const hashedPassword = await this.hashPassword(plainPassword)
+    return this.userLocalModel.create({
+      username,
+      profile,
+      password: hashedPassword,
+    })
+  }
+
+  async disableUser(username: string, disabled = true) {
+    await this.userLocalModel.findOneAndUpdate({ username }, { disabled }).exec()
+  }
+
+  async signIn(username: string, plainPassword: string) {
+    try {
+      const user = await this.findByUsername(username)
+      if (!user) throw new Error('User not found')
+      if (user.disabled) throw new Error('User has disabled')
+      const hashedPassword = user.password
+      const isValidPassword = await verify(hashedPassword, plainPassword)
+      if (!isValidPassword) throw new Error('Invalid password')
+      return user
+    } catch (err) {
+      this.logger.warn({ message: err.message, username })
+      throw new UnauthorizedException({ error: 'Invalid credential' })
+    }
+  }
+}

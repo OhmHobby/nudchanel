@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
+import { Types } from 'mongoose'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { TestData } from 'test/test-data'
+import { uuidv4 } from 'uuidv7'
 
 export class RefreshTokenBuilder {
   private readonly refreshToken: RefreshTokenModel
@@ -11,6 +13,16 @@ export class RefreshTokenBuilder {
     this.refreshToken.profile = TestData.aValidUserId
     this.refreshToken.created_at = dayjs().toDate()
     this.refreshToken.expires_at = dayjs().add(1, 'hours').toDate()
+  }
+
+  withUuid(id = uuidv4()) {
+    this.refreshToken._id = id
+    return this
+  }
+
+  withProfile(profile: Types.ObjectId) {
+    this.refreshToken.profile = profile
+    return this
   }
 
   build() {

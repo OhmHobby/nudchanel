@@ -28,14 +28,14 @@ export class RefreshTokenService {
     return dayjs().add(sessionDuration).toDate()
   }
 
-  async create(profileId: string, sessionToken = false): Promise<string> {
+  async create(profileId: string, sessionToken = false): Promise<RefreshTokenModel> {
     const refreshTokenDocument = await this.refreshTokenModel.create({
       _id: uuidv4(),
       profile: profileId,
       expires_at: this.refreshTokenExpires(sessionToken),
     })
 
-    return refreshTokenDocument._id.toString()
+    return refreshTokenDocument
   }
 
   async update(refreshToken: string, expiresAt: Date, newToken: string) {
@@ -116,9 +116,9 @@ export class RefreshTokenService {
 
     const profileId = currentRefreshToken.profile.toString()
     const newRefreshToken = await this.create(profileId, isSessionToken)
-    await this.revokeToken(refreshToken, newRefreshToken)
+    await this.revokeToken(refreshToken, newRefreshToken._id!.toString())
 
-    currentRefreshToken._id = newRefreshToken
+    currentRefreshToken._id = newRefreshToken._id!
     return currentRefreshToken
   }
 
@@ -131,7 +131,7 @@ export class RefreshTokenService {
     const expires = this.isSessionToken(refreshToken.created_at!, refreshToken.expires_at!)
       ? undefined
       : this.refreshTokenExpires()
-    response.cookie(CookieToken.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+    response.cookie(CookieToken.REFRESH_TOKEN_COOKIE_NAME, refreshToken._id, {
       expires,
       httpOnly: true,
       secure: this.configService.get<boolean>(Config.NUDCH_TOKEN_SECURE),
