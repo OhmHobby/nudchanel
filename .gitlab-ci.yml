@@ -3,6 +3,7 @@ include:
     file:
       - build/default.gitlab-ci.yml
       - client/typescript.gitlab-ci.yml
+      - deploy/default.gitlab-ci.yml
       - lint/default.gitlab-ci.yml
       - node/node.gitlab-ci.yml
       - node/test-coverage.gitlab-ci.yml
@@ -30,3 +31,8 @@ lint:
 
 publish:
   stage: release
+
+deploy:
+  needs:
+    - job: build:image
+      optional: true
