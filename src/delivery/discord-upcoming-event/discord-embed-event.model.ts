@@ -1,21 +1,29 @@
 const DEFAULT_COLOR = 16088076
+import { ApiProperty } from '@nestjs/swagger'
 import { calendar_v3 } from 'googleapis'
 
 type EmbedField = { name: string; value: string; inline: boolean }
 
 export class DiscordEmbedEvent {
+  @ApiProperty()
   title: string
 
+  @ApiProperty()
   description = ''
 
+  @ApiProperty()
   eventStartAt: Date
 
+  @ApiProperty()
   eventEndAt: Date
 
+  @ApiProperty()
   color: number = DEFAULT_COLOR
 
+  @ApiProperty()
   location = ''
 
+  @ApiProperty()
   attendeesDiscordIds: string[] = []
 
   private milliToSecond(timestamp: number) {

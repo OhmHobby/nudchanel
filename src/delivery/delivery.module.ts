@@ -8,6 +8,7 @@ import { GoogleModule } from 'src/google/google.module'
 import { BullProcessorProviderHelper } from 'src/helpers/bull-processor-provider.helper'
 import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
+import { DeliveryV1Controller } from './delivery.v1.controller'
 import { DiscordUpcomingEventService } from './discord-upcoming-event/discord-upcoming-event.service'
 import { MailProcessorService } from './mail/processor.service'
 import { MailProviderService } from './mail/provider.service'
@@ -23,5 +24,6 @@ import { MailTemplatingService } from './mail/templating.service'
   providers: [DiscordUpcomingEventService, MailTemplatingService, MailProviderService, MailProcessorService].filter(
     BullProcessorProviderHelper.filterEnabled,
   ),
+  controllers: [DeliveryV1Controller],
 })
 export class DeliveryModule {}
