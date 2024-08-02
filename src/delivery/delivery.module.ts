@@ -13,6 +13,7 @@ import { DiscordUpcomingEventService } from './discord-upcoming-event/discord-up
 import { MailProcessorService } from './mail/processor.service'
 import { MailProviderService } from './mail/provider.service'
 import { MailTemplatingService } from './mail/templating.service'
+import { EmailConfirmationDeliveryProcessorService } from './processor/email-confirmation.service'
 
 @Module({
   imports: [
@@ -21,9 +22,13 @@ import { MailTemplatingService } from './mail/templating.service'
     GoogleModule,
     AccountsModule,
   ],
-  providers: [DiscordUpcomingEventService, MailTemplatingService, MailProviderService, MailProcessorService].filter(
-    BullProcessorProviderHelper.filterEnabled,
-  ),
+  providers: [
+    DiscordUpcomingEventService,
+    MailTemplatingService,
+    MailProviderService,
+    MailProcessorService,
+    EmailConfirmationDeliveryProcessorService,
+  ].filter(BullProcessorProviderHelper.filterEnabled),
   controllers: [DeliveryV1Controller],
 })
 export class DeliveryModule {}
