@@ -10,10 +10,7 @@ import { SchedulerRegisterService } from './scheduler/scheduler-register.service
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
-  app.enableVersioning({
-    prefix: 'api/v',
-    type: VersioningType.URI,
-  })
+  app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
   app.enableShutdownHooks()
   app.use(cookieParser())

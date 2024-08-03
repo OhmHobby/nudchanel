@@ -1,6 +1,7 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import expect from 'expect'
+import { GalleryActivityResponseModel } from 'src/gallery/dto/gallery-activity-response.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
@@ -41,5 +42,10 @@ describe('Gallery - activity', () => {
       .send()
 
     expect(result.status).toBe(HttpStatus.OK)
+    const body: GalleryActivityResponseModel = result.body
+    expect(body.id).toBe(activity._id?.toString())
+    expect(body.tags).toEqual(activity.tags)
+    expect(body.cover).toBe(activity.cover)
+    expect(body.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
   })
 })
