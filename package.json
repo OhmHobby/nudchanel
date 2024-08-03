@@ -47,7 +47,7 @@
     "class-validator": "0.14.1",
     "config": "3.3.11",
     "cookie-parser": "1.4.6",
-    "dayjs": "1.11.10",
+    "dayjs": "1.11.12",
     "discord.js": "14.14.1",
     "googleapis": "135.0.0",
     "handlebars": "4.7.8",
