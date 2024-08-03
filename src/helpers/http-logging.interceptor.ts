@@ -1,29 +1,44 @@
 import { CallHandler, ExecutionContext, HttpException, Injectable, Logger, NestInterceptor } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
 import { Response } from 'express'
 import { catchError, Observable, tap } from 'rxjs'
 import { Request } from 'src/auth/request.interface'
+import { SKIP_HTTP_LOGGING } from './skip-http-logging.decorator'
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP')
 
+  constructor(private readonly reflector: Reflector) {}
+
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const startTime = Date.now()
     const request: Request = context.switchToHttp().getRequest()
     const response: Response = context.switchToHttp().getResponse()
-    return next
-      .handle()
-      .pipe(
-        tap(() => {
-          this.log(startTime, request, response)
-        }),
-      )
-      .pipe(
-        catchError((err: HttpException) => {
-          this.log(startTime, request, response, err)
-          throw err
-        }),
-      )
+    if (this.shouldSkip(context)) {
+      return next.handle()
+    } else {
+      return next
+        .handle()
+        .pipe(
+          tap(() => {
+            this.log(startTime, request, response)
+          }),
+        )
+        .pipe(
+          catchError((err: HttpException) => {
+            this.log(startTime, request, response, err)
+            throw err
+          }),
+        )
+    }
+  }
+
+  shouldSkip(context: ExecutionContext): boolean {
+    const decoratorSkip =
+      this.reflector.get(SKIP_HTTP_LOGGING, context.getClass()) ||
+      this.reflector.get(SKIP_HTTP_LOGGING, context.getHandler())
+    return decoratorSkip
   }
 
   private log(startTime: number, request: Request, response?: Response, err?: HttpException) {
