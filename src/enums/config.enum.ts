@@ -1,6 +1,7 @@
 export enum Config {
   HTTP_PORT = 'http.port',
   HTTP_SWAGGER_PATH = 'http.swagger.path',
+  HTTP_BASEURL_PHOTO = 'http.baseUrl.photo',
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
   LOG_LOKI_URL = 'log.loki.url',

@@ -1,7 +1,9 @@
 http:
   port: 4000
   swagger:
-    path: "swagger"
+    path: swagger
+  baseUrl:
+    photo: https://photos.nudchannel.com
 
 log:
   level: info

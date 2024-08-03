@@ -1,4 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Expose } from 'class-transformer'
+import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 
 export class GalleryAlbumResponseModel {
@@ -15,8 +17,14 @@ export class GalleryAlbumResponseModel {
   @ApiProperty()
   rank: number
 
-  @ApiProperty()
-  cover: string
+  @ApiPropertyOptional()
+  cover?: string
+
+  @ApiProperty({ type: String })
+  @Expose()
+  get coverUrl() {
+    return PhotoUrlHelper.cover(this.cover)
+  }
 
   @ApiProperty()
   published: boolean
