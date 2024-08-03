@@ -3,7 +3,7 @@ import { BullModule } from '@nestjs/bull'
 import { CacheModule } from '@nestjs/cache-manager'
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { uuidv4 } from 'uuidv7'
@@ -23,6 +23,7 @@ import { DeliveryModule } from './delivery/delivery.module'
 import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
+import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { SchedulerModule } from './scheduler/scheduler.module'
 
 @Module({
@@ -60,7 +61,11 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     GalleryModule,
   ],
   controllers: [AppController],
-  providers: [{ provide: APP_GUARD, useClass: AuthGroupGuard }, SwaggerConfigBuilder],
+  providers: [
+    { provide: APP_GUARD, useClass: AuthGroupGuard },
+    { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
+    SwaggerConfigBuilder,
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
