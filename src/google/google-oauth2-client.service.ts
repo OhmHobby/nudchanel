@@ -1,5 +1,5 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Auth, google } from 'googleapis'
@@ -8,6 +8,8 @@ import { GoogleCredentialModel } from 'src/models/google-credential.model'
 
 @Injectable()
 export class GoogleOauth2ClientService {
+  private readonly logger = new Logger(GoogleOauth2ClientService.name)
+
   protected readonly email: string
 
   constructor(
@@ -55,5 +57,6 @@ export class GoogleOauth2ClientService {
       return
     }
     await this.googleCredentialModel.updateOne({ _id: this.email }, { token: res.data })
+    this.logger.log(`Updated credential for ${this.email}`)
   }
 }

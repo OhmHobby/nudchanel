@@ -11,7 +11,6 @@ export class BullConfig implements SharedBullConfigurationFactory {
   constructor(private configService: ConfigService) {}
 
   createSharedConfiguration(): QueueOptions {
-    this.logger.debug('Configuration', { host: this.configService.get(Config.REDIS_DEFAULT_HOST) })
     return {
       redis: {
         host: this.configService.get(Config.REDIS_DEFAULT_HOST),
