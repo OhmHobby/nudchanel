@@ -1,5 +1,5 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
+import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common'
+import { NestFactory, Reflector } from '@nestjs/core'
 import config from 'config'
 import cookieParser from 'cookie-parser'
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
@@ -18,6 +18,7 @@ async function bootstrap() {
   app.enableShutdownHooks()
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   await app.get(SchedulerRegisterService).register()
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')

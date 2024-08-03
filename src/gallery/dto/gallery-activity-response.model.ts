@@ -3,6 +3,8 @@ import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { GalleryAlbumResponseModel } from './gallery-album-response.model'
 import { GalleryVideoResponseModel } from './gallery-video-response.model'
+import { Expose } from 'class-transformer'
+import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 
 export class GalleryActivityResponseModel {
   constructor(model?: Partial<GalleryActivityResponseModel>) {
@@ -18,8 +20,14 @@ export class GalleryActivityResponseModel {
   @ApiPropertyOptional()
   description?: string
 
-  @ApiProperty()
-  cover: string
+  @ApiPropertyOptional()
+  cover?: string
+
+  @ApiProperty({ type: String })
+  @Expose()
+  get coverUrl() {
+    return PhotoUrlHelper.cover(this.cover)
+  }
 
   @ApiProperty()
   time: string
