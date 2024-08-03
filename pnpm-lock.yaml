@@ -66,8 +66,8 @@ dependencies:
     specifier: 0.14.1
     version: 0.14.1
   config:
-    specifier: 3.3.11
-    version: 3.3.11
+    specifier: 3.3.12
+    version: 3.3.12
   cookie-parser:
     specifier: 1.4.6
     version: 1.4.6
@@ -3208,8 +3208,8 @@ packages:
       source-map: 0.6.1
     dev: false
 
-  /config@3.3.11:
-    resolution: {integrity: sha512-Dhn63ZoWCW5EMg4P0Sl/XNsj/7RLiUIA1x1npCy+m2cRwRHzLnt3UtYtxRDMZW/6oOMdWhCzaGYkOcajGgrAOA==}
+  /config@3.3.12:
+    resolution: {integrity: sha512-Vmx389R/QVM3foxqBzXO8t2tUikYZP64Q6vQxGrsMpREeJc/aWRnPRERXWsYzOHAumx/AOoILWe6nU3ZJL+6Sw==}
     engines: {node: '>= 10.0.0'}
     dependencies:
       json5: 2.2.3
