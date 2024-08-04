@@ -81,7 +81,11 @@ export class DiscordUpcomingEventService {
     const from = this.getHourAhead(hourLookAhead)
     const to = this.getHourAhead(hourLookAhead + range)
     const calendarEvents = await this.googleCalendarService.list(from, to)
-    const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(calendarEvents.items)
+    const withoutInterviewEvents = calendarEvents.items?.filter(
+      // Temporary solution
+      (el) => !el.summary?.toLocaleLowerCase().includes('interview invitation'),
+    )
+    const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(withoutInterviewEvents)
     const content = this.generateContent(embedEvents)
     this.logger.log(`${embedEvents.length} events from ${from.toISOString()} to ${to.toISOString()}`)
     if (embedEvents.length && !dryrun) {
