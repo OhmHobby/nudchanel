@@ -19,9 +19,9 @@ export class GalleryActivityV1Controller {
   @Get()
   @ApiOkResponse({ type: [GalleryActivityResponseModel] })
   async findGalleryActivities(
-    @Query() { limit, before, search }: GalleryActivitesDto,
+    @Query() { limit, before, search, year }: GalleryActivitesDto,
   ): Promise<GalleryActivityResponseModel[]> {
-    const activities = await this.galleryActivityService.findActivities(limit, before, search)
+    const activities = await this.galleryActivityService.findActivities(limit, before, year, search)
     return activities.map(GalleryActivityResponseModel.fromModel)
   }
 

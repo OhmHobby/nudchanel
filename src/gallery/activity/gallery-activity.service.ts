@@ -20,11 +20,15 @@ export class GalleryActivityService {
   async findActivities(
     limit: number,
     before?: Date,
+    year?: number,
     search?: string,
     includesUnpublished = false,
   ): Promise<GalleryActivityModel[]> {
     const query = this.activityModel.find().sort({ time: 'desc' })
-    if (before) query.where({ time: { $lt: before.getTime() } })
+    const beforeDate = this.selectEailerDate(before, this.academicYearEndDate(year))
+    const afterDate = this.academicYearStartDate(year)
+    if (afterDate) query.where({ time: { $lt: beforeDate, $gt: afterDate } })
+    else if (beforeDate) query.where({ time: { $lt: beforeDate } })
     if (search) {
       const searchWhere = search
         .split(/\s+/)
@@ -35,5 +39,23 @@ export class GalleryActivityService {
     if (!includesUnpublished) query.where({ published: true, published_at: { $lte: new Date() } })
     const activities = await query.limit(limit).exec()
     return activities
+  }
+
+  selectEailerDate(a?: Date, b?: Date): Date | undefined {
+    if (a && b) {
+      return a < b ? a : b
+    }
+    return a || b
+  }
+
+  academicYearStartDate(year?: number): Date | undefined {
+    const mayMonthIndex = 4
+    const newAcademicYearStartAt = mayMonthIndex
+    const startAtDate = 1
+    return year ? new Date(year, newAcademicYearStartAt, startAtDate, 0, 0, 0, 0) : undefined
+  }
+
+  academicYearEndDate(year?: number): Date | undefined {
+    return year ? this.academicYearStartDate(year + 1) : undefined
   }
 }
