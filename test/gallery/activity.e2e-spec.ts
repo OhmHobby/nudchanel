@@ -30,11 +30,12 @@ describe('Gallery - activity', () => {
 
   it('GET /api/v1/gallery/activity/:id', async () => {
     const activity = TestData.aValidGalleryActivity().build()
+    const album = TestData.aValidGalleryAlbum().build()
     mockGalleryActivityModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(activity) })
     mockGalleryAlbumModel.find = jest.fn().mockReturnValue({
       where: jest.fn().mockReturnThis(),
       sort: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().build()]),
+      exec: jest.fn().mockResolvedValue([album]),
     })
 
     const result = await request(app.getHttpServer())
@@ -43,9 +44,19 @@ describe('Gallery - activity', () => {
 
     expect(result.status).toBe(HttpStatus.OK)
     const body: GalleryActivityResponseModel = result.body
+
     expect(body.id).toBe(activity._id?.toString())
+    expect(body.title).toBe(activity.title)
+    expect(body.time).toBe(activity.time.getTime().toString())
     expect(body.tags).toEqual(activity.tags)
     expect(body.cover).toBe(activity.cover)
     expect(body.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
+    expect(body.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${activity.cover}.webp`)
+
+    expect(body.albums?.at(0)?.id).toBe(album._id)
+    expect(body.albums?.at(0)?.title).toBe(album.title)
+    expect(body.albums?.at(0)?.cover).toBe(album.cover)
+    expect(body.albums?.at(0)?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
+    expect(body.albums?.at(0)?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
   })
 })
