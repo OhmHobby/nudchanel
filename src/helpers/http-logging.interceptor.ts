@@ -1,4 +1,12 @@
-import { CallHandler, ExecutionContext, HttpException, Injectable, Logger, NestInterceptor } from '@nestjs/common'
+import {
+  CallHandler,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NestInterceptor,
+} from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Response } from 'express'
 import { catchError, Observable, tap } from 'rxjs'
@@ -7,7 +15,7 @@ import { SKIP_HTTP_LOGGING } from './skip-http-logging.decorator'
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
-  private readonly logger = new Logger('HTTP')
+  readonly logger = new Logger('HTTP')
 
   constructor(private readonly reflector: Reflector) {}
 
@@ -41,15 +49,17 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     return decoratorSkip
   }
 
-  private log(startTime: number, request: Request, response?: Response, err?: HttpException) {
+  log(startTime: number, request?: Request, response?: Response, err?: HttpException) {
+    const status = err?.getStatus?.() ?? (err ? HttpStatus.INTERNAL_SERVER_ERROR : response?.statusCode)
     this.logger.log({
-      method: request.method,
-      path: request.path,
-      query: request.query,
-      status: err?.getStatus() ?? response?.statusCode,
+      method: request?.method,
+      path: request?.path,
+      query: request?.query,
+      status,
+      exception: err?.name,
       error: err?.message,
       responseTime: Date.now() - startTime,
-      userId: request?.user?.id ?? undefined,
+      userId: request?.user?.id ?? undefined, // null => undefined
     })
   }
 }
