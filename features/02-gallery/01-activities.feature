@@ -22,6 +22,17 @@ Feature: Gallery activities
       | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563                                   | 1614751220675 | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
       | a0iSxyq | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2562                                   | 1582117200000 | c04a84ce-9f33-467a-9f9f-f29fe5e76829 | https://photos.nudchannel.com/photos/cover/c04a84ce-9f33-467a-9f9f-f29fe5e76829.jpg |
 
+  Scenario: Search activities with academic year
+    Given activities before 1635811204682
+    And activities limit to 10
+    And activities year 2020
+    And activities search "ปัจฉิม"
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                                                                      | time          | cover                                | coverUrl                                                                            |
+      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563                                   | 1614751220675 | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
+
   Scenario: Get activity
     When GET /api/v1/gallery/activities/AINfyH5
     Then HTTP response status should be OK

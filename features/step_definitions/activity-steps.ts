@@ -20,6 +20,11 @@ export class HttpSteps extends CommonSteps {
     this.workspace.requestQueries.limit = String(limit)
   }
 
+  @given('activities year {int}')
+  givenYear(year: number) {
+    this.workspace.requestQueries.year = String(year)
+  }
+
   @given('activities search {string}')
   givenSearch(search: number) {
     this.workspace.requestQueries.search = String(search)
