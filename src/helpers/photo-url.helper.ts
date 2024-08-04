@@ -9,4 +9,8 @@ export class PhotoUrlHelper {
   static cover(uuid: string = PhotoUrlHelper.defaultUuid) {
     return `${PhotoUrlHelper.baseUrl}/photos/cover/${uuid}.jpg`
   }
+
+  static card(uuid: string = PhotoUrlHelper.defaultUuid) {
+    return `${PhotoUrlHelper.baseUrl}/photos/card/${uuid}.webp`
+  }
 }

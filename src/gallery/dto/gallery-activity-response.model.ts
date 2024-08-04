@@ -29,6 +29,12 @@ export class GalleryActivityResponseModel {
     return PhotoUrlHelper.cover(this.cover)
   }
 
+  @ApiProperty({ type: String })
+  @Expose()
+  get cardUrl() {
+    return PhotoUrlHelper.card(this.cover)
+  }
+
   @ApiProperty()
   time: string
 
