@@ -93,8 +93,8 @@ dependencies:
     specifier: 1.9.7
     version: 1.9.7(@nestjs/common@10.0.0)(winston@3.11.0)
   nestjs-cls:
-    specifier: 4.4.0
-    version: 4.4.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
+    specifier: 4.4.1
+    version: 4.4.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
   nodemailer:
     specifier: 6.9.14
     version: 6.9.14
@@ -6045,8 +6045,8 @@ packages:
       winston: 3.11.0
     dev: false
 
-  /nestjs-cls@4.4.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1):
-    resolution: {integrity: sha512-qxsptbCo8Cp7xnAxtWv9+pSqOtB2NCr9ekQDH3FhxPAmgOys8F4WEGhuLLQ9iyW4dwqCao0xXatqQyA4anedmQ==}
+  /nestjs-cls@4.4.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1):
+    resolution: {integrity: sha512-4yhldwm/cJ02lQ8ZAdM8KQ7gMfjAc1z3fo5QAQgXNyN4N6X5So9BCwv+BTLRugDCkELUo3qtzQHnKhGYL/ftPg==}
     engines: {node: '>=16'}
     peerDependencies:
       '@nestjs/common': '> 7.0.0 < 11'
