@@ -21,6 +21,8 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const startTime = Date.now()
+    const controller = context.getClass().name
+    const handler = context.getHandler().name
     const request: Request = context.switchToHttp().getRequest()
     const response: Response = context.switchToHttp().getResponse()
     if (this.shouldSkip(context)) {
@@ -30,12 +32,12 @@ export class HttpLoggingInterceptor implements NestInterceptor {
         .handle()
         .pipe(
           tap(() => {
-            this.log(startTime, request, response)
+            this.log(startTime, controller, handler, request, response)
           }),
         )
         .pipe(
           catchError((err: HttpException) => {
-            this.log(startTime, request, response, err)
+            this.log(startTime, controller, handler, request, response, err)
             throw err
           }),
         )
@@ -49,13 +51,23 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     return decoratorSkip
   }
 
-  log(startTime: number, request?: Request, response?: Response, err?: HttpException) {
+  log(
+    startTime: number,
+    controller: string,
+    handler: string,
+    request?: Request,
+    response?: Response,
+    err?: HttpException,
+  ) {
     const status = err?.getStatus?.() ?? (err ? HttpStatus.INTERNAL_SERVER_ERROR : response?.statusCode)
     this.logger[this.logLevel(status)]({
       method: request?.method,
       path: request?.path,
       query: request?.query,
+      params: request?.params,
       status,
+      controller,
+      handler,
       exception: err?.name,
       error: err?.message,
       responseTime: Date.now() - startTime,

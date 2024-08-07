@@ -5,6 +5,9 @@ import { User } from '@nudchannel/auth'
 import { HttpLoggingInterceptor } from './http-logging.interceptor'
 
 describe(HttpLoggingInterceptor.name, () => {
+  const controllerName = 'testController'
+  const handlerName = 'handler'
+
   let interceptor: HttpLoggingInterceptor
   let loggerInfo: jest.SpyInstance
   let loggerWarn: jest.SpyInstance
@@ -29,13 +32,13 @@ describe(HttpLoggingInterceptor.name, () => {
   })
 
   it('should log correctly', () => {
-    interceptor.log(Date.now(), { user: new User() } as any)
+    interceptor.log(Date.now(), controllerName, handlerName, { user: new User() } as any)
     expect(loggerInfo).toHaveBeenCalledTimes(1)
     expect(loggerInfo).toHaveBeenCalledWith(expect.objectContaining({ status: undefined, userId: undefined }))
   })
 
   it('should log with response status code', () => {
-    interceptor.log(Date.now(), undefined, { statusCode: HttpStatus.OK } as any)
+    interceptor.log(Date.now(), controllerName, handlerName, undefined, { statusCode: HttpStatus.OK } as any)
     expect(loggerInfo).toHaveBeenCalledTimes(1)
     expect(loggerInfo).toHaveBeenCalledWith(expect.objectContaining({ status: HttpStatus.OK }))
   })
@@ -43,6 +46,8 @@ describe(HttpLoggingInterceptor.name, () => {
   it('should log with error status code', () => {
     interceptor.log(
       Date.now(),
+      controllerName,
+      handlerName,
       undefined,
       { statusCode: HttpStatus.OK } as any,
       { getStatus: () => HttpStatus.NOT_FOUND } as any,
@@ -51,7 +56,7 @@ describe(HttpLoggingInterceptor.name, () => {
   })
 
   it('should log with exception', () => {
-    interceptor.log(Date.now(), undefined, { statusCode: HttpStatus.OK } as any, {} as any)
+    interceptor.log(Date.now(), controllerName, handlerName, undefined, { statusCode: HttpStatus.OK } as any, {} as any)
     expect(loggerError).toHaveBeenCalledWith(expect.objectContaining({ status: HttpStatus.INTERNAL_SERVER_ERROR }))
   })
 })
