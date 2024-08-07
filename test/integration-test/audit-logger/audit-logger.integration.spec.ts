@@ -53,8 +53,11 @@ describe('Audit logger', () => {
 
   it('should insert audit log correctly', async () => {
     const result = await request(app.getHttpServer()).post('/1?q=2').send({ test: 3 })
-    const doc = await controller.findByCorrelationId(result.body.correlationId)
-    expect(doc).toBeDefined()
+    let doc: AuditLogModel | null = null
+    do {
+      doc = await controller.findByCorrelationId(result.body.correlationId)
+    } while (!doc)
+    expect(doc).not.toBeNull()
     expect(doc).toEqual(expect.objectContaining({ actor: TestData.aValidUserId }))
     expect(doc).toEqual(expect.objectContaining({ action: 'AuditLog Test' }))
     expect(doc).toEqual(expect.objectContaining({ path: '/1' }))
