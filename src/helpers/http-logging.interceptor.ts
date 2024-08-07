@@ -51,7 +51,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
   log(startTime: number, request?: Request, response?: Response, err?: HttpException) {
     const status = err?.getStatus?.() ?? (err ? HttpStatus.INTERNAL_SERVER_ERROR : response?.statusCode)
-    this.logger.log({
+    this.logger[this.logLevel(status)]({
       method: request?.method,
       path: request?.path,
       query: request?.query,
@@ -61,5 +61,11 @@ export class HttpLoggingInterceptor implements NestInterceptor {
       responseTime: Date.now() - startTime,
       userId: request?.user?.id ?? undefined, // null => undefined
     })
+  }
+
+  logLevel(httpStatus: number = 0) {
+    if (httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR) return 'error'
+    else if (httpStatus < HttpStatus.BAD_REQUEST) return 'log'
+    else return 'warn'
   }
 }
