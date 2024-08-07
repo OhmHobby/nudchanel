@@ -18,8 +18,8 @@ dependencies:
     specifier: 12.0.0
     version: 12.0.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(@typegoose/typegoose@12.6.0)(mongoose@8.5.2)
   '@nestjs/bull':
-    specifier: 10.1.1
-    version: 10.1.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2)
+    specifier: 10.2.0
+    version: 10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2)
   '@nestjs/cache-manager':
     specifier: 2.2.2
     version: 2.2.2(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(cache-manager@5.5.1)(rxjs@7.8.1)
@@ -1556,29 +1556,29 @@ packages:
     dev: false
     optional: true
 
-  /@nestjs/bull-shared@10.1.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0):
-    resolution: {integrity: sha512-su7eThDrSz1oQagEi8l+1CyZ7N6nMgmyAX0DuZoXqT1KEVEDqGX7x80RlPVF60m/8SYOskckGMjJROSfNQcErw==}
+  /@nestjs/bull-shared@10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0):
+    resolution: {integrity: sha512-cSi6CyPECHDFumnHWWfwLCnbc6hm5jXt7FqzJ0Id6EhGqdz5ja0FmgRwXoS4xoMA2RRjlxn2vGXr4YOaHBAeig==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
     dependencies:
       '@nestjs/common': 10.0.0(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/core': 10.0.0(@nestjs/common@10.0.0)(@nestjs/platform-express@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
-  /@nestjs/bull@10.1.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2):
-    resolution: {integrity: sha512-fbhgXNk1DpV27M8hdGH94iNJ7YonZRYyusmHb2qvvYMRBxkuzN0Hjf02jYCNUiPvCpn+WZBeEiYlYK30x3HkAQ==}
+  /@nestjs/bull@10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2):
+    resolution: {integrity: sha512-byQI3cgAVP8BNa71h5g33D1pNwOaK2O9+zYmT98eU8LxxJHh53aWMwEUrCHrwgSz4P8bD+jY8ObQ5vtU4SsidA==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
       bull: ^3.3 || ^4.0.0
     dependencies:
-      '@nestjs/bull-shared': 10.1.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)
+      '@nestjs/bull-shared': 10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)
       '@nestjs/common': 10.0.0(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/core': 10.0.0(@nestjs/common@10.0.0)(@nestjs/platform-express@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       bull: 4.12.2
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /@nestjs/cache-manager@2.2.2(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(cache-manager@5.5.1)(rxjs@7.8.1):
