@@ -10,6 +10,8 @@ import { uuidv4 } from 'uuidv7'
 import { AccountsModule } from './accounts/accounts.module'
 import { AmqpModule } from './amqp/amqp.module'
 import { AppController } from './app.controller'
+import { AuditLogModule } from './audit-log/audit-log.module'
+import { AuditLogger } from './audit-log/audit-logger.interceptor'
 import { AuthGroupGuard } from './auth/auth-group.guard'
 import { AuthMiddleware } from './auth/auth.middleware'
 import { BullBoardModule } from './bull-board/bull-board.module'
@@ -49,11 +51,11 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
-    WinstonModule.forRootAsync({
-      useClass: WinstonConfig,
-    }),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
+    WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     AmqpModule,
     AccountsModule,
+    AuditLogModule,
     BullBoardModule,
     DeliveryModule,
     GoogleModule,
@@ -64,6 +66,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
   providers: [
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: AuditLogger },
     SwaggerConfigBuilder,
   ],
 })

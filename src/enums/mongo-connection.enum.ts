@@ -3,4 +3,5 @@ export enum MongoConnection {
   Accounts = 'accounts',
   Gallery = 'gallery',
   Mailer = 'mailer',
+  Audit = 'audit',
 }

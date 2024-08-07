@@ -1,6 +1,7 @@
 export enum Config {
   HTTP_PORT = 'http.port',
   HTTP_SWAGGER_PATH = 'http.swagger.path',
+  HTTP_BULLBOARD_PATH = 'http.bullboard.path',
   HTTP_BASEURL_PHOTO = 'http.baseUrl.photo',
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
@@ -24,6 +25,7 @@ export enum Config {
   NUDCH_TOKEN_PUBLIC_KEY = 'authentication.accessToken.publicKey',
   NUDCH_TOKEN_PRIVATE_KEY = 'authentication.accessToken.privateKey',
   NUDCH_TOKEN_SECURE = 'authentication.refreshToken.secure',
+  AUDIT_LOG_ENABLED = 'auditLog.enabled',
   DELIVERY_UPCOMINGEVENT_CRON = 'delivery.upcomingEvent.cron',
   DELIVERY_UPCOMINGEVENT_LOOKAHEADHOUR = 'delivery.upcomingEvent.lookAheadHour',
   DELIVERY_UPCOMINGEVENT_RANGEHOUR = 'delivery.upcomingEvent.rangeHour',

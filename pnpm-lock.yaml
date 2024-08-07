@@ -107,6 +107,9 @@ dependencies:
   uuid-buffer:
     specifier: 1.0.3
     version: 1.0.3
+  uuid-mongodb:
+    specifier: ^2.5.5
+    version: 2.5.5(mongodb@6.7.0)
   uuidv7:
     specifier: 0.6.3
     version: 0.6.3
@@ -7720,6 +7723,15 @@ packages:
   /uuid-buffer@1.0.3:
     resolution: {integrity: sha512-UGuYz0MDQRNf/n8PrO2OXGyl4PDUP4zURZFB+GwJuYL2cDAo39rfaI2R1MI8skh3rns/znegRu8ik/TDlzwp+w==}
     engines: {node: '>6.0.0'}
+    dev: false
+
+  /uuid-mongodb@2.5.5(mongodb@6.7.0):
+    resolution: {integrity: sha512-dpEAv836ooAcuRsLVv+narWTCtEDcgyBT3hCbAwi0YLvBaNAUB3TZKpw0t8R/rJy8zs29/lVQhSARLB5hLtWEA==}
+    peerDependencies:
+      mongodb: 3.6.x || 3.7.x || 4.x || 5.x || 6.x
+    dependencies:
+      mongodb: 6.7.0
+      uuid: 9.0.1
     dev: false
 
   /uuid@8.3.2:
