@@ -5,13 +5,13 @@ import { InjectQueue } from '@nestjs/bull'
 import { All, Controller, Next, Request, Response } from '@nestjs/common'
 import { ApiExcludeController } from '@nestjs/swagger'
 import { Queue } from 'bull'
+import config from 'config'
 import { NextFunction } from 'express'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { Config } from 'src/enums/config.enum'
 
-const PATH = 'bullboard'
-
-@Controller(PATH)
+@Controller(config.get<string>(Config.HTTP_BULLBOARD_PATH))
 @ApiExcludeController()
 export class BullBoardController {
   constructor(
@@ -22,7 +22,7 @@ export class BullBoardController {
   @All('*')
   @AuthGroups(['it'])
   bullboard(@Request() req: Request, @Response() res: Response, @Next() next: NextFunction) {
-    const basePath = '/' + PATH
+    const basePath = '/' + config.get<string>(Config.HTTP_BULLBOARD_PATH)
     const entryPointPath = basePath + '/'
     const serverAdapter = new ExpressAdapter()
     const router = serverAdapter.getRouter()

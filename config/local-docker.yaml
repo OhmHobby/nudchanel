@@ -4,6 +4,7 @@ database:
     accounts: mongodb://localhost/accounts
     gallery: mongodb://localhost/gallery
     mailer: mongodb://localhost/mailer
+    audit: mongodb://localhost/audit
   redis:
     default:
       host: localhost

@@ -11,6 +11,7 @@ database:
     accounts: mongodb://mongodb/accounts
     gallery: mongodb://mongodb/gallery
     mailer: mongodb://mongodb/mailer
+    audit: mongodb://mongodb/audit
   redis:
     default:
       host: redis
@@ -20,6 +21,9 @@ rabbitmq:
   wait:
     enabled: true
     timeout: 30000
+
+auditLog:
+  enabled: true
 
 authentication:
   accessToken:

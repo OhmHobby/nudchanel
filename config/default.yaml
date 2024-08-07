@@ -2,6 +2,8 @@ http:
   port: 4000
   swagger:
     path: swagger
+  bullboard:
+    path: bullboard
   baseUrl:
     photo: https://photos.nudchannel.com
 
@@ -20,6 +22,7 @@ database:
     accounts: ""
     gallery: ""
     mailer: ""
+    audit: ""
   redis:
     default:
       host: ""
@@ -49,6 +52,9 @@ authentication:
     privateKey: ""
   refreshToken:
     secure: true
+
+auditLog:
+  enabled: false
 
 delivery:
   upcomingEvent:

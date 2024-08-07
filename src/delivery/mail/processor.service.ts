@@ -35,7 +35,7 @@ export class MailProcessorService {
   async process({ data }: Job<Mail.Options>) {
     try {
       const info = await this.sendMail(data)
-      this.logger.log('Succesfully sent an email', { from: data.from, to: data.to, subject: data.subject })
+      this.logger.log({ message: 'Succesfully sent an email', from: data.from, to: data.to, subject: data.subject })
       this.logger.debug('Send mail info', info)
       return info
     } catch (err) {
