@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { uuidv4 } from 'uuidv7'
 import { AccountsModule } from './accounts/accounts.module'
 import { AmqpModule } from './amqp/amqp.module'
@@ -18,6 +19,7 @@ import { BullBoardModule } from './bull-board/bull-board.module'
 import { BullConfig } from './configs/bull.config'
 import { CacheConfig } from './configs/cache.config'
 import { configuration } from './configs/configuration'
+import { OpenTelemetryConfigService } from './configs/open-telemetry.config'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
 import { WinstonConfig } from './configs/winston.config'
@@ -46,6 +48,9 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfig,
+    }),
+    OpenTelemetryModule.forRootAsync({
+      useClass: OpenTelemetryConfigService,
     }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),

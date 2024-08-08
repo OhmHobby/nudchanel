@@ -13,6 +13,13 @@ log:
   loki:
     url: ""
 
+otlp:
+  trace:
+    url: ""
+  metric:
+    url: ""
+    intervalMillis: 15000
+
 processor:
   enabled: false
 

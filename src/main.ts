@@ -7,8 +7,10 @@ import { AppModule } from './app.module'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { Config } from './enums/config.enum'
 import { SchedulerRegisterService } from './scheduler/scheduler-register.service'
+import otelSDK from './tracing'
 
 async function bootstrap() {
+  await otelSDK.start()
   const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
   app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
