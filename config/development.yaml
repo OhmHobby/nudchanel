@@ -4,6 +4,10 @@ log:
   loki:
     url: http://nudch-wireproxy-cftunnel.nudch-internal:3100
 
+otlp:
+  metric:
+    url: http://prometheus-server.nudch-internal/api/v1/otlp/v1/metrics
+
 processor:
   enabled: true
 
