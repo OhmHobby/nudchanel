@@ -5,7 +5,7 @@ import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
 @binding([Workspace])
-export class HttpSteps extends CommonSteps {
+export class ActivitySteps extends CommonSteps {
   constructor(private readonly workspace: Workspace) {
     super(workspace)
   }
@@ -30,6 +30,11 @@ export class HttpSteps extends CommonSteps {
     this.workspace.requestQueries.search = String(search)
   }
 
+  @given('activity id {string}')
+  givenId(id: string) {
+    this.workspace.requestQueries.activityId = id
+  }
+
   @then('activities should be')
   thenActivitiesShouldBe(dataTable: DataTable) {
     const columns = dataTable.raw().at(0)
@@ -38,7 +43,7 @@ export class HttpSteps extends CommonSteps {
       .map((activity) =>
         columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(activity[column]) }), {}),
       )
-    expect(dataTable.hashes()).toEqual(normalizedResponse)
+    expect(normalizedResponse).toStrictEqual(dataTable.hashes())
   }
 
   @then('activity albums should be')
@@ -47,7 +52,7 @@ export class HttpSteps extends CommonSteps {
     const normalizedResponse = [this.workspace.response?.body?.albums]
       .flat()
       .map((album) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(album[column]) }), {}))
-    expect(dataTable.hashes()).toEqual(normalizedResponse)
+    expect(normalizedResponse).toStrictEqual(dataTable.hashes())
   }
 
   @then('activity videos should be')
@@ -56,6 +61,6 @@ export class HttpSteps extends CommonSteps {
     const normalizedResponse = [this.workspace.response?.body?.videos]
       .flat()
       .map((video) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(video[column]) }), {}))
-    expect(dataTable.hashes()).toEqual(normalizedResponse)
+    expect(normalizedResponse).toStrictEqual(dataTable.hashes())
   }
 }

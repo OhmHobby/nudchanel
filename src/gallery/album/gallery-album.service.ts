@@ -16,4 +16,8 @@ export class GalleryAlbumService {
     const albums = await query.sort({ rank: 1 }).exec()
     return albums
   }
+
+  async findById(id: string): Promise<GalleryAlbumModel | null> {
+    return await this.albumModel.findById(id).exec()
+  }
 }
