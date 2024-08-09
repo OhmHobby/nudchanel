@@ -59,11 +59,14 @@ describe('Gallery', () => {
     expect(body.albums?.at(0)?.cover).toBe(album.cover)
     expect(body.albums?.at(0)?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
     expect(body.albums?.at(0)?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
+    expect(body.albums?.at(0)?.activity).toBeUndefined()
   })
 
   it('GET /api/v1/gallery/albums/:id', async () => {
-    const album = TestData.aValidGalleryAlbum().build()
+    const activity = TestData.aValidGalleryActivity().build()
+    const album = TestData.aValidGalleryAlbum().withActivity(activity).build()
     mockGalleryAlbumModel.findById = jest.fn().mockReturnValue({
+      populate: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue(album),
     })
 
@@ -79,5 +82,8 @@ describe('Gallery', () => {
     expect(body?.cover).toBe(album.cover)
     expect(body?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
     expect(body?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
+    expect(body?.activity?.id).toBe(activity._id)
+    expect(body?.activity?.title).toBe(activity.title)
+    expect(body?.activity?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
   })
 })

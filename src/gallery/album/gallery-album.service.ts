@@ -18,6 +18,6 @@ export class GalleryAlbumService {
   }
 
   async findById(id: string): Promise<GalleryAlbumModel | null> {
-    return await this.albumModel.findById(id).exec()
+    return await this.albumModel.findById(id).populate('activity').exec()
   }
 }

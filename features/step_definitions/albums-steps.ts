@@ -18,4 +18,15 @@ export class AlbumSteps extends CommonSteps {
       .map((album) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(album[column]) }), {}))
     expect(normalizedResponse).toStrictEqual(dataTable.hashes())
   }
+
+  @then('album activity should be')
+  thenAlbumActivityShouldBe(dataTable: DataTable) {
+    const columns = dataTable.raw().at(0)
+    const normalizedResponse = [this.workspace.response?.body?.activity]
+      .flat()
+      .map((activity) =>
+        columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(activity[column]) }), {}),
+      )
+    expect(normalizedResponse).toStrictEqual(dataTable.hashes())
+  }
 }
