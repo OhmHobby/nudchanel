@@ -4,7 +4,7 @@ import { SchedulerRegisterService } from './scheduler-register.service'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 
 @Module({
-  imports: [BullModule.registerQueue({ name: BullQueueName.Saiko })],
+  imports: [BullModule.registerQueue({ name: BullQueueName.DiscordEventsNotifier })],
   providers: [SchedulerRegisterService],
 })
 export class SchedulerModule {}

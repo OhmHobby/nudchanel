@@ -1,2 +1,12 @@
 auditLog:
   enabled: true
+
+delivery:
+  upcomingEvents:
+    cron: 0 9,21 * * *
+    lookAheadHours: 9
+    rangeHours: 12
+    discordWebhook: ""
+  startingEvents:
+    cron: "*/15 * * * *"
+    rangeMinutes: 15

@@ -80,18 +80,23 @@ export class DiscordEmbedEvent {
     return this
   }
 
+  replaceDiscordUrlWithChannel(string: string) {
+    return string.replace(/https:\/\/discord.com\/channels\/\d+\/(\d+)/g, '<#$1>')
+  }
+
   private fields(): EmbedField[] {
-    const fields = [
-      {
+    const fields = [] as EmbedField[]
+    if (this.eventStartAtTimestampSecond) {
+      fields.push({
         name: 'When',
         value: `<t:${this.eventStartAtTimestampSecond}:f> - <t:${this.eventEndAtTimestampSecond}:t> (<t:${this.eventStartAtTimestampSecond}:R>)`,
         inline: true,
-      },
-    ]
+      })
+    }
     if (this.location) {
       fields.push({
         name: 'Where',
-        value: this.location,
+        value: this.replaceDiscordUrlWithChannel(this.location),
         inline: true,
       })
     }

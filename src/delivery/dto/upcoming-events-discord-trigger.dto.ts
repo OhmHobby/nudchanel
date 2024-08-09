@@ -1,12 +1,16 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsBoolean, IsNumber } from 'class-validator'
 
-export class UpcomingEventDiscordTriggerDto {
-  @ApiPropertyOptional()
-  hourLookAhead?: number
+export class UpcomingEventsDiscordTriggerDto {
+  @ApiProperty()
+  @IsNumber()
+  hourLookAhead: number
 
-  @ApiPropertyOptional()
-  range?: number
+  @ApiProperty()
+  @IsNumber()
+  range: number
 
-  @ApiPropertyOptional({ default: false })
-  dryrun?: boolean
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  dryrun: boolean
 }

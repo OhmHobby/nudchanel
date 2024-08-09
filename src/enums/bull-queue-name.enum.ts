@@ -1,4 +1,4 @@
 export enum BullQueueName {
-  Saiko = 'saiko',
+  DiscordEventsNotifier = 'discord_events_notifier',
   Email = 'email',
 }

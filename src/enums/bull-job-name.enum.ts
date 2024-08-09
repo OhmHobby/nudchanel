@@ -1,4 +1,5 @@
 export enum BullJobName {
-  Saiko = 'saiko',
+  DiscordUpcomingEvents = 'discord_upcoming_events',
+  DiscordStartingEvents = 'discord_starting_events',
   Email = 'email',
 }
