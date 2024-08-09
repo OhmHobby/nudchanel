@@ -15,8 +15,10 @@ import { Config } from 'src/enums/config.enum'
 @ApiExcludeController()
 export class BullBoardController {
   constructor(
-    @InjectQueue(BullQueueName.Saiko)
-    private readonly saikoQueue: Queue,
+    @InjectQueue(BullQueueName.DiscordEventsNotifier)
+    private readonly discordEventsNotifierQueue: Queue,
+    @InjectQueue(BullQueueName.Email)
+    private readonly emailqueue: Queue,
   ) {}
 
   @All('*')
@@ -28,7 +30,7 @@ export class BullBoardController {
     const router = serverAdapter.getRouter()
     serverAdapter.setBasePath(basePath)
     createBullBoard({
-      queues: [new BullAdapter(this.saikoQueue)],
+      queues: [new BullAdapter(this.discordEventsNotifierQueue), new BullAdapter(this.emailqueue)],
       serverAdapter,
     })
     router(Object.assign(req, { url: req.url.replace(entryPointPath, '/') }), res, next)

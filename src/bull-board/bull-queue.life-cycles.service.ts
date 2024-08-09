@@ -6,7 +6,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 @Injectable()
 export class BullQueueLifecyclesService implements OnApplicationShutdown {
   constructor(
-    @InjectQueue(BullQueueName.Saiko)
+    @InjectQueue(BullQueueName.DiscordEventsNotifier)
     private readonly saikoQueue: Queue,
   ) {}
 

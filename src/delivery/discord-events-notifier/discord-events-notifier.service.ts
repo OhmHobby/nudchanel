@@ -13,9 +13,9 @@ import { DiscordEmbedEvent } from './discord-embed-event.model'
 import { Saiko } from './saiko'
 
 @Injectable()
-@Processor(BullQueueName.Saiko)
-export class DiscordUpcomingEventService {
-  private readonly logger = new Logger(DiscordUpcomingEventService.name)
+@Processor(BullQueueName.DiscordEventsNotifier)
+export class DiscortEventsNotifierService {
+  private readonly logger = new Logger(DiscortEventsNotifierService.name)
 
   private readonly webhookClient: WebhookClient
 
@@ -24,7 +24,7 @@ export class DiscordUpcomingEventService {
     private readonly googleCalendarService: GoogleCalendarService,
     private readonly profileService: ProfileService,
   ) {
-    const url = configService.get(Config.DELIVERY_UPCOMINGEVENT_DISCORDWEBHOOK)
+    const url = configService.get(Config.DELIVERY_UPCOMINGEVENTS_DISCORDWEBHOOK)
     if (url) {
       this.webhookClient = new WebhookClient({ url })
     }
@@ -43,6 +43,19 @@ export class DiscordUpcomingEventService {
     return dayjs().add(hour, 'hours').minute(0).second(0).millisecond(0).toDate()
   }
 
+  floorInterval(intervalMinute: number, now = new Date()) {
+    return dayjs(now)
+      .minute(Math.floor(now.getMinutes() / intervalMinute) * intervalMinute)
+      .second(0)
+      .millisecond(0)
+      .toDate()
+  }
+
+  ceilInterval(intervalMinute: number, now = new Date()) {
+    const floor = this.floorInterval(intervalMinute, now)
+    return dayjs(floor).add(intervalMinute, 'minutes').subtract(1, 'second').toDate()
+  }
+
   googleCalendarEventsToDiscordEmbedEvents(
     googleCalendarEvents: calendar_v3.Schema$Event[] = [],
   ): Promise<DiscordEmbedEvent[]> {
@@ -59,8 +72,7 @@ export class DiscordUpcomingEventService {
     )
   }
 
-  generateContent(discordEmbedEvents: DiscordEmbedEvent[] = []) {
-    const message = ':calendar_spiral: **Upcoming events**'
+  generateContent(message: string, discordEmbedEvents: DiscordEmbedEvent[] = []) {
     const discordIds = discordEmbedEvents.map((el) => el.attendeesDiscordIds).flat()
     const discordIdFormated = [...new Set(discordIds)].map((id) => `<@${id}>`).join(' ')
 
@@ -70,23 +82,44 @@ export class DiscordUpcomingEventService {
     return message
   }
 
-  @Process(BullJobName.Saiko)
-  processCronJob() {
-    return this.triggerWebhook()
+  @Process(BullJobName.DiscordUpcomingEvents)
+  processUpcomingCronJob() {
+    const hourLookAhead = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_LOOKAHEADHOURS)
+    const range = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_RANGEHOURS)
+    return this.triggerUpcoming(hourLookAhead, range)
   }
 
-  async triggerWebhook(hourLookAhead?: number, range?: number, dryrun = false) {
-    hourLookAhead = hourLookAhead ?? this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENT_LOOKAHEADHOUR)
-    range = range ?? this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENT_RANGEHOUR)
-    const from = this.getHourAhead(hourLookAhead)
-    const to = this.getHourAhead(hourLookAhead + range)
+  @Process(BullJobName.DiscordStartingEvents)
+  processStartingCronJob() {
+    return this.triggerStaring()
+  }
+
+  triggerUpcoming(hourLookAhead: number, range: number, dryrun = false) {
+    const message = ':calendar_spiral: **Upcoming events**'
+    return this.triggerWebhook(
+      this.getHourAhead(hourLookAhead),
+      this.getHourAhead(hourLookAhead + range),
+      message,
+      dryrun,
+    )
+  }
+
+  triggerStaring(now = new Date(), dryrun = false) {
+    const message = ':loudspeaker: *This event is starting now*'
+    const interval = this.configService.getOrThrow<number>(Config.DELIVERY_STARTINGEVENTS_RANGEMINUTES)
+    const from = this.floorInterval(interval, now)
+    const to = this.ceilInterval(interval, now)
+    return this.triggerWebhook(from, to, message, dryrun)
+  }
+
+  private async triggerWebhook(from: Date, to: Date, message: string, dryrun = false) {
     const calendarEvents = await this.googleCalendarService.list(from, to)
     const withoutInterviewEvents = calendarEvents.items?.filter(
       // Temporary solution
       (el) => !el.summary?.toLocaleLowerCase().includes('interview invitation'),
     )
     const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(withoutInterviewEvents)
-    const content = this.generateContent(embedEvents)
+    const content = this.generateContent(message, embedEvents)
     this.logger.log(`${embedEvents.length} events from ${from.toISOString()} to ${to.toISOString()}`)
     if (embedEvents.length && !dryrun) {
       await this.executeWebhook(content, embedEvents, new Saiko())
