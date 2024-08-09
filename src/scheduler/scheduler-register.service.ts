@@ -26,10 +26,10 @@ export class SchedulerRegisterService {
       this.logger.log(`Registered ${BullJobName.DiscordUpcomingEvents} ${upcomingCron}`)
     }
     if (startingCron) {
-      await this.discordEventsNotifierQueue.add(BullJobName.DiscordUpcomingEvents, null, {
+      await this.discordEventsNotifierQueue.add(BullJobName.DiscordStartingEvents, null, {
         repeat: { cron: startingCron },
       })
-      this.logger.log(`Registered ${BullJobName.DiscordUpcomingEvents} ${startingCron}`)
+      this.logger.log(`Registered ${BullJobName.DiscordStartingEvents} ${startingCron}`)
     }
   }
 
