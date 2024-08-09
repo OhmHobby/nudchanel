@@ -118,7 +118,8 @@ export class DiscortEventsNotifierService {
       // Temporary solution
       (el) => !el.summary?.toLocaleLowerCase().includes('interview invitation'),
     )
-    const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(withoutInterviewEvents)
+    const upcomingEvents = this.googleCalendarService.filterOnlyUpcomingEvents(from, withoutInterviewEvents)
+    const embedEvents = await this.googleCalendarEventsToDiscordEmbedEvents(upcomingEvents)
     const content = this.generateContent(message, embedEvents)
     this.logger.log(`${embedEvents.length} events from ${from.toISOString()} to ${to.toISOString()}`)
     if (embedEvents.length && !dryrun) {
