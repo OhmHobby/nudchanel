@@ -47,10 +47,10 @@ export class GalleryActivityResponseModel {
   @ApiProperty({ type: [String] })
   tags: string[]
 
-  @ApiPropertyOptional({ type: [GalleryAlbumResponseModel] })
+  @ApiPropertyOptional({ type: () => [GalleryAlbumResponseModel] })
   albums?: GalleryAlbumResponseModel[]
 
-  @ApiPropertyOptional({ type: [GalleryVideoResponseModel] })
+  @ApiPropertyOptional({ type: () => [GalleryVideoResponseModel] })
   videos?: GalleryVideoResponseModel[]
 
   static fromModel(model: GalleryActivityModel) {

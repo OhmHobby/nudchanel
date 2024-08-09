@@ -1,7 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
+import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { GalleryActivityResponseModel } from './gallery-activity-response.model'
 
 export class GalleryAlbumResponseModel {
   constructor(model: Partial<GalleryAlbumResponseModel>) {
@@ -38,7 +40,11 @@ export class GalleryAlbumResponseModel {
   @ApiProperty()
   publishedAt: string
 
+  @ApiPropertyOptional({ type: () => GalleryActivityResponseModel })
+  activity?: GalleryActivityResponseModel
+
   static fromModel(model: GalleryAlbumModel) {
+    const activity = model.activity as GalleryActivityModel
     return new GalleryAlbumResponseModel({
       id: model._id,
       title: model.title,
@@ -46,6 +52,7 @@ export class GalleryAlbumResponseModel {
       cover: model.cover,
       published: model.published,
       publishedAt: model.published_at?.getTime()?.toString(),
+      activity: activity?._id ? GalleryActivityResponseModel.fromModel(activity) : undefined,
     })
   }
 }
