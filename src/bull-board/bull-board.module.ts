@@ -5,7 +5,10 @@ import { BullBoardController } from './bull-board.controller'
 import { BullQueueLifecyclesService } from './bull-queue.life-cycles.service'
 
 @Module({
-  imports: [BullModule.registerQueue({ name: BullQueueName.Saiko })],
+  imports: [
+    BullModule.registerQueue({ name: BullQueueName.DiscordEventsNotifier }),
+    BullModule.registerQueue({ name: BullQueueName.Email }),
+  ],
   controllers: [BullBoardController],
   providers: [BullQueueLifecyclesService],
 })

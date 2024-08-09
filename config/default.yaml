@@ -64,10 +64,14 @@ auditLog:
   enabled: false
 
 delivery:
-  upcomingEvent:
-    cron: 0 9,21 * * *
-    lookAheadHour: 9
-    rangeHour: 12
+  upcomingEvents:
+    cron: ""
+    lookAheadHours: 9
+    rangeHours: 12
+    discordWebhook: ""
+  startingEvents:
+    cron: ""
+    rangeMinutes: 15
     discordWebhook: ""
   smtp:
     host:

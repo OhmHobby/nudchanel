@@ -26,8 +26,16 @@ export class GoogleCalendarService {
       timeMax: to?.toISOString(),
       orderBy: 'startTime',
       singleEvents: true,
+      timeZone: process.env.TZ,
     })
     return data
+  }
+
+  filterOnlyUpcomingEvents(
+    from: Date = new Date(),
+    items: calendar_v3.Schema$Event[] = [],
+  ): calendar_v3.Schema$Event[] {
+    return items?.filter((item) => new Date(item.start?.dateTime ?? '0').getTime() >= from.getTime())
   }
 
   async find(from?: Date, to?: Date, email?: string, summary?: string) {
