@@ -2,6 +2,7 @@ import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
+import { DEFAULT_UUID } from 'src/constants/uuid.constants'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 
 @Injectable()
@@ -26,6 +27,6 @@ export class ProfileService {
   }
 
   getPhotoWithFallbackUuid(photo?: string) {
-    return photo ?? '00000000-0000-0000-0000-000000000000'
+    return photo ?? DEFAULT_UUID
   }
 }

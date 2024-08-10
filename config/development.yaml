@@ -104,3 +104,6 @@ googleapis:
       XimmFWAjJ0TkhqmO0HqWQ9K6SiEgMVEPp0yxEQfgXh486TN4COfrmVSwvTLWShYu
       FS8ORJ96zn4FvIZVOP0cnWk=
       -----END PRIVATE KEY-----
+
+photoProcessor:
+  url: http://photo-processor
