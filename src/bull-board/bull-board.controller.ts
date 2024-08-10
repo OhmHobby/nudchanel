@@ -22,7 +22,7 @@ export class BullBoardController {
   ) {}
 
   @All('*')
-  @AuthGroups(['it'])
+  @AuthGroups(config.get<string[]>(Config.HTTP_BULLBOARD_AUTH_GROUPS))
   bullboard(@Request() req: Request, @Response() res: Response, @Next() next: NextFunction) {
     const basePath = '/' + config.get<string>(Config.HTTP_BULLBOARD_PATH)
     const entryPointPath = basePath + '/'
