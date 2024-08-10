@@ -10,6 +10,7 @@ import { OpenTelemetryModule } from 'nestjs-otel'
 import { uuidv4 } from 'uuidv7'
 import { AccountsModule } from './accounts/accounts.module'
 import { AmqpModule } from './amqp/amqp.module'
+import { ApiKeyModule } from './api-key/api-key.module'
 import { AppController } from './app.controller'
 import { AuditLogModule } from './audit-log/audit-log.module'
 import { AuditLogger } from './audit-log/audit-logger.interceptor'
@@ -60,6 +61,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     AmqpModule,
     AccountsModule,
+    ApiKeyModule,
     AuditLogModule,
     BullBoardModule,
     DeliveryModule,
