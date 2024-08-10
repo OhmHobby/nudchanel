@@ -6,6 +6,9 @@ http:
     authGroups:
       - it
 
+otlp:
+  enabled: true
+
 auditLog:
   enabled: true
 

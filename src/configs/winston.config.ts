@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { context, trace } from '@opentelemetry/api'
 import { WinstonModuleOptions, WinstonModuleOptionsFactory } from 'nest-winston'
 import { ClsService } from 'nestjs-cls'
+import os from 'os'
 import { Config } from 'src/enums/config.enum'
 import winston, { format } from 'winston'
 import LokiTransport from 'winston-loki'
@@ -27,7 +28,7 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
             service_name: process.env.npm_package_name,
             service_version: process.env.npm_package_version,
             deployment_environment: process.env.NODE_ENV,
-            hostname: process.env.HOSTNAME,
+            hostname: process.env.HOSTNAME ?? os.hostname(),
           },
         }),
       ]
