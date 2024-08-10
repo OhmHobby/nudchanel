@@ -7,6 +7,7 @@ import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { ApiKeyModel } from 'src/models/api-key.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
@@ -14,6 +15,10 @@ import { resetMockModel } from 'test/helpers/mock-model'
 
 @Module({
   providers: [
+    {
+      provide: getModelToken(ApiKeyModel.name),
+      useValue: resetMockModel(getModelForClass(ApiKeyModel)),
+    },
     {
       provide: getModelToken(ProfileModel.name),
       useValue: resetMockModel(getModelForClass(ProfileModel)),
