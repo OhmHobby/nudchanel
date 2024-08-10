@@ -19,7 +19,7 @@ dependencies:
     version: 12.0.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(@typegoose/typegoose@12.6.0)(mongoose@8.5.2)
   '@nestjs/bull':
     specifier: 10.2.0
-    version: 10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2)
+    version: 10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.16.0)
   '@nestjs/cache-manager':
     specifier: 2.2.2
     version: 2.2.2(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(cache-manager@5.5.1)(rxjs@7.8.1)
@@ -63,8 +63,8 @@ dependencies:
     specifier: 0.40.3
     version: 0.40.3
   bull:
-    specifier: 4.12.2
-    version: 4.12.2
+    specifier: 4.16.0
+    version: 4.16.0
   cache-manager:
     specifier: 5.5.1
     version: 5.5.1
@@ -1554,7 +1554,7 @@ packages:
       tslib: 2.6.3
     dev: false
 
-  /@nestjs/bull@10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.12.2):
+  /@nestjs/bull@10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(bull@4.16.0):
     resolution: {integrity: sha512-byQI3cgAVP8BNa71h5g33D1pNwOaK2O9+zYmT98eU8LxxJHh53aWMwEUrCHrwgSz4P8bD+jY8ObQ5vtU4SsidA==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1564,7 +1564,7 @@ packages:
       '@nestjs/bull-shared': 10.2.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)
       '@nestjs/common': 10.0.0(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/core': 10.0.0(@nestjs/common@10.0.0)(@nestjs/platform-express@10.0.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
-      bull: 4.12.2
+      bull: 4.16.0
       tslib: 2.6.3
     dev: false
 
@@ -3975,8 +3975,8 @@ packages:
       ieee754: 1.2.1
     dev: true
 
-  /bull@4.12.2:
-    resolution: {integrity: sha512-WPuc0VCYx+cIVMiZtPwRpWyyJFBrj4/OgKJ6n9Jf4tIw7rQNV+HAKQv15UDkcTvfpGFehvod7Fd1YztbYSJIDQ==}
+  /bull@4.16.0:
+    resolution: {integrity: sha512-dgHRLULPexLkpm9wP/7F7Vlf2fdvmffdwhv3Bqu5lFhO+XDDJ4yGqlTPE61Jj1zM8CgchLmJEgIfe7y69jtuOg==}
     engines: {node: '>=12'}
     dependencies:
       cron-parser: 4.9.0
@@ -3984,7 +3984,7 @@ packages:
       ioredis: 5.4.1
       lodash: 4.17.21
       msgpackr: 1.10.1
-      semver: 7.6.0
+      semver: 7.6.3
       uuid: 8.3.2
     transitivePeerDependencies:
       - supports-color
@@ -6683,6 +6683,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+    dev: true
 
   /luxon@3.2.1:
     resolution: {integrity: sha512-QrwPArQCNLAKGO/C+ZIilgIuDnEnKx5QYODdDtbFaxzsbZcc/a7WFq7MhsVYgRlwawLtvOUESTlfJ+hc/USqPg==}
@@ -7901,14 +7902,6 @@ packages:
       lru-cache: 6.0.0
     dev: true
 
-  /semver@7.6.0:
-    resolution: {integrity: sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dependencies:
-      lru-cache: 6.0.0
-    dev: false
-
   /semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
@@ -9045,6 +9038,7 @@ packages:
 
   /yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+    dev: true
 
   /yaml@2.5.0:
     resolution: {integrity: sha512-2wWLbGbYDiSqqIKoPjar3MPgB94ErzCtrNE1FdqGuaO0pi2JGjmE8aW8TDZwzU7vuxcGRdL/4gPQwQ7hD5AMSw==}
