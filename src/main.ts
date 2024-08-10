@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common'
+import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import config from 'config'
 import cookieParser from 'cookie-parser'
@@ -15,7 +15,8 @@ async function bootstrap() {
   }
   const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
   app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
-  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
+  const logger = app.get<Logger>(WINSTON_MODULE_NEST_PROVIDER)
+  app.useLogger(logger)
   app.enableShutdownHooks()
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
@@ -23,6 +24,8 @@ async function bootstrap() {
   await app.get(SchedulerRegisterService).register()
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')
-  await app.listen(config.get<number>(Config.HTTP_PORT))
+  const httpPort = config.get<number>(Config.HTTP_PORT)
+  await app.listen(httpPort)
+  logger.log(`HTTP server listening on port ${httpPort}`)
 }
 bootstrap()

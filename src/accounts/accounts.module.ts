@@ -14,6 +14,7 @@ import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
 import { ProfilePhotoService } from './profile/profile-photo.service'
 import { ProfileService } from './profile/profile.service'
+import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
@@ -39,7 +40,7 @@ import { UserLocalService } from './user/user-local.service'
     UserGroupService,
     GroupService,
   ],
-  controllers: [RefreshTokenV1Controller, SignInV1Controller],
+  controllers: [ProfileV1Controller, RefreshTokenV1Controller, SignInV1Controller],
   exports: [ProfileService, AccessTokenService, RefreshTokenService],
 })
 export class AccountsModule {}

@@ -38,15 +38,20 @@ export class ProfilePhotoService {
     const muuid = MUUID.from(uuid)
     await this.processProfilePhoto(path, uuid, user?.username)
     profile.photo = uuid
-    await Promise.all([
-      await this.profilePhotoModel.findByIdAndUpdate(muuid, {
-        _id: muuid,
-        profile,
-        directory,
-        filename,
-      }),
+    const [profilePhoto] = await Promise.all([
+      await this.profilePhotoModel.findByIdAndUpdate(
+        muuid,
+        {
+          _id: muuid,
+          profile,
+          directory,
+          filename,
+        },
+        { upsert: true, new: true },
+      ),
       await profile.save(),
     ])
+    return profilePhoto
   }
 
   async processProfilePhoto(path: string, uuid: string, username?: string) {

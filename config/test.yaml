@@ -33,6 +33,9 @@ rabbitmq:
     enabled: true
     timeout: 30000
 
+photoProcessor:
+  url: http://photo-processor:4001
+
 auditLog:
   enabled: true
 

@@ -9,7 +9,7 @@ export class ProfileIdDto {
     try {
       return new Types.ObjectId(value as string)
     } catch (err) {
-      throw new BadRequestException(err)
+      throw new BadRequestException('ProfileId must be an ObjectId')
     }
   })
   profileId: Types.ObjectId
