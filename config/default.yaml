@@ -2,8 +2,10 @@ http:
   port: 4000
   swagger:
     path: swagger
+    authGroups: []
   bullboard:
     path: bullboard
+    authGroups: []
   baseUrl:
     photo: https://photos.nudchannel.com
 

@@ -1,3 +1,11 @@
+http:
+  swagger:
+    authGroups:
+      - nudch
+  bullboard:
+    authGroups:
+      - it
+
 log:
   level: debug
   buffer: false

@@ -72,6 +72,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogger },
+    AuthMiddleware,
     SwaggerConfigBuilder,
   ],
 })

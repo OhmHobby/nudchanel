@@ -1,7 +1,9 @@
 export enum Config {
   HTTP_PORT = 'http.port',
   HTTP_SWAGGER_PATH = 'http.swagger.path',
+  HTTP_SWAGGER_AUTH_GROUPS = 'http.swagger.authGroups',
   HTTP_BULLBOARD_PATH = 'http.bullboard.path',
+  HTTP_BULLBOARD_AUTH_GROUPS = 'http.bullboard.authGroups',
   HTTP_BASEURL_PHOTO = 'http.baseUrl.photo',
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
