@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { OpenTelemetryModuleOptions, OpenTelemetryOptionsFactory } from 'nestjs-otel/lib/interfaces'
+import os from 'os'
 
 @Injectable()
 export class OpenTelemetryConfigService implements OpenTelemetryOptionsFactory {
@@ -14,7 +15,7 @@ export class OpenTelemetryConfigService implements OpenTelemetryOptionsFactory {
             service_name: process.env.npm_package_name,
             service_version: process.env.npm_package_version,
             deployment_environment: process.env.NODE_ENV,
-            hostname: process.env.HOSTNAME,
+            hostname: process.env.HOSTNAME ?? os.hostname(),
           },
           ignoreRoutes: ['/ping'],
           ignoreUndefinedRoutes: false, // Records metrics for all URLs, even undefined ones

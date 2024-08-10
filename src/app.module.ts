@@ -30,6 +30,7 @@ import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { SchedulerModule } from './scheduler/scheduler.module'
+import { OTELLifecyclesService } from './otel.life-cycles.service'
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     { provide: APP_INTERCEPTOR, useClass: AuditLogger },
     AuthMiddleware,
     SwaggerConfigBuilder,
+    OTELLifecyclesService,
   ],
 })
 export class AppModule {

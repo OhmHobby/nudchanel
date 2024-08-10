@@ -10,6 +10,9 @@ log:
   level: debug
   buffer: false
 
+otlp:
+  enabled: true
+
 processor:
   enabled: true
 
