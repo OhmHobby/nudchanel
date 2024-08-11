@@ -1,4 +1,7 @@
+import { SignAccessToken } from '@nudchannel/auth'
+import config from 'config'
 import { binding, when } from 'cucumber-tsflow'
+import { Config } from 'src/enums/config.enum'
 import { agent } from 'supertest'
 import { Workspace } from './workspace'
 
@@ -9,6 +12,15 @@ export class CommonSteps {
   async httpRequest(method: string, endpoint?: string, query?: object, body?: object) {
     const test = agent(this._workspace.serverUrl)
     if (query) test.query(query)
+    if (this._workspace.user.id) {
+      const privateKey = config.get<string>(Config.NUDCH_TOKEN_PRIVATE_KEY)
+      const issuer = config.get<string>(Config.NUDCH_TOKEN_ISSUER)
+      const accessTokenSigner = new SignAccessToken(issuer, privateKey)
+      accessTokenSigner.setProfileId(this._workspace.user.id)
+      accessTokenSigner.setGroups(this._workspace.user.groups)
+      const accessToken = await accessTokenSigner.sign()
+      test.set('Authorization', 'Bearer ' + accessToken)
+    }
     const requestEndpoint = endpoint ?? '/'
     Object.entries(this._workspace.requestHeaders).map(([k, v]) => test.set(k, v))
     for (let attempts = 3; attempts; attempts--) {

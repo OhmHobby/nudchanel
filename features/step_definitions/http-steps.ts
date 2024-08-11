@@ -15,6 +15,11 @@ export class HttpSteps extends CommonSteps {
     return await this.httpRequest('GET', endpoint, this.workspace.requestQueries)
   }
 
+  @when(/^PUT (.+)$/)
+  async whenPut(endpoint: string) {
+    return await this.httpRequest('PUT', endpoint, this.workspace.requestQueries, this.workspace.requestBody)
+  }
+
   @then(/^HTTP response status should be (.+)$/)
   thenStatusCode(status: string) {
     expect(this.workspace.response?.status).toBe(HttpStatus[status])
