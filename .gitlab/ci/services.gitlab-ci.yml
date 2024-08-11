@@ -25,6 +25,7 @@
         MINIO_ACCESS_KEY: ci-access-key
         MINIO_SECRET_KEY: ci-secret-key
         MINIO_BUCKET_NAME: nudch-photos
+        WEBSERVICE_URL: http://webservice:4000
   tags:
     - docker
 
