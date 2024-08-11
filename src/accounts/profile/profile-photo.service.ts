@@ -29,7 +29,7 @@ export class ProfilePhotoService {
     @InjectModel(PhotoProfilePhotoModel)
     private readonly photoProfilePhotoModel: ReturnModelType<typeof PhotoProfilePhotoModel>,
     @InjectQueue(BullQueueName.Migration)
-    private readonly migrationQueue: Queue,
+    private readonly migrationQueue: Queue<PhotoProfilePhotoModel>,
     private readonly profileService: ProfileService,
     private readonly userLocalService: UserLocalService,
     private readonly photoProcessor: PhotoProcesserV1Service,
@@ -114,7 +114,7 @@ export class ProfilePhotoService {
 
   async migrate() {
     const photos = await this.photoProfilePhotoModel.find().lean().exec()
-    await this.migrationQueue.addBulk(
+    return await this.migrationQueue.addBulk(
       photos.map((photo) => ({
         name: BullJobName.MigrateProfilePhoto,
         data: photo,
