@@ -9,8 +9,6 @@ http:
 log:
   level: debug
   buffer: false
-  loki:
-    url: http://nas.nudchannel.com:3100
 
 otlp:
   enabled: true
@@ -37,7 +35,7 @@ rabbitmq:
     timeout: 30000
 
 photoProcessor:
-  url: http://photo-processor:4001
+  url: http://photo-processor:4000
   apiKey: 34999eb3-39d5-4206-9a1a-eb572c92dee2
 
 auditLog:
