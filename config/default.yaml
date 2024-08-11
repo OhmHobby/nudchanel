@@ -31,6 +31,7 @@ database:
     default: ""
     accounts: ""
     gallery: ""
+    photo: ""
     mailer: ""
     audit: ""
   redis:

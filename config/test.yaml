@@ -23,6 +23,7 @@ database:
     default: mongodb://mongodb/main
     accounts: mongodb://mongodb/accounts
     gallery: mongodb://mongodb/gallery
+    photo: mongodb://mongodb/photo
     mailer: mongodb://mongodb/mailer
     audit: mongodb://mongodb/audit
   redis:

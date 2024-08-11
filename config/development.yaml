@@ -2,11 +2,11 @@ log:
   level: debug
   buffer: false
   loki:
-    url:
+    url: http://nudch-wireproxy-cftunnel.nudch-internal.svc:3100
 
 otlp:
   metric:
-    url: http://prometheus-server.nudch-internal/api/v1/otlp/v1/metrics
+    url: http://prometheus-server.nudch-internal.svc/api/v1/otlp/v1/metrics
 
 processor:
   enabled: true
@@ -16,6 +16,7 @@ database:
     default: mongodb://root:nudchDev!123@mongodb/main?authSource=admin
     accounts: mongodb://root:nudchDev!123@mongodb/accounts?authSource=admin
     gallery: mongodb://root:nudchDev!123@mongodb/gallery?authSource=admin
+    photo: mongodb://root:nudchDev!123@mongodb/photo?authSource=admin
     mailer: mongodb://root:nudchDev!123@mongodb/mailer?authSource=admin
     audit: mongodb://root:nudchDev!123@mongodb/audit?authSource=admin
   redis:
