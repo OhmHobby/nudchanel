@@ -29,8 +29,9 @@ import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
-import { SchedulerModule } from './scheduler/scheduler.module'
+import { MigrationModule } from './migration/migration.module'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { SchedulerModule } from './scheduler/scheduler.module'
 
 @Module({
   imports: [
@@ -57,18 +58,20 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
-    AmqpModule,
     AccountsModule,
+    AmqpModule,
     ApiKeyModule,
     AuditLogModule,
     BullBoardModule,
     DeliveryModule,
-    GoogleModule,
-    SchedulerModule,
     GalleryModule,
+    GoogleModule,
+    MigrationModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [

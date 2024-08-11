@@ -18,7 +18,9 @@ export class BullBoardController {
     @InjectQueue(BullQueueName.DiscordEventsNotifier)
     private readonly discordEventsNotifierQueue: Queue,
     @InjectQueue(BullQueueName.Email)
-    private readonly emailqueue: Queue,
+    private readonly emailQueue: Queue,
+    @InjectQueue(BullQueueName.Migration)
+    private readonly migrationQueue: Queue,
   ) {}
 
   @All('*')
@@ -30,7 +32,11 @@ export class BullBoardController {
     const router = serverAdapter.getRouter()
     serverAdapter.setBasePath(basePath)
     createBullBoard({
-      queues: [new BullAdapter(this.discordEventsNotifierQueue), new BullAdapter(this.emailqueue)],
+      queues: [
+        new BullAdapter(this.discordEventsNotifierQueue),
+        new BullAdapter(this.emailQueue),
+        new BullAdapter(this.migrationQueue),
+      ],
       serverAdapter,
     })
     router(Object.assign(req, { url: req.url.replace(entryPointPath, '/') }), res, next)
