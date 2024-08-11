@@ -13,6 +13,11 @@ export class AccessTokenBuilder {
     this.accessTokenSigner.setProfileId(TestData.aValidUserId.toHexString())
   }
 
+  withProfileId(profileId: string) {
+    this.accessTokenSigner.setProfileId(profileId)
+    return this
+  }
+
   withGroups(...groups: string[]) {
     this.accessTokenSigner.setGroups(groups)
     return this

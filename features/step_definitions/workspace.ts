@@ -1,4 +1,4 @@
-import { User } from '@nudchannel/auth'
+import { SignAccessToken, User } from '@nudchannel/auth'
 import { before, binding } from 'cucumber-tsflow'
 import * as request from 'supertest'
 
@@ -6,11 +6,15 @@ import * as request from 'supertest'
 export class Workspace {
   readonly serverUrl: string = process.env.SERVER_URL || 'http://127.0.0.1:4000'
 
+  signAccessToken: SignAccessToken
+
   user: User
 
   requestQueries: Record<string, string>
 
   requestHeaders: Record<string, string>
+
+  requestBody: Record<string, string>
 
   response: request.Response | null
 
@@ -19,5 +23,6 @@ export class Workspace {
     this.response = null
     this.requestQueries = {}
     this.requestHeaders = {}
+    this.requestBody = {}
   }
 }

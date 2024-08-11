@@ -55,6 +55,10 @@ googleapis:
     email: ""
     privateKey: ""
 
+photoProcessor:
+  url: ""
+  apiKey: ""
+
 authentication:
   accessToken:
     issuer: accounts.nudchannel.com

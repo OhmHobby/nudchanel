@@ -21,6 +21,22 @@
     - <<: *rabbitmq
     - <<: *mongodb
     - <<: *redis
+    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/mock-webdav
+      alias: webdav
+    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/minio
+      alias: minio
+    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/api/photo-processor
+      alias: photo-processor
+      variables:
+        NODE_ENV: test
+        PORT: 4001
+        RABBITMQ_URI: amqp://guest:guest@rabbitmq
+        WEBDAV_URL: http://webdav
+        MINIO_ENDPOINT: minio
+        MINIO_ACCESS_KEY: ci-access-key
+        MINIO_SECRET_KEY: ci-secret-key
+        MINIO_BUCKET_NAME: nudch-photos
+        WEBSERVICE_URL: http://webservice:4000
     - name: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
       alias: webservice
       variables:

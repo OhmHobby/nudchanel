@@ -16,3 +16,6 @@ rabbitmq:
   uri: amqp://guest:guest@localhost/
   wait:
     enabled: false
+
+photoProcessor:
+  url: http://localhost:4001
