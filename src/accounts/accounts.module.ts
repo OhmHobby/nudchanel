@@ -1,10 +1,13 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
+import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { PhotoProfilePhotoModel } from 'src/models/photo/profile-photo'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { PhotoModule } from 'src/photo/photo.module'
 import { ProfileModel } from '../models/accounts/profile.model'
@@ -27,7 +30,9 @@ import { UserLocalService } from './user/user-local.service'
       [ProfileModel, ProfileNameModel, UserLocalModel, UserGroupModel, GroupModel, RefreshTokenModel],
       MongoConnection.Accounts,
     ),
+    TypegooseModule.forFeature([PhotoProfilePhotoModel], MongoConnection.Photo),
     TypegooseModule.forFeature([ProfilePhotoModel]),
+    BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 10, backoff: 30000 } }),
     PhotoModule,
   ],
   providers: [
@@ -41,6 +46,6 @@ import { UserLocalService } from './user/user-local.service'
     GroupService,
   ],
   controllers: [ProfileV1Controller, RefreshTokenV1Controller, SignInV1Controller],
-  exports: [ProfileService, AccessTokenService, RefreshTokenService],
+  exports: [ProfileService, ProfilePhotoService, AccessTokenService, RefreshTokenService],
 })
 export class AccountsModule {}

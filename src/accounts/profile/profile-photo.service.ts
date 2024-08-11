@@ -1,14 +1,19 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
+import { InjectQueue } from '@nestjs/bull'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import {
   PhotoProcessorV1ControllerProcessFitEnum,
   PhotoProcessorV1ControllerProcessFormatEnum,
 } from '@nudchannel/photo-processor'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Queue } from 'bull'
 import { createHash } from 'crypto'
 import { Types } from 'mongoose'
 import { join } from 'path'
 import { NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
+import { BullJobName } from 'src/enums/bull-job-name.enum'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { PhotoProfilePhotoModel } from 'src/models/photo/profile-photo'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { PhotoProcesserV1Service } from 'src/photo/photo-processer.v1.service'
 import { v5 as uuidv5 } from 'uuid'
@@ -21,6 +26,10 @@ export class ProfilePhotoService {
   constructor(
     @InjectModel(ProfilePhotoModel)
     private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
+    @InjectModel(PhotoProfilePhotoModel)
+    private readonly photoProfilePhotoModel: ReturnModelType<typeof PhotoProfilePhotoModel>,
+    @InjectQueue(BullQueueName.Migration)
+    private readonly migrationQueue: Queue,
     private readonly profileService: ProfileService,
     private readonly userLocalService: UserLocalService,
     private readonly photoProcessor: PhotoProcesserV1Service,
@@ -101,5 +110,15 @@ export class ProfilePhotoService {
 
   getSrcFilepath(directory: string, filename: string) {
     return `webdav://${join(directory, filename)}`
+  }
+
+  async migrate() {
+    const photos = await this.photoProfilePhotoModel.find().lean().exec()
+    await this.migrationQueue.addBulk(
+      photos.map((photo) => ({
+        name: BullJobName.MigrateProfilePhoto,
+        data: photo,
+      })),
+    )
   }
 }
