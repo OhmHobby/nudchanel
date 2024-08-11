@@ -30,6 +30,8 @@ import { UserLocalService } from './user/user-local.service'
       [ProfileModel, ProfileNameModel, UserLocalModel, UserGroupModel, GroupModel, RefreshTokenModel],
       MongoConnection.Accounts,
     ),
+    TypegooseModule.forFeature([ProfilePhotoModel]),
+    PhotoModule,
     TypegooseModule.forFeature([PhotoProfilePhotoModel], MongoConnection.Photo),
     TypegooseModule.forFeature([ProfilePhotoModel]),
     BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 10, backoff: 30000 } }),
