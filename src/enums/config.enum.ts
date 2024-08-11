@@ -28,6 +28,7 @@ export enum Config {
   GAPIS_SERVICE_EMAIL = 'googleapis.service.email',
   GAPIS_SERVICE_PRIVATEKEY = 'googleapis.service.privateKey',
   PHOTO_PROCESSOR_URL = 'photoProcessor.url',
+  PHOTO_PROCESSOR_APIKEY = 'photoProcessor.apiKey',
   NUDCH_TOKEN_ISSUER = 'authentication.accessToken.issuer',
   NUDCH_TOKEN_PUBLIC_KEY = 'authentication.accessToken.publicKey',
   NUDCH_TOKEN_PRIVATE_KEY = 'authentication.accessToken.privateKey',

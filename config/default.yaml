@@ -57,6 +57,7 @@ googleapis:
 
 photoProcessor:
   url: ""
+  apiKey: ""
 
 authentication:
   accessToken:

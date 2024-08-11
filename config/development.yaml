@@ -2,7 +2,7 @@ log:
   level: debug
   buffer: false
   loki:
-    url: http://nudch-wireproxy-cftunnel.nudch-internal:3100
+    url:
 
 otlp:
   metric:
@@ -107,3 +107,4 @@ googleapis:
 
 photoProcessor:
   url: http://photo-processor
+  apiKey: 34999eb3-39d5-4206-9a1a-eb572c92dee2

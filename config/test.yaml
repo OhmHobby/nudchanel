@@ -35,6 +35,7 @@ rabbitmq:
 
 photoProcessor:
   url: http://photo-processor:4001
+  apiKey: 34999eb3-39d5-4206-9a1a-eb572c92dee2
 
 auditLog:
   enabled: true
