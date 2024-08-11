@@ -33,7 +33,7 @@ test:e2e:
     - .default-test-rules
   variables:
     SERVER_URL: http://webservice:4000
-  script:
-    - npm run test:e2e
+    NODE_APP_INSTANCE: e2e
+  script: npm run test:e2e
   after_script:
     - npm run test:cucumber:report
