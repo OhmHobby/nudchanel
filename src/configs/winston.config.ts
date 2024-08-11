@@ -29,6 +29,7 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
             service_version: process.env.npm_package_version,
             deployment_environment: process.env.NODE_ENV,
             hostname: process.env.HOSTNAME ?? os.hostname(),
+            ci_job: process.env.CI_JOB_URL,
           },
         }),
       ]
