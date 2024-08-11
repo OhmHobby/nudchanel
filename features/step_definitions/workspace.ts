@@ -10,11 +10,14 @@ export class Workspace {
 
   requestQueries: Record<string, string>
 
+  requestHeaders: Record<string, string>
+
   response: request.Response | null
 
   @before()
   before() {
     this.response = null
     this.requestQueries = {}
+    this.requestHeaders = {}
   }
 }
