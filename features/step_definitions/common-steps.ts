@@ -22,6 +22,7 @@ export class CommonSteps {
       test.set('Authorization', 'Bearer ' + accessToken)
     }
     const requestEndpoint = endpoint ?? '/'
+    Object.entries(this._workspace.requestHeaders).map(([k, v]) => test.set(k, v))
     for (let attempts = 3; attempts; attempts--) {
       if (method === 'GET') {
         this._workspace.response = await test.get(requestEndpoint).send()

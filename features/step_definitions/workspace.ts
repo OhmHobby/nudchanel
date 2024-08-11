@@ -12,6 +12,8 @@ export class Workspace {
 
   requestQueries: Record<string, string>
 
+  requestHeaders: Record<string, string>
+
   requestBody: Record<string, string>
 
   response: request.Response | null
@@ -20,6 +22,7 @@ export class Workspace {
   before() {
     this.response = null
     this.requestQueries = {}
+    this.requestHeaders = {}
     this.requestBody = {}
   }
 }
