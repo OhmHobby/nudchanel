@@ -18,7 +18,7 @@ import { EmailConfirmationDeliveryProcessorService } from './processor/email-con
 @Module({
   imports: [
     TypegooseModule.forFeature([MailTemplateModel, MailSenderAddressModel], MongoConnection.Mailer),
-    BullModule.registerQueue({ name: BullQueueName.Email, defaultJobOptions: { attempts: 3, backoff: 5000 } }),
+    BullModule.registerQueue({ name: BullQueueName.Email, defaultJobOptions: { attempts: 4, backoff: 5000 } }),
     GoogleModule,
     AccountsModule,
   ],

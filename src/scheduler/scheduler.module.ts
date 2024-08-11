@@ -1,10 +1,15 @@
 import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
-import { SchedulerRegisterService } from './scheduler-register.service'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { SchedulerRegisterService } from './scheduler-register.service'
 
 @Module({
-  imports: [BullModule.registerQueue({ name: BullQueueName.DiscordEventsNotifier })],
+  imports: [
+    BullModule.registerQueue({
+      name: BullQueueName.DiscordEventsNotifier,
+      defaultJobOptions: { attempts: 11, backoff: 5000, removeOnComplete: true },
+    }),
+  ],
   providers: [SchedulerRegisterService],
 })
 export class SchedulerModule {}
