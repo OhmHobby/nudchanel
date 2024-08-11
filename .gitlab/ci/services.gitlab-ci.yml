@@ -18,6 +18,7 @@
     - name: $NUDCH_IMAGE_REGISTRY/nudchannel/api/photo-processor
       alias: photo-processor
       variables:
+        NODE_ENV: test
         PORT: 4001
         RABBITMQ_URI: amqp://guest:guest@rabbitmq
         WEBDAV_URL: http://webdav
