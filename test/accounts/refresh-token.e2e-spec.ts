@@ -33,4 +33,8 @@ describe('Accounts - refresh token', () => {
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/access_token=.+/))
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

@@ -86,4 +86,8 @@ describe('Gallery', () => {
     expect(body?.activity?.title).toBe(activity.title)
     expect(body?.activity?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

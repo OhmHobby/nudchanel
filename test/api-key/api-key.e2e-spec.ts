@@ -45,4 +45,8 @@ describe('API Key', () => {
     expect(result.body.id).toBe(apiKey)
     expect(result.body.service).toBe('test')
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

@@ -88,6 +88,6 @@ describe('Mailer queue', () => {
   })
 
   afterAll(() => {
-    return app.close()
+    app.close()
   })
 })

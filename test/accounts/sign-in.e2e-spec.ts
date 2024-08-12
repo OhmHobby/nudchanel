@@ -72,4 +72,8 @@ describe('Accounts - sign-in', () => {
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

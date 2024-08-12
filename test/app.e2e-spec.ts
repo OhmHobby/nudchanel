@@ -31,4 +31,8 @@ describe('App', () => {
     const cookies = TestData.aValidSupertestCookies().withAccessToken(accessToken).build()
     return request(app.getHttpServer()).get('/bullboard/').set('Cookie', cookies).expect(HttpStatus.FORBIDDEN)
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

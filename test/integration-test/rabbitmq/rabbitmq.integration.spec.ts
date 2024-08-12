@@ -44,6 +44,6 @@ describe('RabbitMQ', () => {
   })
 
   afterAll(() => {
-    return app.close()
+    app.close()
   })
 })

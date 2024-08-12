@@ -67,6 +67,6 @@ describe('Audit logger', () => {
   })
 
   afterAll(() => {
-    return app.close()
+    app.close()
   })
 })
