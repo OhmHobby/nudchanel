@@ -4,7 +4,7 @@ import * as request from 'supertest'
 
 @binding()
 export class Workspace {
-  readonly serverUrl: string = process.env.SERVER_URL || 'http://127.0.0.1:4000'
+  serverUrl: string
 
   signAccessToken: SignAccessToken
 
@@ -20,6 +20,7 @@ export class Workspace {
 
   @before()
   before() {
+    this.serverUrl = process.env.SERVER_URL || 'http://127.0.0.1:4000'
     this.response = null
     this.requestQueries = {}
     this.requestHeaders = {}

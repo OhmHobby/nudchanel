@@ -9,4 +9,10 @@ export class AppController {
   getPing(): string {
     return 'pong'
   }
+
+  @Get('/version')
+  @Header('content-type', 'text/plain')
+  getVersion() {
+    return process.env.npm_package_version
+  }
 }

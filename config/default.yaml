@@ -1,5 +1,8 @@
+runMode: server
+
 http:
   port: 4000
+  secondaryPort: 5000
   swagger:
     path: swagger
     authGroups: []
@@ -22,9 +25,6 @@ otlp:
   metric:
     url: ""
     intervalMillis: 15000
-
-processor:
-  enabled: false
 
 database:
   mongodb:

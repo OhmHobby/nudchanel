@@ -1,0 +1,5 @@
+runMode: worker
+
+log:
+  loki:
+    url: http://nas.nudchannel.com:3100

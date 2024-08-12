@@ -11,8 +11,8 @@ import LokiTransport from 'winston-loki'
 @Injectable()
 export class WinstonConfig implements WinstonModuleOptionsFactory {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly cls: ClsService,
+    protected readonly configService: ConfigService,
+    protected readonly cls: ClsService,
   ) {}
 
   private get lokiTransport() {
@@ -29,7 +29,6 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
             service_version: process.env.npm_package_version,
             deployment_environment: process.env.NODE_ENV,
             hostname: process.env.HOSTNAME ?? os.hostname(),
-            ci_job: process.env.CI_JOB_URL,
           },
         }),
       ]
@@ -52,6 +51,7 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
         get spanId() {
           return trace.getSpan(context?.active())?.spanContext()?.spanId
         },
+        ciJobUrl: process.env.CI_JOB_URL,
       },
       transports: [new winston.transports.Console({}), ...this.lokiTransport],
     }
