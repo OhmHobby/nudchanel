@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Controller, HttpCode, HttpStatus, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { DiscordProcessorService } from 'src/accounts/discord/discord-processor.service'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
@@ -14,7 +14,7 @@ export class MigrationController {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @AuthGroups(['it'])
-  async triggerDiscordProfileSyncAll() {
-    return await this.discordProcessorService.triggerProfileSyncAll()
+  async triggerDiscordProfileSyncAll(@Query('delayMs') delay: string) {
+    return await this.discordProcessorService.triggerProfileSyncAll(+delay)
   }
 }
