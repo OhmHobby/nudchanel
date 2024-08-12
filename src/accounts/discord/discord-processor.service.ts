@@ -27,11 +27,12 @@ export class DiscordProcessorService {
   async triggerProfileSyncAll() {
     const delayFactorMs = 2000
     const discordIds = await this.profileService.findAllDiscordIds()
+    const space = delayFactorMs * discordIds.length
     await this.migrationQueue.addBulk(
-      discordIds.map((discordId, i) => ({
+      discordIds.map((discordId) => ({
         name: BullJobName.MigrateDiscordProfileSync,
         data: discordId,
-        opts: { delay: delayFactorMs * i },
+        opts: { delay: Math.floor(Math.random() * space) },
       })),
     )
     return discordIds
