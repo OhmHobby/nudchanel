@@ -52,9 +52,14 @@
         MINIO_BUCKET_NAME: nudch-photos
         WEBSERVICE_URL: http://webservice:4000
     - name: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+      alias: webservice-worker
+      variables:
+        NODE_ENV: test
+        NODE_APP_INSTANCE: worker
+    - name: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
       alias: webservice
       variables:
         NODE_ENV: test
-        NODE_APP_INSTANCE: e2e
+        NODE_APP_INSTANCE: server
   tags:
     - docker

@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common'
-import { binding, then, when } from 'cucumber-tsflow'
+import { binding, given, then, when } from 'cucumber-tsflow'
 import expect from 'expect'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
@@ -8,6 +8,11 @@ import { Workspace } from './workspace'
 export class HttpSteps extends CommonSteps {
   constructor(private readonly workspace: Workspace) {
     super(workspace)
+  }
+
+  @given('request to worker url')
+  givenTargetWorker() {
+    this.workspace.serverUrl = process.env.WORKER_URL ?? 'http://127.0.0.1:5000'
   }
 
   @when(/^GET (.+)$/)

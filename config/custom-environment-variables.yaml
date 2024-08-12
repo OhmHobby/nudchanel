@@ -1,3 +1,5 @@
+runMode: RUN_MODE
+
 http:
   port: PORT
 

@@ -6,9 +6,9 @@ import { DiscortEventsNotifierService } from './discord-events-notifier/discord-
 import { StartingEventsDiscordTriggerDto } from './dto/starting-events-discord-trigger.dto'
 import { UpcomingEventsDiscordTriggerDto } from './dto/upcoming-events-discord-trigger.dto'
 
-@Controller({ path: 'delivery', version: '1' })
-@ApiTags('DeliveryV1')
-export class DeliveryV1Controller {
+@Controller({ path: 'delivery' })
+@ApiTags('Delivery')
+export class DeliveryController {
   constructor(private readonly discordUpcomingEventService: DiscortEventsNotifierService) {}
 
   @ApiProperty()
