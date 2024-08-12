@@ -20,12 +20,9 @@ export class ProfileService {
     return this.profileModel.findOne({ discord_ids: discordId }).exec()
   }
 
-  findAllDiscordIds() {
-    return this.profileModel
-      .find({ discord_ids: { $exists: true, $ne: [] } })
-      .select('discord_ids')
-      .lean()
-      .exec()
+  async findAllDiscordIds() {
+    const docs = await this.profileModel.find().select('discord_ids').lean().exec()
+    return docs.flatMap((el) => el.discord_ids ?? [])
   }
 
   async discordIdsFromEmails(emails: string[] = []): Promise<string[]> {
