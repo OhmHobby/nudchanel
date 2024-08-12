@@ -1,6 +1,7 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { Module } from '@nestjs/common'
 import { RabbitMQConfigService } from 'src/configs/rabbitmq.config'
+import { AmqpService } from './amqp.service'
 
 @Module({
   imports: [
@@ -8,7 +9,7 @@ import { RabbitMQConfigService } from 'src/configs/rabbitmq.config'
       useClass: RabbitMQConfigService,
     }),
   ],
-  providers: [],
-  exports: [],
+  providers: [AmqpService],
+  exports: [AmqpService],
 })
 export class AmqpModule {}

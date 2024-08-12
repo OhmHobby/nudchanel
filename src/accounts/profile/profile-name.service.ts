@@ -1,11 +1,13 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
 
 @Injectable()
 export class ProfileNameService {
+  private readonly logger = new Logger(ProfileNameService.name)
+
   constructor(
     @InjectModel(ProfileNameModel)
     private readonly profileNameModel: ReturnModelType<typeof ProfileNameModel>,
@@ -42,14 +44,34 @@ export class ProfileNameService {
 
   async getNickNameWithInitials(profileId: Types.ObjectId) {
     const name = await this.getProfileName(profileId, 'en')
-    if (name?.lang !== 'en') {
-      return null
-    }
-    const nickname = name?.nickname?.trim()
-    const nicknameCased = nickname?.charAt(0)?.toUpperCase() ?? '' + nickname?.slice(1)?.toLowerCase() ?? ''
-    const fisrtLetterOfFirstName = name?.firstname?.charAt(0).toUpperCase()
-    const fisrtLetterOfLastName = name?.lastname?.charAt(0).toUpperCase()
-    return nicknameCased + fisrtLetterOfFirstName + fisrtLetterOfLastName
+    if (name?.lang !== 'en') return null
+    const nicknameCased = this.casedName(name.nickname)
+    const firstLetterOfFirstName = this.casedInitial(name.firstname)
+    const firstLetterOfLastName = this.casedInitial(name.lastname)
+    return nicknameCased + firstLetterOfFirstName + firstLetterOfLastName
+  }
+
+  async getNickNameWithFirstNameAndInitial(profileId: Types.ObjectId) {
+    const maxLength = 32
+    const name = await this.getProfileName(profileId, 'en')
+    if (name?.lang !== 'en') return null
+    const nicknameCased = this.casedName(name.nickname)
+    const firstnameCased = this.casedName(name.firstname)
+    const lastnameInitial = this.casedInitial(name.lastname)
+    const trimmedFirstname = firstnameCased.slice(0, maxLength - `(${nicknameCased}) ${lastnameInitial}`.length)
+    if (trimmedFirstname !== firstnameCased)
+      this.logger.warn(`${profileId}: "${firstnameCased}" has trimmed to "${trimmedFirstname}"`)
+    return `(${nicknameCased}) ${trimmedFirstname}${lastnameInitial}`
+  }
+
+  private casedName(name = '') {
+    const trimmedName = name.trim()
+    const casedName = trimmedName?.charAt(0).toUpperCase() + trimmedName?.slice(1).toLowerCase()
+    return casedName
+  }
+
+  private casedInitial(name = '') {
+    return name.charAt(0).toUpperCase()
   }
 
   upsert(
