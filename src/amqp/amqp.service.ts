@@ -7,7 +7,7 @@ import { RabbitExchange } from 'src/enums/rabbit-exchange.enum'
 export class AmqpService {
   readonly amqpConnection?: AmqpConnection
 
-  constructor(amqpConnectionManager: AmqpConnectionManager) {
+  constructor(readonly amqpConnectionManager: AmqpConnectionManager) {
     this.amqpConnection = amqpConnectionManager.getConnection('default')
   }
 

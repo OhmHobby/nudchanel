@@ -9,9 +9,10 @@ export class OTELLifecyclesService implements OnApplicationShutdown {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onApplicationShutdown() {
+  async onApplicationShutdown(signal?: string) {
     if (this.configService.get(Config.OTLP_ENABLED)) {
       try {
+        this.logger.warn({ message: 'Shutting down SDK', signal })
         await otelSDK.shutdown()
         this.logger.log('SDK shut down successfully')
       } catch (err) {

@@ -11,6 +11,7 @@ import { AmqpModule } from './amqp/amqp.module'
 import { AppController } from './app.controller'
 import { AuthGroupGuard } from './auth/auth-group.guard'
 import { AuthMiddleware } from './auth/auth.middleware'
+import { BullBoardModule } from './bull-board/bull-board.module'
 import { BullConfig } from './configs/bull.config'
 import { CacheConfig } from './configs/cache.config'
 import { clsConfigFactory } from './configs/cls.config'
@@ -22,6 +23,7 @@ import { DeliveryWorkerModule } from './delivery/delivery.worker.module'
 import { MongoConnection } from './enums/mongo-connection.enum'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
+import { MongooseWorkerLifecyclesService } from './mongoose.worker.life-cycles.service copy'
 import { SchedulerModule } from './scheduler/scheduler.module'
 
 @Module({
@@ -35,6 +37,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     AmqpModule,
+    BullBoardModule,
     AccountsWorkerModule,
     DeliveryWorkerModule,
     MigrationWorkerModule,
@@ -45,6 +48,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
     AuthMiddleware,
+    MongooseWorkerLifecyclesService,
     SwaggerConfigBuilder,
   ],
 })
