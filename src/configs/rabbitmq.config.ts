@@ -10,10 +10,8 @@ type Exchange = { name: string; type: string }
 @Injectable()
 export class RabbitMQConfigService implements ModuleConfigFactory<RabbitMQConfig> {
   protected exchanges: Exchange[] = [
-    {
-      name: RabbitExchange.AccountsEvent,
-      type: 'topic',
-    },
+    { name: RabbitExchange.AccountsEvent, type: 'topic' },
+    { name: RabbitExchange.DiscordBot, type: 'topic' },
   ]
 
   constructor(private readonly configService: ConfigService) {}
