@@ -11,8 +11,8 @@ import LokiTransport from 'winston-loki'
 @Injectable()
 export class WinstonConfig implements WinstonModuleOptionsFactory {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly cls: ClsService,
+    protected readonly configService: ConfigService,
+    protected readonly cls: ClsService,
   ) {}
 
   private get lokiTransport() {

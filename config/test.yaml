@@ -1,3 +1,5 @@
+runMode: all-in-one
+
 http:
   swagger:
     authGroups:

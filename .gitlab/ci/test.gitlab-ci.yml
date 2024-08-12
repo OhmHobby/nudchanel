@@ -33,6 +33,7 @@ test:e2e:
     - .default-test-rules
   variables:
     SERVER_URL: http://webservice:4000
+    WORKER_URL: http://webservice-worker:4000
     NODE_APP_INSTANCE: e2e
   script: npm run test:e2e
   after_script:

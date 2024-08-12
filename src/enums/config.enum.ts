@@ -1,5 +1,7 @@
 export enum Config {
+  RUN_MODE = 'runMode',
   HTTP_PORT = 'http.port',
+  HTTP_SECONDARY_PORT = 'http.secondaryPort',
   HTTP_SWAGGER_PATH = 'http.swagger.path',
   HTTP_SWAGGER_AUTH_GROUPS = 'http.swagger.authGroups',
   HTTP_BULLBOARD_PATH = 'http.bullboard.path',
@@ -12,7 +14,6 @@ export enum Config {
   OTLP_TRACE_URL = 'otlp.trace.url',
   OTLP_METRIC_URL = 'otlp.metric.url',
   OTLP_METRIC_INTERVAL = 'otlp.metric.intervalMillis',
-  PROCESSOR_ENABLED = 'processor.enabled',
   DATABASE_MONGODB_PREFIX = 'database.mongodb.',
   REDIS_DEFAULT_HOST = 'database.redis.default.host',
   REDIS_DEFAULT_PORT = 'database.redis.default.port',
