@@ -5,6 +5,7 @@ import { GroupModel } from 'src/models/accounts/group.model'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ApiKeyModel } from 'src/models/api-key.model'
@@ -26,6 +27,10 @@ import { resetMockModel } from 'test/helpers/mock-model'
     {
       provide: getModelToken(ProfileNameModel.name),
       useValue: resetMockModel(getModelForClass(ProfileNameModel)),
+    },
+    {
+      provide: getModelToken(TeamMemberModel.name),
+      useValue: resetMockModel(getModelForClass(TeamMemberModel)),
     },
     {
       provide: getModelToken(UserLocalModel.name),

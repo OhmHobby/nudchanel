@@ -52,6 +52,7 @@ describe(DiscordProcessorService.name, () => {
       profileService.findByDiscordId = jest.fn().mockResolvedValue(profile)
       profileNameService.getNickNameWithInitials = jest.fn().mockResolvedValue('nickname')
       profileNameService.getNickNameWithFirstNameAndInitial = jest.fn().mockResolvedValue('nickname')
+      profileNameService.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix = jest.fn().mockResolvedValue('nickname')
       await service.triggerProfileSync('discord-id')
       expect(amqpService.publish).toHaveBeenCalledTimes(2)
     })

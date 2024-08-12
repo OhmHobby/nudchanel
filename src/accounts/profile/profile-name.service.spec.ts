@@ -1,26 +1,29 @@
+import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getModelForClass } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { ProfileNameService } from './profile-name.service'
+import { ProfileTeamService } from './profile-team.service'
+
+jest.mock('./profile-team.service')
 
 describe(ProfileNameService.name, () => {
   let service: ProfileNameService
+  let profileTeamService: ProfileTeamService
   const profileNameModel = getModelForClass(ProfileNameModel)
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProfileNameService,
-        {
-          provide: getModelToken('ProfileNameModel'),
-          useValue: profileNameModel,
-        },
+        ProfileTeamService,
+        { provide: getModelToken(ProfileNameModel.name), useValue: profileNameModel },
       ],
     }).compile()
 
-    service = module.get<ProfileNameService>(ProfileNameService)
+    service = module.get(ProfileNameService)
+    profileTeamService = module.get(ProfileTeamService)
   })
 
   it('should be defined', () => {
@@ -161,6 +164,47 @@ describe(ProfileNameService.name, () => {
       profileName.lang = 'en'
       service.getProfileName = jest.fn().mockResolvedValue(profileName)
       const result = await service.getNickNameWithFirstNameAndInitial(new Types.ObjectId())
+      expect(result).toHaveLength(32)
+      expect(result).toBe('(Test) AbcdefghijklmnopqrstuvwxU')
+    })
+  })
+
+  describe(ProfileNameService.prototype.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix, () => {
+    it('should return null when no profile found', async () => {
+      service.getProfileName = jest.fn().mockResolvedValue(null)
+      const result = await service.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(new Types.ObjectId())
+      expect(result).toBeNull()
+    })
+
+    it('should return null when no en name', async () => {
+      service.getProfileName = jest.fn().mockResolvedValue(new ProfileNameModel())
+      const result = await service.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(new Types.ObjectId())
+      expect(result).toBeNull()
+    })
+
+    it('should return with emoji correctly', async () => {
+      const profileName = new ProfileNameModel()
+      profileName.firstname = 'abcdefghijklmnopqrstuvwxyz'
+      profileName.lastname = 'user'
+      profileName.nickname = 'tEst '
+      profileName.lang = 'en'
+      service.getProfileName = jest.fn().mockResolvedValue(profileName)
+      profileTeamService.getLatestProfileTeamEmoji = jest.fn().mockResolvedValue('💻')
+      const result = await service.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(new Types.ObjectId())
+      expect(result).toHaveLength(32)
+      expect(result).toBe('💻 (Test) AbcdefghijklmnopqrstuU') // 1 emoji => 2 characters
+    })
+
+    it('should return without emoji correctly', async () => {
+      const profileName = new ProfileNameModel()
+      profileName.firstname = 'abcdefghijklmnopqrstuvwxyz'
+      profileName.lastname = 'user'
+      profileName.nickname = 'tEst '
+      profileName.lang = 'en'
+      service.getProfileName = jest.fn().mockResolvedValue(profileName)
+      profileTeamService.getLatestProfileTeamEmoji = jest.fn().mockResolvedValue(undefined)
+      const result = await service.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(new Types.ObjectId())
+      expect(result).toHaveLength(32)
       expect(result).toBe('(Test) AbcdefghijklmnopqrstuvwxU')
     })
   })

@@ -39,7 +39,7 @@ export class DiscordProcessorService {
   async triggerProfileSync(discordId: string) {
     const profile = await this.profileService.findByDiscordId(discordId)
     if (!profile) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
-    const nickname = await this.profileNameService.getNickNameWithFirstNameAndInitial(profile._id)
+    const nickname = await this.profileNameService.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profile._id)
     if (!nickname) return this.logger.warn(`Could not create nickname for profileId: "${profile._id}"`)
     const promises = profile.discord_ids?.map((discordId, i) =>
       this.publishDiscordProfileUpdated(discordId, this.getNicknameWithSuffix(nickname, i)),
