@@ -103,7 +103,7 @@ dependencies:
     version: 3.3.7
   nest-winston:
     specifier: 1.9.7
-    version: 1.9.7(@nestjs/common@10.0.0)(winston@3.11.0)
+    version: 1.9.7(@nestjs/common@10.0.0)(winston@3.14.1)
   nestjs-cls:
     specifier: 4.4.1
     version: 4.4.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -132,8 +132,8 @@ dependencies:
     specifier: 0.6.3
     version: 0.6.3
   winston:
-    specifier: 3.11.0
-    version: 3.11.0
+    specifier: 3.14.1
+    version: 3.14.1
   winston-loki:
     specifier: 6.1.2
     version: 6.1.2
@@ -7060,7 +7060,7 @@ packages:
   /neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  /nest-winston@1.9.7(@nestjs/common@10.0.0)(winston@3.11.0):
+  /nest-winston@1.9.7(@nestjs/common@10.0.0)(winston@3.14.1):
     resolution: {integrity: sha512-pTTgImRgv7urojsDvaTlenAjyJNLj7ywamfjzrhWKhLhp80AKLYNwf103dVHeqZWe+nzp/vd9DGRs/UN/YadOQ==}
     peerDependencies:
       '@nestjs/common': ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -7068,7 +7068,7 @@ packages:
     dependencies:
       '@nestjs/common': 10.0.0(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       fast-safe-stringify: 2.1.1
-      winston: 3.11.0
+      winston: 3.14.1
     dev: false
 
   /nestjs-cls@4.4.1(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)(reflect-metadata@0.2.2)(rxjs@7.8.1):
@@ -8943,8 +8943,8 @@ packages:
       triple-beam: 1.4.1
     dev: false
 
-  /winston@3.11.0:
-    resolution: {integrity: sha512-L3yR6/MzZAOl0DsysUXHVjOwv8mKZ71TrA/41EIduGpOOV5LQVodqN+QdQ6BS6PJ/RdIshZhq84P/fStEZkk7g==}
+  /winston@3.14.1:
+    resolution: {integrity: sha512-CJi4Il/msz8HkdDfXOMu+r5Au/oyEjFiOZzbX2d23hRLY0narGjqfE5lFlrT5hfYJhPtM8b85/GNFsxIML/RVA==}
     engines: {node: '>= 12.0.0'}
     dependencies:
       '@colors/colors': 1.6.0
