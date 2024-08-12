@@ -24,8 +24,7 @@ export class DiscordProcessorService {
     private readonly migrationQueue: Queue<string>,
   ) {}
 
-  async triggerProfileSyncAll() {
-    const delayFactorMs = 5000
+  async triggerProfileSyncAll(delayFactorMs: number) {
     const discordIds = await this.profileService.findAllDiscordIds()
     const space = delayFactorMs * discordIds.length
     await this.migrationQueue.addBulk(
