@@ -21,11 +21,12 @@ import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { UserGroupService } from './user/user-group.service'
 import { UserLocalService } from './user/user-local.service'
+import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [ProfileModel, ProfileNameModel, UserLocalModel, UserGroupModel, GroupModel, RefreshTokenModel],
+      [ProfileModel, ProfileNameModel, UserLocalModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),
