@@ -14,7 +14,7 @@ export class MigrationController {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @AuthGroups(['it'])
-  async triggerDiscordProfileSyncAll(@Query('delayMs') delay: number) {
-    return await this.discordProcessorService.triggerProfileSyncAll(delay)
+  async triggerDiscordProfileSyncAll(@Query('delayMs') delay: string) {
+    return await this.discordProcessorService.triggerProfileSyncAll(+delay)
   }
 }
