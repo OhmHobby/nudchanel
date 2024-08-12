@@ -26,8 +26,7 @@ export class DiscordProcessorService {
 
   async triggerProfileSyncAll() {
     const delayFactorMs = 1000
-    const profiles = await this.profileService.findAllDiscordIds()
-    const discordIds = profiles.flatMap((el) => el.discord_ids ?? [])
+    const discordIds = await this.profileService.findAllDiscordIds()
     await this.migrationQueue.addBulk(
       discordIds.map((discordId, i) => ({
         name: BullJobName.MigrateDiscordProfileSync,
