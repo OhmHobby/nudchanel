@@ -41,6 +41,6 @@ describe('Profile service', () => {
   })
 
   afterAll(() => {
-    return app.close()
+    app.close()
   })
 })
