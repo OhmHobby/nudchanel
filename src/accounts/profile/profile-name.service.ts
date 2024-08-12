@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
+import { ProfileTeamService } from './profile-team.service'
 
 @Injectable()
 export class ProfileNameService {
@@ -11,6 +12,7 @@ export class ProfileNameService {
   constructor(
     @InjectModel(ProfileNameModel)
     private readonly profileNameModel: ReturnModelType<typeof ProfileNameModel>,
+    private readonly profileTeamService: ProfileTeamService,
   ) {}
 
   findProfile(search?: string, profileIds?: Types.ObjectId[]): Promise<Types.ObjectId[]> {
@@ -58,10 +60,41 @@ export class ProfileNameService {
     const nicknameCased = this.casedName(name.nickname)
     const firstnameCased = this.casedName(name.firstname)
     const lastnameInitial = this.casedInitial(name.lastname)
-    const trimmedFirstname = firstnameCased.slice(0, maxLength - `(${nicknameCased}) ${lastnameInitial}`.length)
+    const preRenderWithoutFirstname = this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, lastnameInitial)
+    const trimmedFirstname = firstnameCased.slice(0, maxLength - preRenderWithoutFirstname.length)
     if (trimmedFirstname !== firstnameCased)
       this.logger.warn(`${profileId}: "${firstnameCased}" has trimmed to "${trimmedFirstname}"`)
-    return `(${nicknameCased}) ${trimmedFirstname}${lastnameInitial}`
+    return this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, `${trimmedFirstname}${lastnameInitial}`)
+  }
+
+  async getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profileId: Types.ObjectId) {
+    const maxLength = 32
+    const [name, emoji] = await Promise.all([
+      this.getProfileName(profileId, 'en'),
+      this.profileTeamService.getLatestProfileTeamEmoji(profileId),
+    ])
+    if (name?.lang !== 'en') return null
+    const nicknameCased = this.casedName(name.nickname)
+    const firstnameCased = this.casedName(name.firstname)
+    const lastnameInitial = this.casedInitial(name.lastname)
+    const preRenderWithoutFirstname = emoji
+      ? this.getNameWithSecondaryInParenthesisAndEmojiPrefix(emoji, nicknameCased, lastnameInitial)
+      : this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, lastnameInitial)
+    const trimmedFirstname = firstnameCased.slice(0, maxLength - preRenderWithoutFirstname.length)
+    if (trimmedFirstname !== firstnameCased)
+      this.logger.warn(`${profileId}: "${firstnameCased}" has trimmed to "${trimmedFirstname}"`)
+    const firstNameWithInitial = `${trimmedFirstname}${lastnameInitial}`
+    return emoji
+      ? this.getNameWithSecondaryInParenthesisAndEmojiPrefix(emoji, nicknameCased, firstNameWithInitial)
+      : this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, firstNameWithInitial)
+  }
+
+  private getNameWithSecondaryNameInParenthesisPrefix(secondaryName: string, primaryName: string) {
+    return `(${secondaryName}) ${primaryName}`
+  }
+
+  private getNameWithSecondaryInParenthesisAndEmojiPrefix(emoji: string, secondaryName: string, primaryName: string) {
+    return `${emoji} ${this.getNameWithSecondaryNameInParenthesisPrefix(secondaryName, primaryName)}`
   }
 
   private casedName(name = '') {

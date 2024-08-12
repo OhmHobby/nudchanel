@@ -8,6 +8,7 @@ export function resetMockModel<T extends new (...args: any[]) => any>(model: Moc
     where: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
     distinct: jest.fn().mockReturnThis(),
+    sort: jest.fn().mockReturnThis(),
     exec: jest.fn().mockResolvedValue([]),
   })
   model.findOne = jest.fn().mockReturnValue({ select: jest.fn().mockReturnThis(), exec: jest.fn() })
