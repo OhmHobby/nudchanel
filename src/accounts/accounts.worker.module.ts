@@ -7,6 +7,7 @@ import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
+import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { ProfileModel } from '../models/accounts/profile.model'
@@ -23,7 +24,7 @@ import { UserGroupService } from './user/user-group.service'
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel],
+      [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel, TeamRoleModel],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),

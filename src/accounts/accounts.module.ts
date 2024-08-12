@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { TeamMemberModel } from 'src/models/accounts/team-member.model'
+import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
@@ -21,12 +23,21 @@ import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { UserGroupService } from './user/user-group.service'
 import { UserLocalService } from './user/user-local.service'
-import { TeamMemberModel } from 'src/models/accounts/team-member.model'
+import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [ProfileModel, ProfileNameModel, UserLocalModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel],
+      [
+        ProfileModel,
+        ProfileNameModel,
+        UserLocalModel,
+        UserGroupModel,
+        GroupModel,
+        RefreshTokenModel,
+        TeamMemberModel,
+        TeamRoleModel,
+      ],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),
