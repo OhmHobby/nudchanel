@@ -13,6 +13,7 @@ import { AccessTokenService } from './access-token/access-token.service'
 import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
 import { ProfilePhotoService } from './profile/profile-photo.service'
+import { ProfileTeamService } from './profile/profile-team.service'
 import { ProfileService } from './profile/profile.service'
 import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
@@ -36,6 +37,7 @@ import { UserLocalService } from './user/user-local.service'
     AccessTokenService,
     RefreshTokenService,
     ProfileNameService,
+    ProfileTeamService,
     UserLocalService,
     UserGroupService,
     GroupService,
