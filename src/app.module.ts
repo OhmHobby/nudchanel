@@ -30,6 +30,7 @@ import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     { provide: APP_INTERCEPTOR, useClass: AuditLogger },
     AuthMiddleware,
     SwaggerConfigBuilder,
+    MongooseServerLifecyclesService,
     OTELLifecyclesService,
   ],
 })
