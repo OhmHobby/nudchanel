@@ -47,8 +47,7 @@ async function bootstrap() {
   const runMode = config.get<string>(Config.RUN_MODE)
   switch (runMode) {
     case AppRunMode.AllInOne:
-      await bootstrapServer()
-      await bootstrapWorker(Config.HTTP_SECONDARY_PORT)
+      await Promise.all([bootstrapServer(), bootstrapWorker(Config.HTTP_SECONDARY_PORT)])
       break
     case AppRunMode.Server:
       await bootstrapServer()
