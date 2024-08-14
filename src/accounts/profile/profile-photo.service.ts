@@ -26,6 +26,19 @@ export class ProfilePhotoService {
     private readonly photoProcessor: PhotoProcesserV1Service,
   ) {}
 
+  async fixOutdatedProfilePhotos() {
+    const photos = await this.profilePhotoModel.find().sort({ profile: 'asc', directory: 'desc' }).lean().exec()
+    const toFixPhotos = photos
+      .map((photo) => photos.find((p) => p.profile === photo.profile))
+      .filter((photo) => photos.find((p) => p && p.profile === photo?.profile && p.directory !== photo.directory))
+    await Promise.all(
+      toFixPhotos.map(
+        (photo) => photo && this.importFromNas(photo.directory, photo.filename, photo.profile as Types.ObjectId),
+      ),
+    )
+    return toFixPhotos
+  }
+
   async importFromNas(directory: string, filename: string, profileId: Types.ObjectId) {
     const [profile, user] = await Promise.all([
       this.profileService.findById(profileId),
