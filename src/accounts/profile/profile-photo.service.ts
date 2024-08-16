@@ -1,5 +1,5 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import {
   PhotoProcessorV1ControllerProcessFitEnum,
   PhotoProcessorV1ControllerProcessFormatEnum,
@@ -18,6 +18,8 @@ import { ProfileService } from './profile.service'
 
 @Injectable()
 export class ProfilePhotoService {
+  private readonly logger = new Logger(ProfilePhotoService.name)
+
   constructor(
     @InjectModel(ProfilePhotoModel)
     private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
@@ -34,9 +36,13 @@ export class ProfilePhotoService {
       .distinct('profile')
       .lean()
       .exec()
-    const toFixPhotos = profiles
-      .filter((profile) => photos.filter((photo) => photo.profile === profile).length > 1)
-      .map((profile) => photos.find((photo) => photo.profile === profile))
+    const multiplePhotosProfiles = profiles.filter(
+      (profile) => photos.filter((photo) => photo.profile.toString() === profile.toString()).length > 1,
+    )
+    const toFixPhotos = multiplePhotosProfiles.map((profile) =>
+      photos.find((photo) => photo.profile.toString === profile.toString),
+    )
+    this.logger.log({ photos, profiles, multiplePhotosProfiles, toFixPhotos })
     await Promise.all(
       toFixPhotos.map(
         (photo) => photo && this.importFromNas(photo.directory, photo.filename, photo.profile as Types.ObjectId),
