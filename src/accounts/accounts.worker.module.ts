@@ -9,7 +9,9 @@ import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
+import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { PhotoModule } from 'src/photo/photo.module'
 import { ProfileModel } from '../models/accounts/profile.model'
 import { ProfileNameModel } from '../models/accounts/profile.name.model'
 import { AccessTokenService } from './access-token/access-token.service'
@@ -21,21 +23,34 @@ import { ProfileTeamService } from './profile/profile-team.service'
 import { ProfileService } from './profile/profile.service'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { UserGroupService } from './user/user-group.service'
+import { UserLocalService } from './user/user-local.service'
 
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel, TeamRoleModel],
+      [
+        ProfileModel,
+        ProfileNameModel,
+        UserLocalModel,
+        UserGroupModel,
+        GroupModel,
+        RefreshTokenModel,
+        TeamMemberModel,
+        TeamRoleModel,
+      ],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),
     BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 2, backoff: 5000 } }),
     AmqpModule,
+    PhotoModule,
   ],
   providers: [
     ProfileService,
     ProfileNameService,
     ProfileTeamService,
+    ProfilePhotoService,
+    UserLocalService,
     UserGroupService,
     GroupService,
     AccessTokenService,
