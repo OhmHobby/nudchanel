@@ -36,3 +36,13 @@ deploy:
   needs:
     - job: build:image
       optional: true
+
+node_modules:
+  extends:
+    - .node
+    - .build-node-rules
+  script:
+    - exit 0
+  artifacts:
+    paths:
+      - node_modules
