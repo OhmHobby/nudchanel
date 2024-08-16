@@ -40,7 +40,7 @@ export class ProfilePhotoService {
       (profile) => photos.filter((photo) => photo.profile.toString() === profile.toString()).length > 1,
     )
     const toFixPhotos = multiplePhotosProfiles.map((profile) =>
-      photos.find((photo) => photo.profile.toString === profile.toString),
+      photos.find((photo) => photo.profile.toString() === profile.toString()),
     )
     this.logger.log({ photos, profiles, multiplePhotosProfiles, toFixPhotos })
     await Promise.all(
