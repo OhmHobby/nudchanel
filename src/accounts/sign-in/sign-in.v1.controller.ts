@@ -1,11 +1,24 @@
-import { Body, Controller, HttpCode, HttpStatus, Logger, Post, Res } from '@nestjs/common'
-import { ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  Query,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common'
+import { ApiFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { Response } from 'express'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { RefreshTokenService } from '../refresh-token/refresh-token.service'
 import { UserLocalService } from '../user/user-local.service'
+import { SignInCodeDto } from './dto/sign-in-code.dto'
 import { SignInLocalUserRequestDto } from './dto/sign-in-local-user-request.dto'
 import { SignInLocalUserResponseDto, SignInStatus } from './dto/sign-in-local-user-response.dto'
+import { SignInService } from './sign-in.service'
 
 @Controller({ path: 'accounts/sign-in', version: '1' })
 @ApiTags('SignInV1')
@@ -13,10 +26,24 @@ export class SignInV1Controller {
   private readonly logger = new Logger(SignInV1Controller.name)
 
   constructor(
+    private readonly signInService: SignInService,
     private readonly userLocalService: UserLocalService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly accessTokenService: AccessTokenService,
   ) {}
+
+  @Get()
+  @ApiFoundResponse()
+  async signInWithCode(
+    @Res() response: Pick<Response, 'cookie' | 'redirect'>,
+    @Query() { code, continue: redirectTo }: SignInCodeDto,
+  ) {
+    const profileId = await this.signInService.useCode(code)
+    if (!profileId) throw new UnauthorizedException('Code expired')
+    await this.setAccessRefreshTokenCookiesByProfile(response, profileId, true)
+    this.logger.log({ message: 'Successful sign-in', profileId }, SignInV1Controller.prototype.signInWithCode.name)
+    response.redirect(HttpStatus.FOUND, redirectTo)
+  }
 
   @Post('/local')
   @HttpCode(HttpStatus.OK)
