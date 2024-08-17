@@ -11,6 +11,9 @@ http:
     authGroups: []
   baseUrl:
     photo: https://photos.nudchannel.com
+  proxy:
+    graphql:
+      target: http://api-gateway
 
 log:
   level: info

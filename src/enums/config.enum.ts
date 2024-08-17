@@ -7,6 +7,7 @@ export enum Config {
   HTTP_BULLBOARD_PATH = 'http.bullboard.path',
   HTTP_BULLBOARD_AUTH_GROUPS = 'http.bullboard.authGroups',
   HTTP_BASEURL_PHOTO = 'http.baseUrl.photo',
+  HTTP_PROXY = 'http.proxy',
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
   LOG_LOKI_URL = 'log.loki.url',
