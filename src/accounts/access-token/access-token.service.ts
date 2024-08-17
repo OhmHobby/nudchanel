@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { SignAccessToken } from '@nudchannel/auth'
+import { SignAccessToken, User, VerifyAccessToken } from '@nudchannel/auth'
+import { IUserOptions } from '@nudchannel/auth/lib/user/user-options.interface'
 import dayjs from 'dayjs'
 import { Response } from 'express'
+import { IncomingHttpHeaders } from 'http'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
 import { ProfileNameService } from '../profile/profile-name.service'
@@ -11,12 +13,26 @@ import { UserGroupService } from '../user/user-group.service'
 
 @Injectable()
 export class AccessTokenService {
+  private readonly verifyAccessToken: VerifyAccessToken
+
+  private readonly userOptions: IUserOptions = {
+    throwForbiddenHandler() {
+      throw new ForbiddenException()
+    },
+    throwUnauthorizedHandler() {
+      throw new UnauthorizedException()
+    },
+  }
+
   constructor(
     private readonly configService: ConfigService,
     private readonly profileService: ProfileService,
     private readonly profileNameService: ProfileNameService,
     private readonly userGroupService: UserGroupService,
-  ) {}
+  ) {
+    const publicKey = configService.get(Config.NUDCH_TOKEN_PUBLIC_KEY)
+    this.verifyAccessToken = new VerifyAccessToken(publicKey)
+  }
 
   accessTokenExpires(): Date {
     const expiresIn = 5
@@ -44,5 +60,27 @@ export class AccessTokenService {
     response.cookie(CookieToken.ACCESS_TOKEN_COOKIE_NAME, accessToken, {
       expires: this.accessTokenExpires(),
     })
+  }
+
+  async getUserFromHeaders(headers: IncomingHttpHeaders) {
+    try {
+      const user = await this.verifyAccessToken.userFromHeaders(headers, this.userOptions)
+      return user
+    } catch (err) {
+      return this.getFallbackUser()
+    }
+  }
+
+  async getUserFromAccessToken(accessToken: string) {
+    try {
+      const user = await this.verifyAccessToken.fromAccessToken(accessToken, this.userOptions)
+      return user
+    } catch (err) {
+      return this.getFallbackUser()
+    }
+  }
+
+  getFallbackUser() {
+    return new User(undefined, this.userOptions)
   }
 }
