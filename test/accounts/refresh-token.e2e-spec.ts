@@ -34,6 +34,47 @@ describe('Accounts - refresh token', () => {
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
   })
 
+  it('GET /ping (should not re-new when accessToken is valid)', async () => {
+    const accessToken = await TestData.aValidAccessToken().build()
+    const refreshToken = TestData.aValidRefreshToken().build()
+    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
+    const cookies = TestData.aValidSupertestCookies()
+      .withAccessToken(accessToken)
+      .withRefreshToken(refreshToken._id!.toString())
+      .build()
+
+    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.text).toBe('pong')
+    expect(result.headers['set-cookie']).toBeUndefined()
+  })
+
+  it('GET /ping (automatically re-new accessToken)', async () => {
+    const refreshToken = TestData.aValidRefreshToken().build()
+    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
+    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
+
+    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.text).toBe('pong')
+    expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/access_token=.+/))
+    expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
+  })
+
+  it('GET /ping (expired refresh token should not be re-newed)', async () => {
+    const refreshToken = TestData.aValidRefreshToken().build()
+    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
+
+    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.text).toBe('pong')
+    expect(result.headers['set-cookie']).toBeUndefined()
+  })
+
   afterAll(() => {
     app.close()
   })
