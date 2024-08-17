@@ -29,9 +29,8 @@ import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
-import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
-import { ProxyModule } from './proxy/proxy.module'
+import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 
 @Module({
   imports: [
@@ -55,7 +54,6 @@ import { ProxyModule } from './proxy/proxy.module'
     DeliveryModule,
     GalleryModule,
     GoogleModule,
-    ProxyModule,
   ],
   controllers: [AppController],
   providers: [
