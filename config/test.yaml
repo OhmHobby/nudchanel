@@ -87,6 +87,21 @@ authentication:
   refreshToken:
     secure: false
 
+storage:
+  webdav:
+    url: http://webdav
+    authtype: password
+    username: ""
+    password: ""
+
+photo:
+  minio:
+    endpoint: minio
+    port: 9000
+    access_key: ci-access-key
+    secret_key: ci-secret-key
+    bucket_name: nudch-photos
+
 googleapis:
   service:
     email: dev-85@nudchannel.iam.gserviceaccount.com
