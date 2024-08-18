@@ -17,5 +17,20 @@ rabbitmq:
   wait:
     enabled: false
 
+storage:
+  webdav:
+    url: http://localhost:8080
+    authtype: password
+    username: ""
+    password: ""
+
+photo:
+  minio:
+    endpoint: localhost
+    port: 9000
+    access_key: ci-access-key
+    secret_key: ci-secret-key
+    bucket_name: nudch-photos
+
 photoProcessor:
   url: http://localhost:4001
