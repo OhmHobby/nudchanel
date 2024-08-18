@@ -3,6 +3,10 @@ import { Types } from 'mongoose'
 
 @modelOptions({ schemaOptions: { collection: 'teams.roles' } })
 export class TeamRoleModel {
+  constructor(model?: Partial<TeamRoleModel>) {
+    Object.assign(this, model)
+  }
+
   _id: Types.ObjectId
 
   @Prop({ type: String, required: true, index: true, unique: true })

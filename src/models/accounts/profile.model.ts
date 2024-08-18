@@ -1,4 +1,4 @@
-import { modelOptions, Prop, Ref } from '@typegoose/typegoose'
+import { isDocumentArray, modelOptions, Prop, Ref } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { ProfileNameModel } from './profile.name.model'
 
@@ -43,4 +43,8 @@ export class ProfileModel {
 
   @Prop({ ref: () => ProfileNameModel, localField: '_id', foreignField: 'profile' })
   names?: Ref<ProfileNameModel>[]
+
+  get populatedNames() {
+    return isDocumentArray(this.names) ? this.names : undefined
+  }
 }

@@ -16,7 +16,7 @@ import { AccessTokenService } from './access-token/access-token.service'
 import { DiscordProcessorService } from './discord/discord-processor.service'
 import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
-import { ProfileTeamService } from './profile/profile-team.service'
+import { TeamService } from './team/team.service'
 import { ProfileService } from './profile/profile.service'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { UserGroupService } from './user/user-group.service'
@@ -34,7 +34,7 @@ import { UserGroupService } from './user/user-group.service'
   providers: [
     ProfileService,
     ProfileNameService,
-    ProfileTeamService,
+    TeamService,
     UserGroupService,
     GroupService,
     AccessTokenService,

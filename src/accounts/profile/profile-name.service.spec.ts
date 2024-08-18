@@ -4,26 +4,26 @@ import { getModelForClass } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { ProfileNameService } from './profile-name.service'
-import { ProfileTeamService } from './profile-team.service'
+import { TeamService } from '../team/team.service'
 
-jest.mock('./profile-team.service')
+jest.mock('../team/team.service')
 
 describe(ProfileNameService.name, () => {
   let service: ProfileNameService
-  let profileTeamService: ProfileTeamService
+  let profileTeamService: TeamService
   const profileNameModel = getModelForClass(ProfileNameModel)
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProfileNameService,
-        ProfileTeamService,
+        TeamService,
         { provide: getModelToken(ProfileNameModel.name), useValue: profileNameModel },
       ],
     }).compile()
 
     service = module.get(ProfileNameService)
-    profileTeamService = module.get(ProfileTeamService)
+    profileTeamService = module.get(TeamService)
   })
 
   it('should be defined', () => {
