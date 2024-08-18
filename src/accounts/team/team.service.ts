@@ -28,7 +28,7 @@ export class TeamService {
     const members = await this.teamMemberModel
       .find({ year })
       .sort({ profile: 'asc' })
-      .populate({ path: 'profile', populate: { path: 'names' }, select: 'names' })
+      .populate({ path: 'profile', populate: { path: 'names' }, select: ['names', 'photo'] })
       .populate({ path: 'roles', select: '-_id' })
       .populate({ path: 'group', select: '-_id' })
       .exec()

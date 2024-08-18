@@ -19,6 +19,7 @@ export class TeamSteps extends CommonSteps {
       nickname: member.name.nickname,
       roles: member.roles.join(', '),
       group: member.group,
+      photoUrl: member.photoUrl,
     }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }

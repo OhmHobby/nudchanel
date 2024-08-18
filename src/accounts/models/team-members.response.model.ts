@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Exclude, Expose } from 'class-transformer'
+import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
@@ -15,6 +17,15 @@ export class TeamMembersResponseModel {
   @ApiProperty({ type: ProfileNameResponseModel })
   name: ProfileNameResponseModel
 
+  @Exclude()
+  photo: string
+
+  @ApiProperty({ type: String })
+  @Expose()
+  get photoUrl() {
+    return PhotoUrlHelper.profileWebp(this.photo)
+  }
+
   @ApiProperty()
   roles: string[]
 
@@ -25,6 +36,7 @@ export class TeamMembersResponseModel {
     return new TeamMembersResponseModel({
       profileId: member.profile._id.toHexString(),
       name: ProfileNameResponseModel.fromProfile(member.populatedProfile),
+      photo: member.populatedProfile?.photo,
       roles: member.roles.map((role) => (role as TeamRoleModel)?.name),
       group: (member.group as TeamGroupModel)?.name,
     })

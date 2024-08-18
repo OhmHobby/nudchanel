@@ -12,4 +12,8 @@ export class PhotoUrlHelper {
   static card(uuid: string = DEFAULT_UUID) {
     return `${PhotoUrlHelper.baseUrl}/photos/card/${uuid}.webp`
   }
+
+  static profileWebp(uuid: string = DEFAULT_UUID) {
+    return `${PhotoUrlHelper.baseUrl}/profiles/${uuid}.webp`
+  }
 }
