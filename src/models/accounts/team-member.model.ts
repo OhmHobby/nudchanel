@@ -1,4 +1,4 @@
-import { modelOptions, Prop, Ref } from '@typegoose/typegoose'
+import { isDocument, modelOptions, Prop, Ref } from '@typegoose/typegoose'
 import { ProfileModel } from './profile.model'
 import { TeamGroupModel } from './team-group.model'
 import { TeamRoleModel } from './team-role.model'
@@ -11,6 +11,10 @@ import { TeamRoleModel } from './team-role.model'
   },
 })
 export class TeamMemberModel {
+  constructor(model?: Partial<TeamMemberModel>) {
+    Object.assign(this, model)
+  }
+
   @Prop({ ref: ProfileModel })
   profile: Ref<ProfileModel>
 
@@ -22,4 +26,8 @@ export class TeamMemberModel {
 
   @Prop({ ref: TeamGroupModel })
   group: Ref<TeamGroupModel>
+
+  get populatedProfile() {
+    return isDocument(this.profile) ? this.profile : undefined
+  }
 }

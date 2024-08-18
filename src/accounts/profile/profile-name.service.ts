@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
-import { ProfileTeamService } from './profile-team.service'
+import { TeamService } from '../team/team.service'
 
 @Injectable()
 export class ProfileNameService {
@@ -12,7 +12,7 @@ export class ProfileNameService {
   constructor(
     @InjectModel(ProfileNameModel)
     private readonly profileNameModel: ReturnModelType<typeof ProfileNameModel>,
-    private readonly profileTeamService: ProfileTeamService,
+    private readonly profileTeamService: TeamService,
   ) {}
 
   findProfile(search?: string, profileIds?: Types.ObjectId[]): Promise<Types.ObjectId[]> {

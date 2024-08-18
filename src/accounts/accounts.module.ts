@@ -4,6 +4,7 @@ import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { SignInTokenModel } from 'src/models/accounts/signin-token.model'
+import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
@@ -16,7 +17,6 @@ import { AccessTokenService } from './access-token/access-token.service'
 import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
 import { ProfilePhotoService } from './profile/profile-photo.service'
-import { ProfileTeamService } from './profile/profile-team.service'
 import { ProfileService } from './profile/profile.service'
 import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
@@ -24,6 +24,8 @@ import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { SignInService } from './sign-in/sign-in.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { SignOutV1Controller } from './sign-in/sign-out-v1.controller'
+import { TeamMemberV1Controller } from './team/team-member.v1.controller'
+import { TeamService } from './team/team.service'
 import { UserGroupService } from './user/user-group.service'
 import { UserLocalService } from './user/user-local.service'
 
@@ -39,6 +41,7 @@ import { UserLocalService } from './user/user-local.service'
         RefreshTokenModel,
         TeamMemberModel,
         TeamRoleModel,
+        TeamGroupModel,
         SignInTokenModel,
       ],
       MongoConnection.Accounts,
@@ -52,13 +55,19 @@ import { UserLocalService } from './user/user-local.service'
     AccessTokenService,
     RefreshTokenService,
     ProfileNameService,
-    ProfileTeamService,
+    TeamService,
     UserLocalService,
     UserGroupService,
     GroupService,
     SignInService,
   ],
-  controllers: [ProfileV1Controller, RefreshTokenV1Controller, SignInV1Controller, SignOutV1Controller],
+  controllers: [
+    ProfileV1Controller,
+    RefreshTokenV1Controller,
+    SignInV1Controller,
+    SignOutV1Controller,
+    TeamMemberV1Controller,
+  ],
   exports: [ProfileService, ProfilePhotoService, AccessTokenService, RefreshTokenService],
 })
 export class AccountsModule {}
