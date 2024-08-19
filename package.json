@@ -53,7 +53,7 @@
     "cookie-parser": "1.4.6",
     "dayjs": "1.11.12",
     "discord.js": "14.15.3",
-    "googleapis": "135.1.0",
+    "googleapis": "142.0.0",
     "handlebars": "4.7.8",
     "helper-markdown": "1.0.0",
     "minio": "^8.0.1",
