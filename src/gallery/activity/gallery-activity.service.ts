@@ -24,7 +24,7 @@ export class GalleryActivityService {
     search?: string,
     includesUnpublished = false,
   ): Promise<GalleryActivityModel[]> {
-    const query = this.activityModel.find().sort({ time: 'desc' })
+    const query = this.activityModel.find({ deleted: false }).sort({ time: 'desc' })
     const beforeDate = this.selectEailerDate(before, this.academicYearEndDate(year))
     const afterDate = this.academicYearStartDate(year)
     if (afterDate) query.where({ time: { $lt: beforeDate, $gt: afterDate } })
