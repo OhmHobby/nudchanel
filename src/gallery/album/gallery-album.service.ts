@@ -11,7 +11,7 @@ export class GalleryAlbumService {
   ) {}
 
   async findByActivity(activityId: string, includesUnpublished = false): Promise<GalleryAlbumModel[]> {
-    const query = this.albumModel.find({ activity: activityId })
+    const query = this.albumModel.find({ activity: activityId, deleted: false })
     if (!includesUnpublished) query.where({ published: true, published_at: { $lte: new Date() } })
     const albums = await query.sort({ rank: 1 }).exec()
     return albums
