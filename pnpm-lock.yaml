@@ -132,8 +132,8 @@ dependencies:
     specifier: ^2.5.5
     version: 2.5.5(mongodb@6.8.0)
   uuidv7:
-    specifier: 0.6.3
-    version: 0.6.3
+    specifier: 1.0.1
+    version: 1.0.1
   webdav:
     specifier: ^5.7.1
     version: 5.7.1
@@ -9012,8 +9012,8 @@ packages:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
-  /uuidv7@0.6.3:
-    resolution: {integrity: sha512-zV3eW2NlXTsun/aJ7AixxZjH/byQcH/r3J99MI0dDEkU2cJIBJxhEWUHDTpOaLPRNhebPZoeHuykYREkI9HafA==}
+  /uuidv7@1.0.1:
+    resolution: {integrity: sha512-2noB909GbI352dKfASOY6VHHl59KvevZ1FF8gCAXCwDyrt2kkZhuFbczF9udqTfeejiRYEmO4wzUZ0WhVP+IUA==}
     hasBin: true
     dev: false
 
