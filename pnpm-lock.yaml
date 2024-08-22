@@ -18,8 +18,8 @@ dependencies:
     specifier: 12.0.0
     version: 12.0.0(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(@typegoose/typegoose@12.6.0)(mongoose@8.5.3)
   '@nestjs/bull':
-    specifier: 10.2.0
-    version: 10.2.0(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(bull@4.16.0)
+    specifier: 10.2.1
+    version: 10.2.1(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(bull@4.16.0)
   '@nestjs/cache-manager':
     specifier: 2.2.2
     version: 2.2.2(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(cache-manager@5.7.6)(rxjs@7.8.1)
@@ -831,7 +831,7 @@ packages:
       discord-api-types: 0.37.83
       fast-deep-equal: 3.1.3
       ts-mixer: 6.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /@discordjs/collection@1.5.3:
@@ -862,7 +862,7 @@ packages:
       '@vladfrangu/async_event_emitter': 2.2.4
       discord-api-types: 0.37.83
       magic-bytes.js: 1.10.0
-      tslib: 2.6.2
+      tslib: 2.6.3
       undici: 6.13.0
     dev: false
 
@@ -882,7 +882,7 @@ packages:
       '@types/ws': 8.5.12
       '@vladfrangu/async_event_emitter': 2.2.4
       discord-api-types: 0.37.83
-      tslib: 2.6.2
+      tslib: 2.6.3
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
@@ -1522,8 +1522,8 @@ packages:
     dev: false
     optional: true
 
-  /@nestjs/bull-shared@10.2.0(@nestjs/common@10.4.1)(@nestjs/core@10.4.1):
-    resolution: {integrity: sha512-cSi6CyPECHDFumnHWWfwLCnbc6hm5jXt7FqzJ0Id6EhGqdz5ja0FmgRwXoS4xoMA2RRjlxn2vGXr4YOaHBAeig==}
+  /@nestjs/bull-shared@10.2.1(@nestjs/common@10.4.1)(@nestjs/core@10.4.1):
+    resolution: {integrity: sha512-zvnTvSq6OJ92omcsFUwaUmPbM3PRgWkIusHPB5TE3IFS7nNdM3OwF+kfe56sgKjMtQQMe/56lok0S04OtPMX5Q==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1533,14 +1533,14 @@ packages:
       tslib: 2.6.3
     dev: false
 
-  /@nestjs/bull@10.2.0(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(bull@4.16.0):
-    resolution: {integrity: sha512-byQI3cgAVP8BNa71h5g33D1pNwOaK2O9+zYmT98eU8LxxJHh53aWMwEUrCHrwgSz4P8bD+jY8ObQ5vtU4SsidA==}
+  /@nestjs/bull@10.2.1(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(bull@4.16.0):
+    resolution: {integrity: sha512-y7AII50p+FoyAZP3OKXgi0QCFUFGJ4X7G3L2Arw3BtLsEYvLxTaRB1DPv5a80LYp8Pj4xisIzF4gNv3hfkuErw==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
       bull: ^3.3 || ^4.0.0
     dependencies:
-      '@nestjs/bull-shared': 10.2.0(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)
+      '@nestjs/bull-shared': 10.2.1(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)
       '@nestjs/common': 10.4.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.1(@nestjs/common@10.4.1)(@nestjs/platform-express@10.4.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       bull: 4.16.0
