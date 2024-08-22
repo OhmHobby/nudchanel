@@ -14,6 +14,7 @@ import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston'
 import { Resource } from '@opentelemetry/resources'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
+import { BatchSpanProcessor, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import {
   SEMRESATTRS_DEPLOYMENT_ENVIRONMENT,
   SEMRESATTRS_HOST_NAME,
@@ -24,6 +25,10 @@ import config from 'config'
 import process from 'process'
 import { Config } from './enums/config.enum'
 
+const traceExporter = new OTLPTraceExporter({
+  url: config.get<string>(Config.OTLP_TRACE_URL),
+})
+
 const otelSDK = new NodeSDK({
   resource: new Resource({
     [SEMRESATTRS_SERVICE_NAME]: 'webservice',
@@ -31,9 +36,10 @@ const otelSDK = new NodeSDK({
     [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV,
     [SEMRESATTRS_HOST_NAME]: process.env.HOSTNAME,
   }),
-  traceExporter: new OTLPTraceExporter({
-    url: config.get<string>(Config.OTLP_TRACE_URL),
-  }),
+  spanProcessor:
+    process.env.NODE_ENV === `development`
+      ? new SimpleSpanProcessor(traceExporter)
+      : new BatchSpanProcessor(traceExporter),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
       url: config.get<string>(Config.OTLP_METRIC_URL),

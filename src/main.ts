@@ -1,3 +1,5 @@
+import otelSDK from './tracing'
+
 import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import config from 'config'
@@ -8,13 +10,9 @@ import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { AppRunMode } from './enums/app-run-mode.enum'
 import { Config } from './enums/config.enum'
 import { SchedulerRegisterService } from './scheduler/scheduler-register.service'
-import otelSDK from './tracing'
 import { WorkerModule } from './worker.module'
 
 async function bootstrapServer() {
-  if (config.get<boolean>(Config.OTLP_ENABLED)) {
-    await otelSDK.start()
-  }
   const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
   app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
   const logger = app.get<Logger>(WINSTON_MODULE_NEST_PROVIDER)
@@ -44,6 +42,9 @@ async function bootstrapWorker(portConfigName: string) {
 }
 
 async function bootstrap() {
+  if (config.get<boolean>(Config.OTLP_ENABLED)) {
+    await otelSDK.start()
+  }
   const runMode = config.get<string>(Config.RUN_MODE)
   switch (runMode) {
     case AppRunMode.AllInOne:
