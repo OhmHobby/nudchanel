@@ -1,7 +1,16 @@
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
+import { DnsInstrumentation } from '@opentelemetry/instrumentation-dns'
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
+import { FsInstrumentation } from '@opentelemetry/instrumentation-fs'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
+import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis'
+import { MongoDBInstrumentation } from '@opentelemetry/instrumentation-mongodb'
+import { MongooseInstrumentation } from '@opentelemetry/instrumentation-mongoose'
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core'
+import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston'
 import { Resource } from '@opentelemetry/resources'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
@@ -32,7 +41,18 @@ const otelSDK = new NodeSDK({
     exportIntervalMillis: config.get<number>(Config.OTLP_METRIC_INTERVAL),
   }),
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [
+    new FsInstrumentation(),
+    new DnsInstrumentation(),
+    new HttpInstrumentation(),
+    new ExpressInstrumentation(),
+    new NestInstrumentation(),
+    new MongoDBInstrumentation(),
+    new MongooseInstrumentation(),
+    new IORedisInstrumentation(),
+    new AmqplibInstrumentation(),
+    new WinstonInstrumentation(),
+  ],
 })
 
 export default otelSDK

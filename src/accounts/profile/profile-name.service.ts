@@ -2,6 +2,7 @@ import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
+import { Span } from 'nestjs-otel'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { TeamService } from '../team/team.service'
 
@@ -42,6 +43,26 @@ export class ProfileNameService {
     const profile = await this.profileNameModel.findOne({ profile: profileId, lang: language }).exec()
 
     return profile ?? this.getFallbackProfileName(profileId)
+  }
+
+  async getProfilesName(
+    profileIds: Types.ObjectId[],
+    language: ProfileNameLanguage = 'en',
+  ): Promise<ProfileNameModel[]> {
+    const profiles = await this.profileNameModel
+      .find({ profile: { $in: profileIds }, lang: language })
+      .lean()
+      .exec()
+    return profiles
+  }
+
+  @Span()
+  async getProfilesNameMap(
+    profileIds: Types.ObjectId[],
+    language: ProfileNameLanguage = 'en',
+  ): Promise<Map<String, ProfileNameModel>> {
+    const profiles = await this.getProfilesName(profileIds, language)
+    return new Map(profiles.map((el) => [el.profile.toString(), el]))
   }
 
   async getNickNameWithInitials(profileId: Types.ObjectId) {

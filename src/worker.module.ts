@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { AccountsWorkerModule } from './accounts/accounts.worker.module'
 import { AmqpModule } from './amqp/amqp.module'
 import { AppController } from './app.controller'
@@ -16,6 +17,7 @@ import { BullConfig } from './configs/bull.config'
 import { CacheConfig } from './configs/cache.config'
 import { clsConfigFactory } from './configs/cls.config'
 import { configuration } from './configs/configuration'
+import { OpenTelemetryConfigService } from './configs/open-telemetry.config'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
 import { WinstonConfig } from './configs/winston.config'
@@ -24,6 +26,7 @@ import { MongoConnection } from './enums/mongo-connection.enum'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
 import { MongooseWorkerLifecyclesService } from './mongoose.worker.life-cycles.service copy'
+import { OTELLifecyclesService } from './otel.life-cycles.service'
 import { SchedulerModule } from './scheduler/scheduler.module'
 
 @Module({
@@ -32,6 +35,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
     BullModule.forRootAsync({ imports: [ConfigModule], useClass: BullConfig, inject: [ConfigService] }),
     CacheModule.registerAsync({ isGlobal: true, useClass: CacheConfig }),
+    OpenTelemetryModule.forRootAsync({ useClass: OpenTelemetryConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
@@ -50,6 +54,7 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     AuthMiddleware,
     MongooseWorkerLifecyclesService,
     SwaggerConfigBuilder,
+    OTELLifecyclesService,
   ],
 })
 export class WorkerModule {

@@ -13,6 +13,14 @@ export class PhotoUrlHelper {
     return `${PhotoUrlHelper.baseUrl}/photos/card/${uuid}.webp`
   }
 
+  static thumbnail(uuid: string = DEFAULT_UUID) {
+    return `${PhotoUrlHelper.baseUrl}/photos/thumbnail/${uuid}.webp`
+  }
+
+  static preview(uuid: string = DEFAULT_UUID) {
+    return `${PhotoUrlHelper.baseUrl}/photos/preview/${uuid}.webp`
+  }
+
   static profileWebp(uuid: string = DEFAULT_UUID) {
     return `${PhotoUrlHelper.baseUrl}/profiles/${uuid}.webp`
   }

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
 import { Collection, Connection, Types } from 'mongoose'
 import { ClsService } from 'nestjs-cls'
+import { TraceService } from 'nestjs-otel'
 import { Observable } from 'rxjs'
 import { Request } from 'src/auth/request.interface'
 import { Config } from 'src/enums/config.enum'
@@ -22,6 +23,7 @@ export class AuditLogger implements NestInterceptor {
     private readonly reflector: Reflector,
     private readonly cls: ClsService,
     private readonly configService: ConfigService,
+    private readonly traceService: TraceService,
     @InjectConnection(MongoConnection.Audit)
     private readonly connection: Connection,
   ) {
@@ -29,16 +31,19 @@ export class AuditLogger implements NestInterceptor {
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> | Promise<Observable<any>> {
+    const span = this.traceService.startSpan('AuditLogger.intercept')
     const action = this.reflector.get<string>(AUDIT_LOG_METADATA_KEY, context.getHandler())
     const request: Request = context.switchToHttp().getRequest()
 
     if (action) {
       this.insert(action, request)
     }
+    span.end()
     return next.handle()
   }
 
   async insert(action: string, request: Request) {
+    const span = this.traceService.startSpan('AuditLogger.insert')
     const model = new AuditLogModel({
       action,
       actor: request.user?.id ? new Types.ObjectId(request.user.id) : undefined,
@@ -55,6 +60,8 @@ export class AuditLogger implements NestInterceptor {
       await this.auditLogModel.insertOne(model)
     } catch (err) {
       this.logger.error(`Failed to insert audit log`, model, err)
+    } finally {
+      span.end()
     }
   }
 }

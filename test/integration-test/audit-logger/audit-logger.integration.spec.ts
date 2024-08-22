@@ -5,6 +5,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core'
 import { Test } from '@nestjs/testing'
 import { User } from '@nudchannel/auth'
 import { ClsModule } from 'nestjs-cls'
+import { TraceService } from 'nestjs-otel'
 import { AuditLogger } from 'src/audit-log/audit-logger.interceptor'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
@@ -33,7 +34,7 @@ describe('Audit logger', () => {
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
         TypegooseModule.forFeature([AuditLogModel], MongoConnection.Audit),
       ],
-      providers: [{ provide: APP_INTERCEPTOR, useClass: AuditLogger }],
+      providers: [{ provide: APP_INTERCEPTOR, useClass: AuditLogger }, TraceService],
       controllers: [AuditLoggerTestController],
     }).compile()
 

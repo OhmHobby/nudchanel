@@ -1,6 +1,7 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Span } from 'nestjs-otel'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 
 @Injectable()
@@ -12,11 +13,13 @@ export class GalleryActivityService {
     private readonly activityModel: ReturnModelType<typeof GalleryActivityModel>,
   ) {}
 
+  @Span()
   async findById(id: string): Promise<GalleryActivityModel | null> {
     const activity = await this.activityModel.findById(id).exec()
     return activity
   }
 
+  @Span()
   async findActivities(
     limit: number,
     before?: Date,
