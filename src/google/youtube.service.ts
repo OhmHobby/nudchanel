@@ -14,6 +14,7 @@ export class YouTubeService {
     private readonly googleClientService: GoogleJwtClientService,
   ) {}
 
+  @Span()
   async getYouTubeClient() {
     const client = await this.googleClientService.getClient()
     return google.youtube({
@@ -40,6 +41,7 @@ export class YouTubeService {
     }
   }
 
+  @Span()
   async getVideo(id: string): Promise<IYouTubeVideo> {
     const cacheKey = 'youtube:video:' + id
     return await this.cacheManager.wrap(cacheKey, () => this.fetchVideo(id))

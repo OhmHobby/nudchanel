@@ -44,7 +44,9 @@ const otelSDK = new NodeSDK({
   instrumentations: [
     new FsInstrumentation(),
     new DnsInstrumentation(),
-    new HttpInstrumentation(),
+    new HttpInstrumentation({
+      ignoreIncomingRequestHook: (req) => !!req?.url?.startsWith('/ping'),
+    }),
     new ExpressInstrumentation(),
     new NestInstrumentation(),
     new MongoDBInstrumentation(),
