@@ -2,6 +2,7 @@ import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
+import { Span } from 'nestjs-otel'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
@@ -24,6 +25,7 @@ export class TeamService {
     return emoji
   }
 
+  @Span()
   async getYearMembers(year: number) {
     const members = await this.teamMemberModel
       .find({ year })
