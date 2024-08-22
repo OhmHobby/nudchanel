@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { google } from 'googleapis'
+import { Span } from 'nestjs-otel'
 import { GoogleJwtClientService } from './google-jwt-client.service'
 import { IYouTubeVideo } from './interfaces/youtube-video.interface'
 
@@ -21,6 +22,7 @@ export class YouTubeService {
     })
   }
 
+  @Span()
   async fetchVideo(id: string): Promise<IYouTubeVideo> {
     const service = await this.getYouTubeClient()
     const { data } = await service.videos.list({

@@ -1,5 +1,6 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common'
 import { NextFunction, Response } from 'express'
+import { TraceService } from 'nestjs-otel'
 import { AccessTokenService } from 'src/accounts/access-token/access-token.service'
 import { RefreshTokenService } from 'src/accounts/refresh-token/refresh-token.service'
 import { CookieToken } from './cookie-token'
@@ -12,6 +13,7 @@ export class AuthMiddleware implements NestMiddleware {
   private readonly cookieToken: CookieToken
 
   constructor(
+    private readonly traceService: TraceService,
     private readonly accessTokenService: AccessTokenService,
     refreshTokenService: RefreshTokenService,
   ) {
@@ -19,6 +21,7 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
+    const span = this.traceService.startSpan(AuthMiddleware.name)
     try {
       req.user = await this.accessTokenService.getUserFromHeaders(req.headers)
       if (req.user.isSignedIn()) return next()
@@ -28,10 +31,12 @@ export class AuthMiddleware implements NestMiddleware {
       if (!accessToken) return next()
 
       req.user = await this.accessTokenService.getUserFromAccessToken(accessToken)
+      span.end()
       next()
     } catch (err) {
       this.logger.error(`Failed to set User request context.`, err)
       req.user = this.accessTokenService.getFallbackUser()
+      span.end()
       next()
     }
   }

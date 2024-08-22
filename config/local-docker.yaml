@@ -17,6 +17,10 @@ rabbitmq:
   wait:
     enabled: false
 
+otlp:
+  trace:
+    url: http://localhost:4318
+
 storage:
   webdav:
     url: http://localhost:8080

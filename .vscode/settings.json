@@ -1,4 +1,14 @@
 {
   "eslint.validate": ["javascript", "typescript"],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "indentsBefore.And": 4,
+  "indentsBefore.Examples": 4,
+  "indentsBefore.Given": 4,
+  "indentsBefore.Rule": 2,
+  "indentsBefore.Then": 4,
+  "indentsBefore.When": 4,
+  "indentsBefore.Scenario": 2,
+  "indentOffsetFreeText": 2,
+  "indentsBefore.Background": 2,
+  "indentsBefore.But": 4
 }

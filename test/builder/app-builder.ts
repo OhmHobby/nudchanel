@@ -3,9 +3,11 @@ import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nes
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import cookieParser from 'cookie-parser'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { MockOpenTelemetryModule } from './mock-opentelemetry-module'
 import { MockRabbitMQModule } from './mock-rabbitmq-module'
 import { MockTypegooseModule } from './mock-typegoose-module'
 
@@ -24,6 +26,8 @@ export class AppBuilder {
       .useModule(MockTypegooseModule)
       .overrideModule(AmqpModule)
       .useModule(MockRabbitMQModule)
+      .overrideModule(OpenTelemetryModule)
+      .useModule(MockOpenTelemetryModule)
     return this
   }
 
