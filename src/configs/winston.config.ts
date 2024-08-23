@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { context, trace } from '@opentelemetry/api'
 import { WinstonModuleOptions, WinstonModuleOptionsFactory } from 'nest-winston'
 import { ClsService } from 'nestjs-cls'
 import os from 'os'
@@ -44,12 +43,6 @@ export class WinstonConfig implements WinstonModuleOptionsFactory {
       defaultMeta: {
         get correlationId() {
           return cls?.getId()
-        },
-        get traceId() {
-          return trace.getSpan(context?.active())?.spanContext()?.traceId
-        },
-        get spanId() {
-          return trace.getSpan(context?.active())?.spanContext()?.spanId
         },
         ciJobUrl: process.env.CI_JOB_URL,
       },
