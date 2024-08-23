@@ -15,6 +15,16 @@ export class HttpSteps extends CommonSteps {
     this.workspace.serverUrl = process.env.WORKER_URL ?? 'http://127.0.0.1:5000'
   }
 
+  @given(/^If none match (.*)$/)
+  givenIfNonMatch(etag: string) {
+    this.workspace.requestHeaders['if-none-match'] = etag
+  }
+
+  @given('HTTP response type {string}')
+  givenResponseType(responseType: string) {
+    this.workspace.responseType = responseType
+  }
+
   @when(/^GET (.+)$/)
   async whenGet(endpoint: string) {
     return await this.httpRequest('GET', endpoint, this.workspace.requestQueries)
@@ -33,5 +43,15 @@ export class HttpSteps extends CommonSteps {
   @then('HTTP response text should be {string}')
   thenResponseText(text: string) {
     expect(this.workspace.response?.text).toBe(text)
+  }
+
+  @then('HTTP response size should be {int}')
+  thenResponseSize(size: number) {
+    expect(this.workspace.response?.body?.length).toBe(size)
+  }
+
+  @then(/^ETag should be (.+)$/)
+  thenEtag(etag: string) {
+    expect(this.workspace.response?.headers['etag']).toBe(etag)
   }
 }

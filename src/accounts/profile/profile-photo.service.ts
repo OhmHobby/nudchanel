@@ -10,11 +10,11 @@ import { Types } from 'mongoose'
 import { join } from 'path'
 import { NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
-import { PhotoProcesserV1Service } from 'src/photo/photo-processer.v1.service'
 import { v5 as uuidv5 } from 'uuid'
 import MUUID from 'uuid-mongodb'
 import { UserLocalService } from '../user/user-local.service'
 import { ProfileService } from './profile.service'
+import { PhotoProcesserV1Service } from 'src/photo/processor/photo-processer.v1.service'
 
 @Injectable()
 export class ProfilePhotoService {

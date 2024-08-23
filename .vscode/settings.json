@@ -10,5 +10,6 @@
   "indentsBefore.Scenario": 2,
   "indentOffsetFreeText": 2,
   "indentsBefore.Background": 2,
-  "indentsBefore.But": 4
+  "indentsBefore.But": 4,
+  "indentsBefore.ScenarioOutline": 2
 }

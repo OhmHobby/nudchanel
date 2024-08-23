@@ -40,6 +40,8 @@ export enum Config {
   PHOTO_MINIO_BUCKET_NAME = 'photo.minio.bucket_name',
   PHOTO_PROCESSOR_URL = 'photoProcessor.url',
   PHOTO_PROCESSOR_APIKEY = 'photoProcessor.apiKey',
+  PHOTO_PROCESSOR_DEFAULT_QUALITY = 'photoProcessor.default.quality',
+  PHOTO_PROCESSOR_WATERMARK = 'photoProcessor.watermark',
   NUDCH_TOKEN_ISSUER = 'authentication.accessToken.issuer',
   NUDCH_TOKEN_PUBLIC_KEY = 'authentication.accessToken.publicKey',
   NUDCH_TOKEN_PRIVATE_KEY = 'authentication.accessToken.privateKey',

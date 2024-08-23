@@ -34,6 +34,7 @@ photo:
     port: 9000
     access_key: ci-access-key
     secret_key: ci-secret-key
+    use_ssl: false
     bucket_name: nudch-photos
 
 photoProcessor:

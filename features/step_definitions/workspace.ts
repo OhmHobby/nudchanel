@@ -16,6 +16,8 @@ export class Workspace {
 
   requestBody: Record<string, string>
 
+  responseType?: string
+
   response: request.Response | null
 
   @before()
@@ -25,5 +27,6 @@ export class Workspace {
     this.requestQueries = {}
     this.requestHeaders = {}
     this.requestBody = {}
+    this.responseType = undefined
   }
 }

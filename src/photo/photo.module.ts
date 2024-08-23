@@ -4,8 +4,8 @@ import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
-import { PhotoProcesserV1Service } from './photo-processer.v1.service'
 import { PhotoV1Service } from './photo-v1.service'
+import { PhotoProcesserV1Service } from './processor/photo-processer.v1.service'
 
 @Module({
   imports: [
