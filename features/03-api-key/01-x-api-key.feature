@@ -12,7 +12,7 @@ Feature: X-Api-Key
     When GET /api/v1/api-keys
     Then HTTP response status should be UNAUTHORIZED
 
-Scenario: Malformed API Key
+  Scenario: Malformed API Key
     Given API key "test"
     When GET /api/v1/api-keys
     Then HTTP response status should be BAD_REQUEST
