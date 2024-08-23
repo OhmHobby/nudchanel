@@ -25,7 +25,9 @@ export class CommonSteps {
     Object.entries(this._workspace.requestHeaders).map(([k, v]) => test.set(k, v))
     for (let attempts = 3; attempts; attempts--) {
       if (method === 'GET') {
-        this._workspace.response = await test.get(requestEndpoint).send()
+        const getTest = test.get(requestEndpoint)
+        if (this._workspace.responseType) getTest.responseType(this._workspace.responseType)
+        this._workspace.response = await getTest.send()
       } else if (method === 'POST') {
         this._workspace.response = await test.post(requestEndpoint).send(body)
       } else if (method === 'PUT') {

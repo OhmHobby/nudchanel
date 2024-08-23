@@ -3,6 +3,7 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY ./package.json ./
 COPY ./node_modules ./node_modules
+COPY ./assets ./assets
 COPY ./config/ ./config/
 COPY ./dist/ ./dist/
 EXPOSE 4000

@@ -75,6 +75,16 @@ photo:
 photoProcessor:
   url: ""
   apiKey: ""
+  default:
+    quality: 80
+  watermark:
+    "01":
+      file: assets/watermarks/01.png
+      position: bottom-left
+      size: 0.01
+      marginX: 0
+      marginY: 0.01
+      opacity: 0.75
 
 authentication:
   accessToken:

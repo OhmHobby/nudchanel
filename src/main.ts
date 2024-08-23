@@ -37,6 +37,7 @@ async function bootstrapWorker(portConfigName: string) {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   await app.get(SchedulerRegisterService).register()
   await app.get(SwaggerConfigBuilder).build(app)
+  app.getHttpAdapter().getInstance().disable('x-powered-by')
   await app.listen(config.get<number>(portConfigName))
   logger.log(`Worker listening on ${await app.getUrl()}`, 'Bootstrap')
 }

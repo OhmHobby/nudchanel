@@ -27,7 +27,9 @@ import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
 import { MongooseWorkerLifecyclesService } from './mongoose.worker.life-cycles.service copy'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { PhotoWorkerModule } from './photo/photo.worker.module'
 import { SchedulerModule } from './scheduler/scheduler.module'
+import { StorageModule } from './storage/storage.module'
 
 @Module({
   imports: [
@@ -43,9 +45,11 @@ import { SchedulerModule } from './scheduler/scheduler.module'
     AmqpModule,
     BullBoardModule,
     AccountsWorkerModule,
+    PhotoWorkerModule,
     DeliveryWorkerModule,
     MigrationWorkerModule,
     SchedulerModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [
