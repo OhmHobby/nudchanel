@@ -32,23 +32,30 @@ export class CookieToken {
     return instance.fromCookies(request.cookies)
   }
 
-  async getUpdatedAccessToken(response?: Pick<Response, 'cookie'>): Promise<string | undefined> {
-    if (!this._accessToken && this._refreshToken) {
-      await this.newAccessToken(response)
+  getAccessToken() {
+    return this._accessToken
+  }
+
+  async getUpdatedAccessToken(
+    response?: Pick<Response, 'cookie'>,
+    isExpired = !this._accessToken,
+  ): Promise<string | undefined> {
+    if (isExpired && this._refreshToken) {
+      await this.refreshAccessToken(response)
     }
     return this._accessToken
   }
 
-  private async newAccessToken(response?: Pick<Response, 'cookie'>): Promise<string | undefined> {
+  private async refreshAccessToken(response?: Pick<Response, 'cookie'>): Promise<string | undefined> {
     const refreshToken = await this.refreshTokenService.use(this._refreshToken!)
-    if (!refreshToken) {
-      return
-    }
+    if (!refreshToken) return
+
+    const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
     this._accessToken = await this.accessTokenService.generateAccessToken(refreshToken.profile.toString())
     this._refreshToken = refreshToken._id.toString()
     if (response) {
-      this.accessTokenService.setHttpAccessTokenCookie(response, this._accessToken)
-      this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken)
+      this.accessTokenService.setHttpAccessTokenCookie(response, this._accessToken, expires)
+      this.refreshTokenService.setHttpRefreshTokenCookie(response, this._refreshToken, expires)
     }
     return this._accessToken
   }
