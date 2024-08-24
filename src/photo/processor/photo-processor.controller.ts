@@ -62,12 +62,12 @@ export class PhotoProcessorController {
       new ProcessPhotoParams({ format, width, height, quality, fit, watermark }),
     )
     response.type('image/' + format)
-    return await this.streamBuffer(request, buffer, response)
+    return this.streamBuffer(request, buffer, response)
   }
 
   @Span()
-  private async streamBuffer(request: Request, buffer: Buffer, response: Response) {
-    const tag = await etag(buffer)
+  private streamBuffer(request: Request, buffer: Buffer, response: Response) {
+    const tag = etag(buffer)
     response.set({ ETag: tag })
     if (request.headers['if-none-match'] === tag) {
       response.status(HttpStatus.NOT_MODIFIED)
