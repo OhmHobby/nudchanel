@@ -36,6 +36,3 @@ photo:
     secret_key: ci-secret-key
     use_ssl: false
     bucket_name: nudch-photos
-
-photoProcessor:
-  url: http://localhost:4001

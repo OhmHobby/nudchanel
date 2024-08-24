@@ -5,13 +5,12 @@ import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { PhotoV1Service } from './photo-v1.service'
-import { PhotoProcesserV1Service } from './processor/photo-processer.v1.service'
 
 @Module({
   imports: [
     TypegooseModule.forFeature([UploadTaskModel, UploadBatchJobModel, UploadBatchFileModel], MongoConnection.Photo),
   ],
-  providers: [PhotoV1Service, PhotoProcesserV1Service],
-  exports: [PhotoV1Service, PhotoProcesserV1Service],
+  providers: [PhotoV1Service],
+  exports: [PhotoV1Service],
 })
 export class PhotoModule {}

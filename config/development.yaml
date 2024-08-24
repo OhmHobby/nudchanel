@@ -114,7 +114,3 @@ photo:
     secret_key: ab6NuBi^GNhx*7ou
     use_ssl: true
     bucket_name: nudch-photos-storage-dev
-
-photoProcessor:
-  url: http://photo-processor
-  apiKey: 34999eb3-39d5-4206-9a1a-eb572c92dee2

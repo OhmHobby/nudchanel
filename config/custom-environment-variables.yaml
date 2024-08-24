@@ -23,9 +23,6 @@ authentication:
     publicKey: NUDCH_PUBLIC_KEY
     privateKey: NUDCH_PRIVATE_KEY
 
-photoProcessor:
-  url: PHOTO_PROCESSOR_URL
-
 delivery:
   smtp:
     host: DELIVERY_SMTP_HOST

@@ -23,15 +23,3 @@ services:
     ports:
       - 9000:9000
       - 9001:9001 # root:password
-  photo-processor:
-    image: ${NUDCH_IMAGE_REGISTRY-registry.nas.nudchannel.com:7171}/nudchannel/api/photo-processor
-    ports:
-      - 4001:4001
-    environment:
-      PORT: 4001
-      RABBITMQ_URI: amqp://guest:guest@rabbitmq
-      WEBDAV_URL: http://webdav
-      MINIO_ENDPOINT: minio
-      MINIO_ACCESS_KEY: ci-access-key
-      MINIO_SECRET_KEY: ci-secret-key
-      MINIO_BUCKET_NAME: nudch-photos

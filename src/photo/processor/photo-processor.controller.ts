@@ -7,7 +7,7 @@ import { StreamBufferConverter } from 'src/helpers/stream-buffer-converter'
 import { StorageService } from 'src/storage/storage.service'
 import { GetProcessDto } from './dto/get-process.dto'
 import { PhotoProcessorService } from './photo-processor.service'
-import { ProcessParams } from './process-params'
+import { ProcessPhotoParams } from './process-photo-params'
 
 @Controller({ path: 'photo-processor' })
 @ApiTags('PhotoProcessor')
@@ -35,7 +35,7 @@ export class PhotoProcessorController {
     const rawBuffer = await this.storageService.getBuffer(path)
     const buffer = await this.processorService.process(
       rawBuffer,
-      new ProcessParams({ format, width, height, quality, fit, watermark }),
+      new ProcessPhotoParams({ format, width, height, quality, fit, watermark }),
     )
     response.type('image/' + format)
     return await this.streamBuffer(request, buffer, response)

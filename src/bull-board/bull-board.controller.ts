@@ -21,6 +21,8 @@ export class BullBoardController {
     private readonly emailQueue: Queue,
     @InjectQueue(BullQueueName.Migration)
     private readonly migrationQueue: Queue,
+    @InjectQueue(BullQueueName.Photo)
+    private readonly photoQueue: Queue,
   ) {}
 
   @All('*')
@@ -36,6 +38,7 @@ export class BullBoardController {
         new BullAdapter(this.discordEventsNotifierQueue),
         new BullAdapter(this.emailQueue),
         new BullAdapter(this.migrationQueue),
+        new BullAdapter(this.photoQueue),
       ],
       serverAdapter,
     })

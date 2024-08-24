@@ -73,8 +73,6 @@ photo:
     bucket_name: ""
 
 photoProcessor:
-  url: ""
-  apiKey: ""
   default:
     quality: 80
   watermark:

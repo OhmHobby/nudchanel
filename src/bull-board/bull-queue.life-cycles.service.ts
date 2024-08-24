@@ -14,12 +14,19 @@ export class BullQueueLifecyclesService implements OnApplicationShutdown {
     private readonly emailQueue: Queue,
     @InjectQueue(BullQueueName.Migration)
     private readonly migrationQueue: Queue,
+    @InjectQueue(BullQueueName.Photo)
+    private readonly photoQueue: Queue,
   ) {}
 
   async onApplicationShutdown(signal?: string) {
     try {
       this.logger.warn({ message: `Closing bullQueue connections`, signal })
-      await Promise.all([this.saikoQueue.close(), this.emailQueue.close(), this.migrationQueue.close()])
+      await Promise.all([
+        this.saikoQueue.close(),
+        this.emailQueue.close(),
+        this.migrationQueue.close(),
+        this.photoQueue.close(),
+      ])
       this.logger.log(`Successfully closed bullQueue connections`)
     } catch (err) {
       this.logger.error(`Error while closing bullQueue connections`, err)
