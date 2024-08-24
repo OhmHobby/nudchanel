@@ -42,7 +42,7 @@ export class GetProcessDto extends FileDto implements ProcessPhotoParams {
   @ApiPropertyOptional({ enum: ImageFit })
   @IsOptional()
   @IsEnum(ImageFit)
-  fit: ImageFit = ImageFit.Inside
+  fit: ImageFit = ImageFit.inside
 
   @ApiPropertyOptional({ type: String, description: 'Watermark preset' })
   @IsOptional()

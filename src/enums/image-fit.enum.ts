@@ -1,7 +1,7 @@
 export enum ImageFit {
-  Contain = 'contain',
-  Cover = 'cover',
-  Fill = 'fill',
-  Inside = 'inside',
-  Outside = 'outside',
+  contain = 'contain',
+  cover = 'cover',
+  fill = 'fill',
+  inside = 'inside',
+  outside = 'outside',
 }

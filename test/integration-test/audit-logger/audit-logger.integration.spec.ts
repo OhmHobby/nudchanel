@@ -55,9 +55,10 @@ describe('Audit logger', () => {
   it('should insert audit log correctly', async () => {
     const result = await request(app.getHttpServer()).post('/1?q=2').send({ test: 3 })
     let doc: AuditLogModel | null = null
-    do {
+    for (let attempts = 3; attempts && !doc; attempts--) {
       doc = await controller.findByCorrelationId(result.body.correlationId)
-    } while (!doc)
+      await new Promise<void>((r) => setTimeout(() => r(), 1000))
+    }
     expect(doc).not.toBeNull()
     expect(doc).toEqual(expect.objectContaining({ actor: TestData.aValidUserId }))
     expect(doc).toEqual(expect.objectContaining({ action: 'AuditLog Test' }))

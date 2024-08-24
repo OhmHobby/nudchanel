@@ -1,11 +1,11 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { configuration } from 'src/configs/configuration'
 import { Config } from 'src/enums/config.enum'
 import { RabbitTestConfigService } from './rabbit-test-config.service'
 import { RabbitTestService } from './rabbit-test.service'
-import { INestApplication } from '@nestjs/common'
 
 describe('RabbitMQ', () => {
   let app: INestApplication
