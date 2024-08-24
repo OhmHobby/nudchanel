@@ -33,12 +33,6 @@ describe(AccessTokenService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('accessTokenExpires', () => {
-    it('should return date type', () => {
-      expect(service.accessTokenExpires()).toBeInstanceOf(Date)
-    })
-  })
-
   describe('generateAccessToken', () => {
     it('should return access token', async () => {
       const accessToken = 'access-token'

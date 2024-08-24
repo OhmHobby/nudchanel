@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { TestData } from 'test/test-data'
 import { uuidv4 } from 'uuidv7'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { RefreshTokenService } from '../refresh-token/refresh-token.service'
@@ -53,6 +54,7 @@ describe(SignInV1Controller.name, () => {
 
     it('should set tokens and redirect when success', async () => {
       signInService.useCode = jest.fn().mockResolvedValue('profile-id')
+      refreshTokenService.create = jest.fn().mockResolvedValue(TestData.aValidRefreshToken().build())
       await controller.signInWithCode(mockResponse, new SignInCodeDto({ code: uuidv4() }))
       expect(accessTokenService.setHttpAccessTokenCookie).toHaveBeenCalled()
       expect(refreshTokenService.setHttpRefreshTokenCookie).toHaveBeenCalled()

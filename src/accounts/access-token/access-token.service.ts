@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/c
 import { ConfigService } from '@nestjs/config'
 import { SignAccessToken, User, VerifyAccessToken } from '@nudchannel/auth'
 import { IUserOptions } from '@nudchannel/auth/lib/user/user-options.interface'
-import dayjs from 'dayjs'
 import { Response } from 'express'
 import { IncomingHttpHeaders } from 'http'
 import { CookieToken } from 'src/auth/cookie-token'
@@ -34,11 +33,6 @@ export class AccessTokenService {
     this.verifyAccessToken = new VerifyAccessToken(publicKey)
   }
 
-  accessTokenExpires(): Date {
-    const expiresIn = 5
-    return dayjs().add(expiresIn, 'minute').toDate()
-  }
-
   async generateAccessToken(profileId: string) {
     const privateKey = this.configService.get(Config.NUDCH_TOKEN_PRIVATE_KEY)
     const issuer = this.configService.get(Config.NUDCH_TOKEN_ISSUER)
@@ -56,10 +50,8 @@ export class AccessTokenService {
     return signAccessToken.setProfileId(profileId).setGroups(groups).setName(fullname).setPhoto(photo).sign()
   }
 
-  setHttpAccessTokenCookie(response: Pick<Response, 'cookie'>, accessToken: string) {
-    response.cookie(CookieToken.ACCESS_TOKEN_COOKIE_NAME, accessToken, {
-      expires: this.accessTokenExpires(),
-    })
+  setHttpAccessTokenCookie(response: Pick<Response, 'cookie'>, accessToken: string, expires?: Date) {
+    response.cookie(CookieToken.ACCESS_TOKEN_COOKIE_NAME, accessToken, { expires })
   }
 
   async getUserFromHeaders(headers: IncomingHttpHeaders) {

@@ -20,24 +20,33 @@ export class AuthMiddleware implements NestMiddleware {
     this.cookieToken = new CookieToken(accessTokenService, refreshTokenService)
   }
 
-  async use(req: Request, res: Response, next: NextFunction) {
+  async use(req: Request, res: Response, nextFunction: NextFunction) {
     const span = this.traceService.startSpan(AuthMiddleware.name)
+    const next = () => {
+      span.end()
+      return nextFunction()
+    }
     try {
+      span.addEvent('Verify authorization header')
       req.user = await this.accessTokenService.getUserFromHeaders(req.headers)
       if (req.user.isSignedIn()) return next()
 
       const cookieToken = this.cookieToken.fromHttpRequest(req)
-      const accessToken = await cookieToken.getUpdatedAccessToken(res)
+      const currentAccessToken = cookieToken.getAccessToken()
+
+      span.addEvent('Verify access_token cookie')
+      if (currentAccessToken) req.user = await this.accessTokenService.getUserFromAccessToken(currentAccessToken)
+      if (req.user.isSignedIn()) return next()
+
+      span.addEvent('Refresh access_token cookie')
+      const accessToken = await cookieToken.getUpdatedAccessToken(res, true)
       if (!accessToken) return next()
 
-      req.user = await this.accessTokenService.getUserFromAccessToken(accessToken)
-      span.end()
-      next()
+      return next()
     } catch (err) {
       this.logger.error(`Failed to set User request context.`, err)
       req.user = this.accessTokenService.getFallbackUser()
-      span.end()
-      next()
+      return next()
     }
   }
 }

@@ -50,7 +50,23 @@ describe('Accounts - refresh token', () => {
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 
-  it('GET /ping (automatically re-new accessToken)', async () => {
+  it('GET /ping (automatically re-new expired accessToken)', async () => {
+    const refreshToken = TestData.aValidRefreshToken().build()
+    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
+    const cookies = TestData.aValidSupertestCookies()
+      .withAccessToken(TestData.anExpiredAccessToken)
+      .withRefreshToken(refreshToken._id!.toString())
+      .build()
+
+    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.text).toBe('pong')
+    expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/access_token=.+/))
+    expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
+  })
+
+  it('GET /ping (automatically re-new missing accessToken)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
     mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
     const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()

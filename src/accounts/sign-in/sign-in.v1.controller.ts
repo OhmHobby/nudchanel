@@ -72,8 +72,9 @@ export class SignInV1Controller {
       this.accessTokenService.generateAccessToken(profileId),
       this.refreshTokenService.create(profileId, isSession),
     ])
-
-    this.accessTokenService.setHttpAccessTokenCookie(response, accessToken)
-    this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken)
+    if (!refreshToken._id) throw new Error('Failed to create refreshToken')
+    const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
+    this.accessTokenService.setHttpAccessTokenCookie(response, accessToken, expires)
+    this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken._id.toString(), expires)
   }
 }

@@ -127,11 +127,14 @@ export class RefreshTokenService {
     return dayjs(expiresAt).isBefore(defaultTokenExpiresAt)
   }
 
-  setHttpRefreshTokenCookie(response: Pick<Response, 'cookie'>, refreshToken: RefreshTokenModel) {
-    const expires = this.isSessionToken(refreshToken.created_at!, refreshToken.expires_at!)
+  tokenCookieExpires(refreshToken: RefreshTokenModel): Date | undefined {
+    return this.isSessionToken(refreshToken.created_at!, refreshToken.expires_at!)
       ? undefined
       : this.refreshTokenExpires()
-    response.cookie(CookieToken.REFRESH_TOKEN_COOKIE_NAME, refreshToken._id, {
+  }
+
+  setHttpRefreshTokenCookie(response: Pick<Response, 'cookie'>, refreshToken: string, expires?: Date) {
+    response.cookie(CookieToken.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       expires,
       httpOnly: true,
       secure: this.configService.get<boolean>(Config.NUDCH_TOKEN_SECURE),
