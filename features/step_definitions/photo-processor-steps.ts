@@ -1,4 +1,5 @@
-import { binding, given } from 'cucumber-tsflow'
+import { binding, given, then } from 'cucumber-tsflow'
+import expect from 'expect'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
@@ -41,5 +42,25 @@ export class PhotoProcessorSteps extends CommonSteps {
   @given('process photo watermark {string}')
   givenWatermark(watermark: string) {
     this.workspace.requestQueries.watermark = watermark
+  }
+
+  @then('photo width should be {int}')
+  thenWidth(width: number) {
+    expect(this.workspace.response?.body?.width).toBe(width)
+  }
+
+  @then('photo height should be {int}')
+  thenHeight(height: number) {
+    expect(this.workspace.response?.body?.height).toBe(height)
+  }
+
+  @then(/^photo taken date should be (.+)$/)
+  thenDate(date: string) {
+    expect(this.workspace.response?.body?.date).toBe(date)
+  }
+
+  @then(/^photo orientation should be (.*)$/)
+  thenOrientation(orientation: string) {
+    expect(this.workspace.response?.body?.orientation).toBe(orientation ? +orientation : undefined)
   }
 }

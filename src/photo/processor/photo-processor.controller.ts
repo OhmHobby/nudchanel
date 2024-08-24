@@ -5,7 +5,10 @@ import { Request, Response } from 'express'
 import { Span } from 'nestjs-otel'
 import { StreamBufferConverter } from 'src/helpers/stream-buffer-converter'
 import { StorageService } from 'src/storage/storage.service'
+import { Exif } from '../models/exif.model'
+import { FileDto } from './dto/base-file.dto'
 import { GetProcessDto } from './dto/get-process.dto'
+import { PhotoMetadataService } from './photo-metadata.service'
 import { PhotoProcessorService } from './photo-processor.service'
 import { ProcessPhotoParams } from './process-photo-params'
 
@@ -15,7 +18,28 @@ export class PhotoProcessorController {
   constructor(
     private readonly storageService: StorageService,
     private readonly processorService: PhotoProcessorService,
+    private readonly metadataService: PhotoMetadataService,
   ) {}
+
+  @Get('md5')
+  @ApiOkResponse()
+  async getMd5(@Query() { path }: FileDto) {
+    return await this.storageService.getFileMd5(path)
+  }
+
+  @Get('color')
+  @ApiOkResponse()
+  async getColor(@Query() { path }: FileDto) {
+    const buffer = await this.storageService.getBuffer(path)
+    return await this.metadataService.getPhotoColor(buffer)
+  }
+
+  @Get('exif')
+  @ApiOkResponse({ type: Exif })
+  async getExif(@Query() { path }: FileDto): Promise<Exif> {
+    const buffer = await this.storageService.getBuffer(path)
+    return await this.metadataService.getFileExif(buffer)
+  }
 
   @Get('process')
   @Header('content-disposition', 'inline')
