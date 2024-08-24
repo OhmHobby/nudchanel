@@ -53,6 +53,8 @@
     "dayjs": "1.11.13",
     "discord.js": "14.15.3",
     "etag": "1.8.1",
+    "fast-average-color-node": "^3.0.0",
+    "get-image-colors": "^4.0.1",
     "googleapis": "142.0.0",
     "handlebars": "4.7.8",
     "helper-markdown": "1.0.0",
