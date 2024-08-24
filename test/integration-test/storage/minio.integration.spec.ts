@@ -45,4 +45,8 @@ describe('Photo minio', () => {
     await service.putFile(filename, fileBuffer)
     await expect(service.isExist(filename)).resolves.toBe(true)
   })
+
+  afterAll(() => {
+    app.close()
+  })
 })

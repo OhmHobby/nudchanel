@@ -16,7 +16,7 @@ export class ProcessPhotoParams {
 
   quality = config.get<number>(Config.PHOTO_PROCESSOR_DEFAULT_QUALITY)
 
-  fit = ImageFit.Inside
+  fit = ImageFit.inside
 
   watermark?: string
 }

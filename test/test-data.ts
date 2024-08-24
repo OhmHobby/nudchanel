@@ -7,6 +7,7 @@ import { SupertestCookiesBuilder } from './builder/supertest-cookies-builder'
 import { GalleryActivityBuilder } from './builder/gallery-activity-builder'
 import { YouTubeVideoBuilder } from './builder/gallery-video-builder'
 import { UserLocalBuilder } from './builder/user-local-builder'
+import { ConsumeMessageBuilder } from './builder/consume-message.builder'
 
 export class TestData {
   static anExpiredAccessToken =
@@ -27,6 +28,8 @@ export class TestData {
   static aValidYouTubeVideo = () => new YouTubeVideoBuilder()
 
   static aValidSupertestCookies = () => new SupertestCookiesBuilder()
+
+  static aValidConsumeMessage = () => new ConsumeMessageBuilder()
 
   static aValidApp = () => new AppBuilder().withDefaultMockModules()
 }
