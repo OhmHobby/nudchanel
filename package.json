@@ -27,7 +27,7 @@
   "dependencies": {
     "@bull-board/api": "5.16.0",
     "@bull-board/express": "5.16.0",
-    "@golevelup/nestjs-rabbitmq": "3.7.0",
+    "@golevelup/nestjs-rabbitmq": "5.4.0",
     "@m8a/nestjs-typegoose": "12.0.0",
     "@nestjs/bull": "10.2.1",
     "@nestjs/cache-manager": "2.2.2",
