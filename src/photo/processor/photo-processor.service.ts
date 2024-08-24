@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Span, TraceService } from 'nestjs-otel'
 import sharp from 'sharp'
 import { ImageFormat } from 'src/enums/image-format.enum'
-import { ProcessParams } from './process-params'
+import { ProcessPhotoParams } from './process-photo-params'
 import { PhotoWatermarkService } from './watermark.service'
 
 @Injectable()
@@ -29,7 +29,7 @@ export class PhotoProcessorService {
   }
 
   @Span()
-  async process(fileBuffer: Buffer, params: ProcessParams): Promise<Buffer> {
+  async process(fileBuffer: Buffer, params: ProcessPhotoParams): Promise<Buffer> {
     const { format, width, height, quality, fit, watermark } = params
     this.logger.log({ message: 'Processing', format, width, height, fit, quality, watermark })
     let photo: sharp.Sharp = sharp(fileBuffer).rotate()

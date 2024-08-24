@@ -9,6 +9,7 @@ import { BullQueueLifecyclesService } from './bull-queue.life-cycles.service'
     BullModule.registerQueue({ name: BullQueueName.DiscordEventsNotifier }),
     BullModule.registerQueue({ name: BullQueueName.Email }),
     BullModule.registerQueue({ name: BullQueueName.Migration }),
+    BullModule.registerQueue({ name: BullQueueName.Photo }),
   ],
   controllers: [BullBoardController],
   providers: [BullQueueLifecyclesService],

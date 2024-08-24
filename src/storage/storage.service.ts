@@ -36,11 +36,13 @@ export class StorageService implements StorageServiceInterface {
     return (file.split('://').at(1) ?? file).replace(/^\/*/, '/')
   }
 
+  @Span()
   async getStream(file: string): Promise<Readable> {
     await this.throwIfFileDoesNotExist(file)
     return this.getStorage(file).getStream(this.getFilepath(file))
   }
 
+  @Span()
   async getBuffer(file: string): Promise<Buffer> {
     await this.throwIfFileDoesNotExist(file)
     return this.getStorage(file).getBuffer(this.getFilepath(file))
@@ -50,10 +52,12 @@ export class StorageService implements StorageServiceInterface {
     return this.getStorage(file).isExist(this.getFilepath(file))
   }
 
+  @Span()
   getSize(file: string): Promise<number> {
     return this.getStorage(file).getSize(this.getFilepath(file))
   }
 
+  @Span()
   putFile(file: string, data: Buffer | Readable): Promise<void> {
     return this.getStorage(file).putFile(this.getFilepath(file), data)
   }
@@ -84,7 +88,8 @@ export class StorageService implements StorageServiceInterface {
   }
 
   @Span()
-  getFileMd5(stream: Readable): Promise<string> {
+  async getFileMd5(file: string): Promise<string> {
+    const stream = await this.getStream(file)
     return new Promise((resolve, reject) => {
       const hash = createHash('md5')
       try {

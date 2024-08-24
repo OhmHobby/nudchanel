@@ -4,4 +4,5 @@ export enum BullJobName {
   Email = 'email',
   MigrateDiscordProfileSync = 'migration:discord_profile_sync',
   MigrateProfilePhoto = 'migration:profile_photo',
+  PhotoProcess = 'photo:process',
 }

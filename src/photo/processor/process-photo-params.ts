@@ -3,8 +3,8 @@ import { Config } from 'src/enums/config.enum'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 
-export class ProcessParams {
-  constructor(object?: Partial<ProcessParams>) {
+export class ProcessPhotoParams {
+  constructor(object?: Partial<ProcessPhotoParams>) {
     Object.assign(this, object)
   }
 

@@ -5,10 +5,15 @@ import config from 'config'
 import { Config } from 'src/enums/config.enum'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
+import { ProcessPhotoParams } from '../process-photo-params'
 import { FileDto } from './base-file.dto'
-import { ProcessParams } from '../process-params'
 
-export class GetProcessDto extends FileDto implements ProcessParams {
+export class GetProcessDto extends FileDto implements ProcessPhotoParams {
+  constructor(dto?: Partial<GetProcessDto>) {
+    super()
+    Object.assign(this, dto)
+  }
+
   @ApiProperty({ enum: ImageFormat, default: ImageFormat.jpeg })
   @IsEnum(ImageFormat)
   format: ImageFormat = ImageFormat.jpeg
