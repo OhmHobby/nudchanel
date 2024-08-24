@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
+import etag from 'etag'
 import { Span, TraceService } from 'nestjs-otel'
 import sharp from 'sharp'
 import { ImageFormat } from 'src/enums/image-format.enum'
@@ -31,7 +32,7 @@ export class PhotoProcessorService {
   @Span()
   async process(fileBuffer: Buffer, params: ProcessPhotoParams): Promise<Buffer> {
     const { format, width, height, quality, fit, watermark } = params
-    this.logger.log({ message: 'Processing', format, width, height, fit, quality, watermark })
+    this.logger.log({ message: 'Processing', format, width, height, fit, quality, watermark, etag: etag(fileBuffer) })
     let photo: sharp.Sharp = sharp(fileBuffer).rotate()
 
     if (width || height) photo.resize({ width, height, fit, withoutEnlargement: true })
