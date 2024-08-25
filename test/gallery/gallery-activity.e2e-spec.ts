@@ -3,7 +3,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import expect from 'expect'
 import { QueryWithHelpers } from 'mongoose'
 import { GalleryActivityResponseModel } from 'src/gallery/dto/gallery-activity-response.model'
-import { GalleryAlbumResponseModel } from 'src/gallery/dto/gallery-album-response.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
@@ -11,7 +10,7 @@ import request from 'supertest'
 import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
 
-describe('Gallery', () => {
+describe('Gallery activity', () => {
   let app: INestApplication
   let mockGalleryActivityModel: MockModelType<typeof GalleryActivityModel>
   let mockGalleryAlbumModel: MockModelType<typeof GalleryAlbumModel>
@@ -152,29 +151,17 @@ describe('Gallery', () => {
     expect(albumQuery.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
   })
 
-  it('GET /api/v1/gallery/albums/:id', async () => {
-    const activity = TestData.aValidGalleryActivity().build()
-    const album = TestData.aValidGalleryAlbum().withActivity(activity).build()
-    mockGalleryAlbumModel.findById = jest.fn().mockReturnValue({
-      populate: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(album),
+  it('POST /api/v1/gallery/activities', async () => {
+    const date = new Date('2024-02-28T07:00:00Z')
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
+      .build()
+    const result = await request(app.getHttpServer()).post('/api/v1/gallery/activities').set('Cookie', cookie).send({
+      title: 'test - create activity',
+      time: date.toISOString(),
     })
-
-    const result = await request(app.getHttpServer())
-      .get('/api/v1/gallery/albums/' + album._id)
-      .send()
-
-    expect(result.status).toBe(HttpStatus.OK)
-    const body: GalleryAlbumResponseModel = result.body
-
-    expect(body?.id).toBe(album._id)
-    expect(body?.title).toBe(album.title)
-    expect(body?.cover).toBe(album.cover)
-    expect(body?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
-    expect(body?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
-    expect(body?.activity?.id).toBe(activity._id)
-    expect(body?.activity?.title).toBe(activity.title)
-    expect(body?.activity?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
+    expect(result.status).toBe(HttpStatus.CREATED)
+    expect(result.body).toEqual(expect.objectContaining({ published: false, time: date.getTime().toString() }))
   })
 
   afterAll(() => {

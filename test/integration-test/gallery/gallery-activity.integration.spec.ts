@@ -1,0 +1,52 @@
+import { TypegooseModule } from '@m8a/nestjs-typegoose'
+import { INestApplication } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
+import { configuration } from 'src/configs/configuration'
+import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
+import { MongoConnection } from 'src/enums/mongo-connection.enum'
+import { GalleryActivityService } from 'src/gallery/activity/gallery-activity.service'
+import { GalleryActivityModel } from 'src/models/gallery/activity.model'
+
+describe('Gallery activity', () => {
+  let app: INestApplication
+  let galleryActivityService: GalleryActivityService
+  let testActivity: GalleryActivityModel
+
+  beforeAll(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [configuration],
+        }),
+        TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
+        TypegooseModule.forFeature([GalleryActivityModel], MongoConnection.Gallery),
+      ],
+      providers: [GalleryActivityService],
+    }).compile()
+
+    app = module.createNestApplication()
+    await app.init()
+
+    galleryActivityService = module.get(GalleryActivityService)
+  })
+
+  it('should be defined', () => {
+    expect(galleryActivityService).toBeDefined()
+  })
+
+  it('should create with random nanoid correctly', async () => {
+    testActivity = await galleryActivityService.create({ title: 'test - integration', time: new Date() })
+    expect(testActivity).toEqual(expect.objectContaining({ _id: expect.any(String) }))
+  })
+
+  it('should find created activity correctly', async () => {
+    const result = await galleryActivityService.findById(testActivity._id!)
+    expect(result).toEqual(expect.objectContaining({ title: 'test - integration' }))
+  })
+
+  afterAll(() => {
+    app.close()
+  })
+})
