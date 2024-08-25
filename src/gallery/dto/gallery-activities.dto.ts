@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsDate, IsInt, IsOptional, Max, MaxLength } from 'class-validator'
+import { IsBoolean, IsDate, IsInt, IsOptional, Max, MaxLength, Validate } from 'class-validator'
+import { IsForbiddenField } from 'src/auth/is-forbidden-field.validator'
 
 const MAX_LIMIT = 100
 const DEFAULT_LIMIT = 10
@@ -29,4 +30,11 @@ export class GalleryActivitesDto {
   @Type(() => Number)
   @ApiPropertyOptional()
   year?: number
+
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
+  @Validate(IsForbiddenField, ['nudch'])
+  @ApiPropertyOptional()
+  all?: boolean
 }

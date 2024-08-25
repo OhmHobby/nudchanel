@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { GalleryAlbumService } from '../album/gallery-album.service'
 import { ActivityIdDto } from '../dto/activity-id.dto'
 import { GalleryActivitesDto } from '../dto/gallery-activities.dto'
@@ -17,11 +17,13 @@ export class GalleryActivityV1Controller {
   ) {}
 
   @Get()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: [GalleryActivityResponseModel] })
   async findGalleryActivities(
-    @Query() { limit, before, search, year }: GalleryActivitesDto,
+    @Query() { limit, before, search, year, all: showAll }: GalleryActivitesDto,
   ): Promise<GalleryActivityResponseModel[]> {
-    const activities = await this.galleryActivityService.findActivities(limit, before, year, search)
+    const activities = await this.galleryActivityService.findActivities(limit, before, year, search, showAll)
     return activities.map(GalleryActivityResponseModel.fromModel)
   }
 

@@ -2,6 +2,7 @@ import otelSDK from './tracing'
 
 import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import { useContainer } from 'class-validator'
 import config from 'config'
 import cookieParser from 'cookie-parser'
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
@@ -21,6 +22,7 @@ async function bootstrapServer() {
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  useContainer(app.select(AppModule), { fallbackOnErrors: true })
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')
   await app.listen(config.get<number>(Config.HTTP_PORT))
@@ -35,6 +37,7 @@ async function bootstrapWorker(portConfigName: string) {
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  useContainer(app.select(WorkerModule), { fallbackOnErrors: true })
   await app.get(SchedulerRegisterService).register()
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')
