@@ -25,8 +25,8 @@
     "test:cucumber:report": "cat results.json | cucumber-junit > junit.xml"
   },
   "dependencies": {
-    "@bull-board/api": "5.16.0",
-    "@bull-board/express": "5.16.0",
+    "@bull-board/api": "5.21.4",
+    "@bull-board/express": "5.21.4",
     "@golevelup/nestjs-rabbitmq": "5.4.0",
     "@m8a/nestjs-typegoose": "12.0.0",
     "@nestjs/bull": "10.2.1",
