@@ -1,9 +1,12 @@
-import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { AuditLog } from 'src/audit-log/audit-log.decorator'
+import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { GalleryAlbumService } from '../album/gallery-album.service'
 import { ActivityIdParamDto } from '../dto/activity-id-param.dto'
 import { GalleryActivitesDto } from '../dto/gallery-activities.dto'
 import { GalleryActivityResponseModel } from '../dto/gallery-activity-response.model'
+import { GalleryActivityDto } from '../dto/gallery-activity.dto'
 import { GalleryQueryDto } from '../dto/gallery-query.dto'
 import { GalleryVideoService } from '../video/gallery-video.service'
 import { GalleryActivityService } from './gallery-activity.service'
@@ -26,6 +29,18 @@ export class GalleryActivityV1Controller {
   ): Promise<GalleryActivityResponseModel[]> {
     const activities = await this.galleryActivityService.findActivities(limit, before, year, search, showAll)
     return activities.map(GalleryActivityResponseModel.fromModel)
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiCreatedResponse({ type: GalleryActivityResponseModel })
+  @AuthGroups(['pr'])
+  @AuditLog(GalleryActivityV1Controller.prototype.createGalleryActivity.name)
+  async createGalleryActivity(@Body() body: GalleryActivityDto): Promise<GalleryActivityResponseModel> {
+    const activity = await this.galleryActivityService.create(body.toModel())
+    return GalleryActivityResponseModel.fromModel(activity)
   }
 
   @Get(':activityId')

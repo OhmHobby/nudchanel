@@ -19,6 +19,11 @@ export class GalleryActivityService {
     return activity
   }
 
+  async create(model: Omit<GalleryActivityModel, '_id' | 'deleted'>) {
+    const activity = await this.activityModel.create(model)
+    return activity
+  }
+
   @Span()
   async findActivities(
     limit: number,
