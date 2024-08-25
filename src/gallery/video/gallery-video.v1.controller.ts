@@ -1,6 +1,7 @@
-import { Controller, Get, Param } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { ActivityIdDto } from '../dto/activity-id.dto'
+import { ActivityIdParamDto } from '../dto/activity-id-param.dto'
+import { GalleryQueryDto } from '../dto/gallery-query.dto'
 import { GalleryVideoResponseModel } from '../dto/gallery-video-response.model'
 import { GalleryVideoService } from './gallery-video.service'
 
@@ -11,8 +12,11 @@ export class GalleryVideoV1Controller {
 
   @Get(':activityId')
   @ApiOkResponse({ type: [GalleryVideoResponseModel] })
-  async getGalleryVideosByActivityId(@Param() { activityId }: ActivityIdDto): Promise<GalleryVideoResponseModel[]> {
-    const videos = await this.galleryVideoService.findByActivity(activityId)
+  async getGalleryVideosByActivityId(
+    @Param() { activityId }: ActivityIdParamDto,
+    @Query() { all }: GalleryQueryDto,
+  ): Promise<GalleryVideoResponseModel[]> {
+    const videos = await this.galleryVideoService.findByActivity(activityId, all)
     return videos.map((video) => new GalleryVideoResponseModel(video))
   }
 }

@@ -39,7 +39,7 @@ describe(GalleryActivityService.name, () => {
     it('should build default correctly', async () => {
       await service.findActivities(10)
       expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).toHaveBeenCalled()
+      expect(mockModel.where).toHaveBeenCalledWith(expect.objectContaining({ published: true }))
       expect(mockModel.limit).toHaveBeenCalledWith(10)
     })
 
@@ -65,6 +65,13 @@ describe(GalleryActivityService.name, () => {
       expect(mockModel.where).toHaveBeenCalledWith({
         time: { $lt: before, $gt: service.academicYearStartDate(2024) },
       })
+    })
+
+    it('should build with includes unpublished correctly', async () => {
+      await service.findActivities(10, undefined, undefined, undefined, true)
+      expect(mockModel.sort).toHaveBeenCalled()
+      expect(mockModel.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+      expect(mockModel.limit).toHaveBeenCalledWith(10)
     })
   })
 

@@ -79,12 +79,13 @@ describe('Gallery', () => {
   it('GET /api/v1/gallery/activities/:id', async () => {
     const activity = TestData.aValidGalleryActivity().build()
     const album = TestData.aValidGalleryAlbum().build()
-    mockGalleryActivityModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(activity) })
-    mockGalleryAlbumModel.find = jest.fn().mockReturnValue({
+    const albumQuery = {
       where: jest.fn().mockReturnThis(),
       sort: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue([album]),
-    })
+    }
+    mockGalleryActivityModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(activity) })
+    mockGalleryAlbumModel.find = jest.fn().mockReturnValue(albumQuery)
 
     const result = await request(app.getHttpServer())
       .get('/api/v1/gallery/activities/' + activity._id)
@@ -107,6 +108,48 @@ describe('Gallery', () => {
     expect(body.albums?.at(0)?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
     expect(body.albums?.at(0)?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
     expect(body.albums?.at(0)?.activity).toBeUndefined()
+
+    expect(albumQuery.where).toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+  })
+
+  it('GET /api/v1/gallery/activities/:id?all=true (forbidden)', async () => {
+    const activity = TestData.aValidGalleryActivity().build()
+    mockGalleryActivityModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(activity) })
+    const result = await request(app.getHttpServer())
+      .get('/api/v1/gallery/activities/' + activity._id)
+      .query({ all: true })
+      .send()
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST)
+  })
+
+  it('GET /api/v1/gallery/activities/:id?all=true (ok)', async () => {
+    const activity = TestData.aValidGalleryActivity().build()
+    const albums = [
+      TestData.aValidGalleryAlbum().withPublished(true).build(),
+      TestData.aValidGalleryAlbum().withPublished(false).build(),
+    ]
+    const albumQuery = {
+      where: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(albums),
+    }
+    mockGalleryActivityModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(activity) })
+    mockGalleryAlbumModel.find = jest.fn().mockReturnValue(albumQuery)
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('nudch').build())
+      .build()
+
+    const result = await request(app.getHttpServer())
+      .get('/api/v1/gallery/activities/' + activity._id)
+      .query({ all: true })
+      .set('Cookie', cookie)
+      .send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    const body: GalleryActivityResponseModel = result.body
+
+    expect(body.albums).toHaveLength(2)
+    expect(albumQuery.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
   })
 
   it('GET /api/v1/gallery/albums/:id', async () => {

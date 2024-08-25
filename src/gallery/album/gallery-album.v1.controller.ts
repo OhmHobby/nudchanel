@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { ActivityIdDto } from '../dto/activity-id.dto'
+import { ActivityIdQueryDto } from '../dto/activity-id-query.dto'
 import { AlbumIdDto } from '../dto/album-id.dto'
 import { GalleryAlbumResponseModel } from '../dto/gallery-album-response.model'
 import { GalleryAlbumService } from './gallery-album.service'
@@ -12,8 +12,10 @@ export class GalleryAlbumV1Controller {
 
   @Get()
   @ApiOkResponse({ type: [GalleryAlbumResponseModel] })
-  async getGalleryAlbumsByActivityId(@Query() { activityId }: ActivityIdDto): Promise<GalleryAlbumResponseModel[]> {
-    const albums = await this.galleryAlbumService.findByActivity(activityId)
+  async getGalleryAlbumsByActivityId(
+    @Query() { activityId, all }: ActivityIdQueryDto,
+  ): Promise<GalleryAlbumResponseModel[]> {
+    const albums = await this.galleryAlbumService.findByActivity(activityId, all)
     return albums.map(GalleryAlbumResponseModel.fromModel)
   }
 
