@@ -1,6 +1,7 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import expect from 'expect'
+import { QueryWithHelpers } from 'mongoose'
 import { GalleryActivityResponseModel } from 'src/gallery/dto/gallery-activity-response.model'
 import { GalleryAlbumResponseModel } from 'src/gallery/dto/gallery-album-response.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
@@ -27,6 +28,52 @@ describe('Gallery', () => {
     resetMockModel(mockGalleryActivityModel)
     resetMockModel(mockGalleryAlbumModel)
     resetMockModel(mockYouTubeVideoModel)
+  })
+
+  it('GET /api/v1/gallery/activities?limit=10', async () => {
+    const activity = TestData.aValidGalleryActivity().build()
+    const query: Partial<QueryWithHelpers<any, any>> = {
+      sort: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([activity]),
+    }
+    mockGalleryActivityModel.find = jest.fn().mockReturnValue(query)
+    const result = await request(app.getHttpServer()).get('/api/v1/gallery/activities').query({ limit: 10 }).send()
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(query.limit).toHaveBeenCalledWith(10)
+    expect(query.where).toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+  })
+
+  it('GET /api/v1/gallery/activities?limit=10&all=true (forbidden)', async () => {
+    mockGalleryActivityModel.find = jest.fn()
+    const result = await request(app.getHttpServer())
+      .get('/api/v1/gallery/activities')
+      .query({ limit: 10, all: true })
+      .send()
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST)
+    expect(mockGalleryActivityModel.find).not.toHaveBeenCalled()
+  })
+
+  it('GET /api/v1/gallery/activities?limit=10&all=true (ok)', async () => {
+    const activity = TestData.aValidGalleryActivity().build()
+    const query: Partial<QueryWithHelpers<any, any>> = {
+      sort: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([activity]),
+    }
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('nudch').build())
+      .build()
+    mockGalleryActivityModel.find = jest.fn().mockReturnValue(query)
+    const result = await request(app.getHttpServer())
+      .get('/api/v1/gallery/activities')
+      .query({ limit: 10, all: true })
+      .set('Cookie', cookie)
+      .send()
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(query.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
   })
 
   it('GET /api/v1/gallery/activities/:id', async () => {

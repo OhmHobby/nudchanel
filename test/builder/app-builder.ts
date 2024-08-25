@@ -2,6 +2,7 @@ import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
+import { useContainer } from 'class-validator'
 import cookieParser from 'cookie-parser'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
@@ -38,6 +39,7 @@ export class AppBuilder {
     app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
     app.useGlobalPipes(new ValidationPipe({ transform: true }))
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+    useContainer(app.select(AppModule), { fallbackOnErrors: true })
     await app.get(SwaggerConfigBuilder).build(app)
     await app.init()
     return app
