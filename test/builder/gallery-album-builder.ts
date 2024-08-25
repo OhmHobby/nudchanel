@@ -15,6 +15,16 @@ export class GalleryAlbumBuilder {
     this.galleryAlbum.activity = 'AINfyH5'
   }
 
+  withId(id: string) {
+    this.galleryAlbum._id = id
+    return this
+  }
+
+  withPublished(published: boolean) {
+    this.galleryAlbum.published = published
+    return this
+  }
+
   withActivity(activity: GalleryActivityModel) {
     this.galleryAlbum.activity = activity as any
     return this

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class ActivityIdDto {
+export class ActivityIdParamDto {
   @ApiProperty({ type: 'string' })
   activityId: string
 }

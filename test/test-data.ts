@@ -8,6 +8,7 @@ import { GalleryActivityBuilder } from './builder/gallery-activity-builder'
 import { YouTubeVideoBuilder } from './builder/gallery-video-builder'
 import { UserLocalBuilder } from './builder/user-local-builder'
 import { ConsumeMessageBuilder } from './builder/consume-message.builder'
+import { GalleryYouTubeVideoBuilder } from './builder/gallery-youtube-video-builder'
 
 export class TestData {
   static anExpiredAccessToken =
@@ -26,6 +27,8 @@ export class TestData {
   static aValidGalleryAlbum = () => new GalleryAlbumBuilder()
 
   static aValidYouTubeVideo = () => new YouTubeVideoBuilder()
+
+  static aValidGalleryYouTubeVideo = () => new GalleryYouTubeVideoBuilder()
 
   static aValidSupertestCookies = () => new SupertestCookiesBuilder()
 
