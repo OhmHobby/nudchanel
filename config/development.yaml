@@ -8,9 +8,6 @@ otlp:
   metric:
     url: http://prometheus-server.nudch-internal.svc/api/v1/otlp/v1/metrics
 
-processor:
-  enabled: true
-
 database:
   mongodb:
     default: mongodb://root:nudchDev!123@mongodb/main?authSource=admin

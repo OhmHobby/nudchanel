@@ -58,6 +58,11 @@ export class StorageService implements StorageServiceInterface {
   }
 
   @Span()
+  getEtag(file: string): Promise<string | null> {
+    return this.getStorage(file).getEtag(this.getFilepath(file))
+  }
+
+  @Span()
   putFile(file: string, data: Buffer | Readable): Promise<void> {
     return this.getStorage(file).putFile(this.getFilepath(file), data)
   }

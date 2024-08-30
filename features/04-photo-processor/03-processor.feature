@@ -1,9 +1,11 @@
 @photo_processor
 Feature: Photo processor
 
-  Scenario Outline: Etag <path> to <format>
+  Background:
     Given request to worker url
-    And process photo path "<path>"
+
+  Scenario Outline: Etag <path> to <format>
+    Given process photo path "<path>"
     And process photo format "<format>"
     And If none match <etag>
     And HTTP response type "blob"
@@ -17,8 +19,7 @@ Feature: Photo processor
       | jpeg   | minio://original/IMG_2669.jpg                     | NOT_MODIFIED | "741a13-7+KjvuwsjMuTx4/k7euzjmm/eO4" |
 
   Scenario Outline: Resize <path> to <format>
-    Given request to worker url
-    And process photo path "<path>"
+    Given process photo path "<path>"
     And process photo format "<format>"
     And process photo width "<width>"
     And process photo height "<height>"
@@ -35,8 +36,7 @@ Feature: Photo processor
       | jpeg   | minio://original/IMG_2669.jpg                     | 800   | 600    | 80      | inside | OK     | 47430 | "b946-ACXjNdy0khu/KHu/+eKLlzJZg50" |
 
   Scenario: Watermark <path> to <format>
-    Given request to worker url
-    And process photo path "<path>"
+    Given process photo path "<path>"
     And process photo format "<format>"
     And process photo width "<width>"
     And process photo height "<height>"
@@ -54,8 +54,7 @@ Feature: Photo processor
       | webp   | webdav://2022/[2022.02.03] Rotation/IMG_4432.JPG   | 800   | 600    | 80      | inside | 01        | OK     | 21490  | "53f2-YEpEI9Sd1+Rht7bwt1En+dhUhvM"  |
 
   Scenario: Error <description> - <status> <path>
-    Given request to worker url
-    And process photo path "<path>"
+    Given process photo path "<path>"
     And process photo format "<format>"
     And HTTP response type "blob"
     When GET /photo-processor/process

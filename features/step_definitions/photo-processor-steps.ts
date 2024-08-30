@@ -1,5 +1,6 @@
 import { binding, given, then } from 'cucumber-tsflow'
 import expect from 'expect'
+import sharp from 'sharp'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
@@ -52,6 +53,12 @@ export class PhotoProcessorSteps extends CommonSteps {
   @then('photo height should be {int}')
   thenHeight(height: number) {
     expect(this.workspace.response?.body?.height).toBe(height)
+  }
+
+  @then('photo imageSize should be {int}x{int}')
+  async thenSize(width: number, height: number) {
+    const meta = await sharp(this.workspace.response?.body).metadata()
+    expect(`${meta.width}x${meta.height}`).toBe(`${width}x${height}`)
   }
 
   @then(/^photo taken date should be (.+)$/)

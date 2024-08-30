@@ -43,6 +43,15 @@ export class WebdavStorageService implements StorageServiceInterface {
     return size
   }
 
+  async getEtag(file: string): Promise<string | null> {
+    try {
+      const { etag } = <FileStat>await this.client.stat(file)
+      return etag || null
+    } catch (err) {
+      return null
+    }
+  }
+
   async putFile(file: string, data: Buffer | Readable): Promise<void> {
     await this.createDirectoryFromFullpathFilename(file)
     await this.client.putFileContents(file, data)

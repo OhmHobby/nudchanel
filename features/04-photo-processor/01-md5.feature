@@ -1,9 +1,11 @@
 @photo_md5
 Feature: Photo MD5
 
-  Scenario Outline: MD5 <path>
+  Background:
     Given request to worker url
-    And process photo path "<path>"
+
+  Scenario Outline: MD5 <path>
+    Given process photo path "<path>"
     When GET /photo-processor/md5
     Then HTTP response status should be OK
     And HTTP response text should be "<md5>"
@@ -13,8 +15,7 @@ Feature: Photo MD5
       | minio://original/IMG_0399.jpg                                | 9c6f92dc3bfcb7e1a8b2cfc933558cf5 |
 
   Scenario Outline: Error <description> - <path>
-    Given request to worker url
-    And process photo path "<path>"
+    Given process photo path "<path>"
     When GET /photo-processor/md5
     Then HTTP response status should be <status>
     Examples:

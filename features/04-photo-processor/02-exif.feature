@@ -1,9 +1,11 @@
 @photo_exif
 Feature: Photo Exif
 
-  Scenario Outline: Exif <path>
+  Background:
     Given request to worker url
-    And process photo path "<path>"
+
+  Scenario Outline: Exif <path>
+    Given process photo path "<path>"
     When GET /photo-processor/exif
     Then HTTP response status should be OK
     And photo width should be <width>
@@ -21,18 +23,17 @@ Feature: Photo Exif
       | minio://original/IMG_4432.JPG                                | 4000  | 6000   | 2018-04-20T01:45:02.000Z | 8           |
       | webdav://2022/[2022.02.01] WebDev CI/Photo/JPEG/IMG_3806.JPG | 4822  | 3215   | 2022-06-12T05:55:30.000Z |             |
 
-      # Scenario Outline: Error <description> - <path>
-      #   Given request to worker url
-      #   And process photo path "<path>"
-      #   When GET /photo-processor/md5
-      #   Then HTTP response status should be <status>
-      #   Examples:
-      #     | description    | path                                          | status      |
-      #     | File not found | webdav://2022/null.jpg                        | NOT_FOUND   |
-      #     | File not found | minio://original/null.jpg                     | NOT_FOUND   |
-      #     | Not a file     | webdav://2022/[2022.02.04] Error              | NOT_FOUND   |
-      #     | Not a file     | minio://original                              | NOT_FOUND   |
-      #     | Zero bytes     | webdav://2022/[2022.02.04] Error/IMG_2001.jpg | BAD_REQUEST |
-      #     | Zero bytes     | minio://original/IMG_2001.jpg                 | BAD_REQUEST |
-      #     | File corrupts  | webdav://2022/[2022.02.04] Error/IMG_6490.jpg | OK          |
-      #     | File corrupts  | minio://original/IMG_6490.jpg                 | OK          |
+  Scenario Outline: Error <description> - <path>
+    Given process photo path "<path>"
+    When GET /photo-processor/md5
+    Then HTTP response status should be <status>
+    Examples:
+      | description    | path                                          | status      |
+      | File not found | webdav://2022/null.jpg                        | NOT_FOUND   |
+      | File not found | minio://original/null.jpg                     | NOT_FOUND   |
+      | Not a file     | webdav://2022/[2022.02.04] Error              | NOT_FOUND   |
+      | Not a file     | minio://original                              | NOT_FOUND   |
+      | Zero bytes     | webdav://2022/[2022.02.04] Error/IMG_2001.jpg | BAD_REQUEST |
+      | Zero bytes     | minio://original/IMG_2001.jpg                 | BAD_REQUEST |
+      | File corrupts  | webdav://2022/[2022.02.04] Error/IMG_6490.jpg | OK          |
+      | File corrupts  | minio://original/IMG_6490.jpg                 | OK          |
