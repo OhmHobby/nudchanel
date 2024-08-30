@@ -10,8 +10,9 @@ import { StreamBufferConverter } from 'src/helpers/stream-buffer-converter'
 import { StorageService } from 'src/storage/storage.service'
 import { Readable } from 'stream'
 import { PhotoPath } from '../models/photo-path.model'
-import { PhotoProcessorService } from '../processor/photo-processor.service'
 import { ProfilePhotoPath } from '../models/profile-photo-path.model'
+import { PhotoV1Service } from '../photo-v1.service'
+import { PhotoProcessorService } from '../processor/photo-processor.service'
 dayjs.extend(dayjsDuration)
 
 @Injectable()
@@ -22,6 +23,7 @@ export class PhotoStreamService {
     private readonly configService: ConfigService,
     private readonly storageService: StorageService,
     private readonly photoProcessor: PhotoProcessorService,
+    private readonly photoV1Service: PhotoV1Service,
   ) {}
 
   async getPhotoStream(
@@ -46,6 +48,9 @@ export class PhotoStreamService {
       const buffer = await this.tryProcess(currentPath, originalPath)
       if (buffer) return this.responseWithBuffer(response, buffer, requestEtag)
     }
+
+    const buffer = await this.tryOriginal(originalPath)
+    if (buffer) return this.responseWithBuffer(response, buffer, requestEtag)
     throw new NotFoundException()
   }
 
@@ -110,7 +115,7 @@ export class PhotoStreamService {
     try {
       this.logger.debug(`Try process "${targetPath.requestPath}" from "${processPath.sourcePath}"`)
       const sourceBuffer = await this.storageService.getBuffer(processPath.sourcePath)
-      const processedBuffer = await this.photoProcessor.process(sourceBuffer, targetPath.processParams)
+      const processedBuffer = await this.photoProcessor.process(sourceBuffer, targetPath.buildProcessParams())
       this.saveProcssedBuffer(targetPath, processedBuffer)
       return processedBuffer
     } catch (err) {
@@ -122,6 +127,19 @@ export class PhotoStreamService {
   async saveProcssedBuffer(photoPath: PhotoPath, processedBuffer: Buffer) {
     if (photoPath.isRequestASource && this.configService.get<boolean>(Config.PHOTO_STREAM_UPLOAD)) {
       await this.storageService.putFile(photoPath.sourcePath, processedBuffer)
+    }
+  }
+
+  @Span()
+  async tryOriginal(requestPath: PhotoPath) {
+    try {
+      const { filename, processParams } = await this.photoV1Service.getFileReprocessPhotoPath(requestPath)
+      const buffer = await this.storageService.getBuffer(filename)
+      const processedBuffer = await this.photoProcessor.process(buffer, processParams)
+      this.saveProcssedBuffer(requestPath, processedBuffer)
+      return processedBuffer
+    } catch (err) {
+      return null
     }
   }
 

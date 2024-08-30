@@ -44,11 +44,12 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
     return this.requestPath === this.sourcePath
   }
 
-  get processParams() {
+  buildProcessParams(params?: Partial<ProcessPhotoParams>) {
     return new ProcessPhotoParams({
       format: this.format,
       width: this.size,
       height: this.size,
+      ...params,
     })
   }
 
