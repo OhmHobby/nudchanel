@@ -1,9 +1,11 @@
 @photo_color
 Feature: Photo color
 
-  Scenario Outline: Color <path> (<scription>)
+  Background:
     Given request to worker url
-    And process photo path "<path>"
+
+  Scenario Outline: Color <path> (<scription>)
+    Given process photo path "<path>"
     When GET /photo-processor/color
     Then HTTP response status should be OK
     And HTTP response text should be "<color>"
@@ -15,8 +17,7 @@ Feature: Photo color
       | minio://original/TOPP-9299.jpg                     | #938b82 | large file     |
 
   Scenario Outline: Error <description> - <path>
-    Given request to worker url
-    And process photo path "<path>"
+    Given process photo path "<path>"
     When GET /photo-processor/color
     Then HTTP response status should be <status>
     Examples:

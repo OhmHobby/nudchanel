@@ -15,9 +15,6 @@ log:
 otlp:
   enabled: true
 
-processor:
-  enabled: true
-
 database:
   mongodb:
     default: mongodb://mongodb/main
@@ -91,6 +88,8 @@ storage:
     password: ""
 
 photo:
+  stream:
+    upload: true
   minio:
     endpoint: minio
     port: 9000

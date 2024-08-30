@@ -50,6 +50,11 @@ export class HttpSteps extends CommonSteps {
     expect(this.workspace.response?.body?.length).toBe(size)
   }
 
+  @then('HTTP response header {string} should be {string}')
+  thenResponseHeader(key: string, value: string) {
+    expect(this.workspace.response?.headers).toEqual(expect.objectContaining({ [key]: value }))
+  }
+
   @then(/^ETag should be (.+)$/)
   thenEtag(etag: string) {
     expect(this.workspace.response?.headers['etag']).toBe(etag)

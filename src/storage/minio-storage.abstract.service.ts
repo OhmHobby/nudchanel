@@ -44,6 +44,15 @@ export abstract class MinioStorageAbstractService implements StorageServiceInter
     return size
   }
 
+  async getEtag(file: string): Promise<string | null> {
+    try {
+      const { etag } = await this.client.statObject(this.bucketName, file)
+      return etag || null
+    } catch (err) {
+      return null
+    }
+  }
+
   async putFile(file: string, data: Buffer | Readable): Promise<void> {
     await this.client.putObject(this.bucketName, file, data)
   }
