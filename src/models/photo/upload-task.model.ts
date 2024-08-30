@@ -3,6 +3,10 @@ import { Types } from 'mongoose'
 
 @modelOptions({ schemaOptions: { collection: 'tasks' } })
 export class UploadTaskModel {
+  constructor(model?: Partial<UploadTaskModel>) {
+    Object.assign(this, model)
+  }
+
   @prop({ auto: true })
   _id?: Types.ObjectId
 

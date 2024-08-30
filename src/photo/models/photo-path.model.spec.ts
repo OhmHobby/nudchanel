@@ -32,8 +32,8 @@ describe(PhotoPath.name, () => {
     expect(new PhotoPath(PhotoSize.preview, DEFAULT_UUID, ImageFormat.webp).isRequestASource).toBe(true)
   })
 
-  test('processParams', () => {
-    const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.jpeg).processParams
+  test('buildProcessParams', () => {
+    const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.jpeg).buildProcessParams()
     expect(result).toEqual(
       new ProcessPhotoParams({ format: ImageFormat.jpeg, width: PhotoSize.card, height: PhotoSize.card }),
     )

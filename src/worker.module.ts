@@ -40,6 +40,7 @@ import { StorageModule } from './storage/storage.module'
     OpenTelemetryModule.forRootAsync({ useClass: OpenTelemetryConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     AmqpModule,
