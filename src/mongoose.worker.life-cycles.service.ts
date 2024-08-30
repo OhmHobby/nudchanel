@@ -12,6 +12,8 @@ export class MongooseWorkerLifecyclesService implements OnApplicationShutdown {
     private readonly connection: Connection,
     @Inject(getConnectionToken(MongoConnection.Accounts))
     private readonly accountsConnection: Connection,
+    @Inject(getConnectionToken(MongoConnection.Photo))
+    private readonly photoConnection: Connection,
     @Inject(getConnectionToken(MongoConnection.Mailer))
     private readonly mailerConnection: Connection,
   ) {}
@@ -19,7 +21,12 @@ export class MongooseWorkerLifecyclesService implements OnApplicationShutdown {
   async onApplicationShutdown(signal?: string) {
     try {
       this.logger.warn({ message: 'Closing mongoose connections', signal })
-      await Promise.all([this.connection.close(), this.accountsConnection.close(), this.mailerConnection.close()])
+      await Promise.all([
+        this.connection.close(),
+        this.accountsConnection.close(),
+        this.photoConnection.close(),
+        this.mailerConnection.close(),
+      ])
       this.logger.log('Successfully closed mongoose connections')
     } catch (err) {
       this.logger.error('Error while closing mongoose connections', err)

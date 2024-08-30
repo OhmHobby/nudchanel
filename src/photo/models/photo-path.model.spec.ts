@@ -8,7 +8,7 @@ describe(PhotoPath.name, () => {
   test('sizeFormat', () => {
     expect(new PhotoPath(PhotoSize.preview, DEFAULT_UUID).sizeFormat).toBe(ImageFormat.webp)
     expect(new PhotoPath(PhotoSize.cover, DEFAULT_UUID).sizeFormat).toBe(ImageFormat.jpeg)
-    expect(new PhotoPath(PhotoSize.card, DEFAULT_UUID).sizeFormat).toBe(ImageFormat.jpeg)
+    expect(new PhotoPath(PhotoSize.card, DEFAULT_UUID).sizeFormat).toBe(ImageFormat.webp)
     expect(new PhotoPath(PhotoSize.thumbnail, DEFAULT_UUID).sizeFormat).toBe(ImageFormat.webp)
   })
 
@@ -33,9 +33,9 @@ describe(PhotoPath.name, () => {
   })
 
   test('buildProcessParams', () => {
-    const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.jpeg).buildProcessParams()
+    const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.webp).buildProcessParams()
     expect(result).toEqual(
-      new ProcessPhotoParams({ format: ImageFormat.jpeg, width: PhotoSize.card, height: PhotoSize.card }),
+      new ProcessPhotoParams({ format: ImageFormat.webp, width: PhotoSize.card, height: PhotoSize.card }),
     )
   })
 
@@ -50,8 +50,8 @@ describe(PhotoPath.name, () => {
       expect(result?.requestPath).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
     })
 
-    test('card jpg', () => {
-      const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.jpeg).nextFallback()
+    test('card webp', () => {
+      const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.webp).nextFallback()
       expect(result?.requestPath).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
     })
 
