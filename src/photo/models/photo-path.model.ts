@@ -75,6 +75,7 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
     switch (size) {
       case PhotoSize.preview:
       case PhotoSize.thumbnail:
+      case PhotoSize.card:
         return ImageFormat.webp
       default:
         return ImageFormat.jpeg

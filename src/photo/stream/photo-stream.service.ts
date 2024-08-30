@@ -127,6 +127,7 @@ export class PhotoStreamService {
   async saveProcssedBuffer(photoPath: PhotoPath, processedBuffer: Buffer) {
     if (photoPath.isRequestASource && this.configService.get<boolean>(Config.PHOTO_STREAM_UPLOAD)) {
       await this.storageService.putFile(photoPath.sourcePath, processedBuffer)
+      this.logger.log(`Saved processed buffer ${photoPath.sourcePath}`)
     }
   }
 
