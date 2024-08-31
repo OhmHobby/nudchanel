@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, Res, StreamableFile } from '@nestjs/common'
+import { Controller, Get, Param, Query, Req, Res, StreamableFile } from '@nestjs/common'
 import { ApiHeader, ApiOkResponse, ApiResponseOptions, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { CONTENT_DISPOSITION, IF_NONE_MATCH } from 'src/constants/headers.constants'
@@ -38,6 +38,25 @@ export class PhotoStreamController {
     const photoPath = ProfilePhotoPath.fromGetProfilePhotoDto(dto)
     const stream = await this.photoService.getPhotoProfileStream(response, photoPath, request.headers[IF_NONE_MATCH])
     if (stream) return this.responseStream(response, stream, photoPath)
+  }
+
+  @Get('avatar/:hash')
+  @ApiHeader({ name: IF_NONE_MATCH })
+  @ApiOkResponse(PhotoStreamController.apiResponseOptions)
+  async getAvatarImage(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Param('hash') hash: string,
+    @Query('s') size?: string,
+  ): Promise<StreamableFile | undefined> {
+    const stream = await this.photoService.getGravatarStream(
+      response,
+      hash,
+      size ? +size : undefined,
+      request.headers[IF_NONE_MATCH],
+    )
+    if (stream)
+      return this.responseStream(response, stream, { mime: PhotoStreamController.JpegMime, filename: `${hash}.jpeg` })
   }
 
   @Get('download/:uuid.jpg')
