@@ -20,4 +20,14 @@ export class UserSteps {
   givenUserGroups(groups: string) {
     this.workspace.user.groups = groups.split(/\s*,\s*/)
   }
+
+  @given('sign in with username = {string}')
+  givenSignInUsername(username: string) {
+    this.workspace.requestBody.username = username
+  }
+
+  @given('sign in with password = {string}')
+  givenSignInPassword(password: string) {
+    this.workspace.requestBody.password = password
+  }
 }
