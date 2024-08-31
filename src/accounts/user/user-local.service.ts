@@ -3,6 +3,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
 import { Types } from 'mongoose'
+import { Span } from 'nestjs-otel'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ProfileNameService } from '../profile/profile-name.service'
 
@@ -20,9 +21,10 @@ export class UserLocalService {
     return await this.userLocalModel.find().exec()
   }
 
+  @Span()
   async findByUsername(username: string, withPassword = false) {
     const query = this.userLocalModel.findOne({ username })
-    if (withPassword) query.select('password')
+    if (withPassword) query.select('+password')
     return await query.exec()
   }
 
@@ -96,6 +98,7 @@ export class UserLocalService {
     await this.userLocalModel.findOneAndUpdate({ username }, { disabled }).exec()
   }
 
+  @Span()
   async signIn(username: string, plainPassword: string) {
     try {
       const user = await this.findByUsername(username, true)

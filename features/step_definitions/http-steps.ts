@@ -30,6 +30,11 @@ export class HttpSteps extends CommonSteps {
     return await this.httpRequest('GET', endpoint, this.workspace.requestQueries)
   }
 
+  @when(/^POST (.+)$/, undefined, 15000)
+  async whenPost(endpoint: string) {
+    return await this.httpRequest('POST', endpoint, this.workspace.requestQueries, this.workspace.requestBody)
+  }
+
   @when(/^PUT (.+)$/, undefined, 15000)
   async whenPut(endpoint: string) {
     return await this.httpRequest('PUT', endpoint, this.workspace.requestQueries, this.workspace.requestBody)
