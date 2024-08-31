@@ -24,4 +24,8 @@ export class PhotoUrlHelper {
   static profileWebp(uuid: string = DEFAULT_UUID) {
     return `${PhotoUrlHelper.baseUrl}/photos/profiles/${uuid}.webp`
   }
+
+  static profileJpg(uuid: string = DEFAULT_UUID) {
+    return `${PhotoUrlHelper.baseUrl}/photos/profiles/${uuid}.jpg`
+  }
 }

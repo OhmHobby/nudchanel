@@ -6,6 +6,7 @@ import { Response } from 'express'
 import { IncomingHttpHeaders } from 'http'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
+import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { ProfileNameService } from '../profile/profile-name.service'
 import { ProfileService } from '../profile/profile.service'
 import { UserGroupService } from '../user/user-group.service'
@@ -43,7 +44,7 @@ export class AccessTokenService {
       this.userGroupService.getProfileGroups(profileId),
     ])
 
-    const photo = this.profileService.getPhotoUrl(profile?.photo)
+    const photo = PhotoUrlHelper.profileJpg(profile?.photo)
 
     const fullname = `${name.firstname} ${name.lastname}`
 
