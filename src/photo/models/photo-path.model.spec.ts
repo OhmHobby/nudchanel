@@ -19,12 +19,12 @@ describe(PhotoPath.name, () => {
 
   test('requestPath', () => {
     const result = new PhotoPath(PhotoSize.preview, DEFAULT_UUID, ImageFormat.webp).requestPath
-    expect(result).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
+    expect(result).toBe('minio://preview/00000000-0000-0000-0000-000000000000.webp')
   })
 
   test('sourcePath', () => {
     const result = new PhotoPath(PhotoSize.preview, DEFAULT_UUID, ImageFormat.jpeg).sourcePath
-    expect(result).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
+    expect(result).toBe('minio://preview/00000000-0000-0000-0000-000000000000.webp')
   })
 
   test('isRequestASource', () => {
@@ -42,22 +42,22 @@ describe(PhotoPath.name, () => {
   describe('nextFallback', () => {
     test('thumbnail jpg', () => {
       const result = new PhotoPath(PhotoSize.thumbnail, DEFAULT_UUID, ImageFormat.jpeg).nextFallback()
-      expect(result?.requestPath).toBe('webdav://webdev/photos/thumbnail/00000000-0000-0000-0000-000000000000.webp')
+      expect(result?.requestPath).toBe('minio://thumbnail/00000000-0000-0000-0000-000000000000.webp')
     })
 
     test('thumbnail webp', () => {
       const result = new PhotoPath(PhotoSize.thumbnail, DEFAULT_UUID, ImageFormat.webp).nextFallback()
-      expect(result?.requestPath).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
+      expect(result?.requestPath).toBe('minio://preview/00000000-0000-0000-0000-000000000000.webp')
     })
 
     test('card webp', () => {
       const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.webp).nextFallback()
-      expect(result?.requestPath).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
+      expect(result?.requestPath).toBe('minio://preview/00000000-0000-0000-0000-000000000000.webp')
     })
 
     test('preview jpg', () => {
       const result = new PhotoPath(PhotoSize.preview, DEFAULT_UUID, ImageFormat.jpeg).nextFallback()
-      expect(result?.requestPath).toBe('webdav://webdev/photos/preview/00000000-0000-0000-0000-000000000000.webp')
+      expect(result?.requestPath).toBe('minio://preview/00000000-0000-0000-0000-000000000000.webp')
     })
 
     test('preview webp', () => {

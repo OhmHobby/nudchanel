@@ -74,7 +74,7 @@ describe('Photo stream', () => {
     let buffer: Buffer | null
 
     const uuid = 'a924f210-4bdc-4683-9fc6-08dc5de0525a'
-    const target = `webdav://webdev/photos/preview/${uuid}.webp`
+    const target = `minio://preview/${uuid}.webp`
 
     const task = new UploadTaskModel({
       _id: new Types.ObjectId('507f1f77bcf86cd799439011'),

@@ -4,7 +4,7 @@ import { PhotoPathHelper } from './photo-path.helper.model.abstract'
 import { IPhotoPath } from './photo-path.interface'
 
 export class ProfilePhotoPath extends PhotoPathHelper implements IPhotoPath {
-  private prefix = 'minio://profiles'
+  private prefix = 'minio://profiles/'
 
   constructor(
     readonly uuid: string,
@@ -22,7 +22,7 @@ export class ProfilePhotoPath extends PhotoPathHelper implements IPhotoPath {
   }
 
   get path() {
-    return `${this.prefix}/${this.uuid}.${ProfilePhotoPath.formatToExt(this.format)}`
+    return `${this.prefix}${this.uuid}.${ProfilePhotoPath.formatToExt(this.format)}`
   }
 
   static fromGetProfilePhotoDto({ uuid, ext }: GetProfilePhotoDto) {
