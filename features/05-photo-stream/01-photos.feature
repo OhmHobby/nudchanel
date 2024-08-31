@@ -22,17 +22,18 @@ Feature: Photo stream
       | thumbnail | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 147x220   | image/jpeg  |
 
   Scenario Outline: GET <photoSize> <fileName> with etag <status>
-    Given If none match "<requestEtag>"
+    Given If none match <requestEtag>
     When GET /photos/<photoSize>/<fileName>
-    Then HTTP response header "etag" should be "\"<responseEtag>\""
+    Then HTTP response header "etag" should be "<responseEtag>"
     And HTTP response status should be <status>
     And HTTP response size should be <fileSize>
     Examples:
-      | photoSize | status       | fileName                                  | requestEtag                       | responseEtag                      | fileSize |
-      | preview   | NOT_MODIFIED | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp | 1409e-qmwQLs/+3XoYGAupRefMLrTFNtM | 1409e-qmwQLs/+3XoYGAupRefMLrTFNtM | 0        |
-      | preview   | NOT_MODIFIED | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo | 3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo | 0        |
-      | preview   | OK           | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp |                                   | 1409e-qmwQLs/+3XoYGAupRefMLrTFNtM | 82078    |
-      | preview   | OK           | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  |                                   | 3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo | 207115   |
+      | photoSize | status       | fileName                                  | requestEtag                         | responseEtag                          | fileSize |
+      | preview   | NOT_MODIFIED | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp | d3e4e4eacb5a35b4fc44453b05404d62    | d3e4e4eacb5a35b4fc44453b05404d62      | 0        |
+      | preview   | NOT_MODIFIED | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | "3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo" | \"3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo\" | 0        |
+      | preview   | OK           | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp |                                     | d3e4e4eacb5a35b4fc44453b05404d62      | 82078    |
+      | preview   | OK           | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  |                                     | \"3290b-nG1mEDF5E4qWJpSCcGlOdDWXPOo\" | 207115   |
+      | preview   | OK           | 2d76f31c-3f00-4dc5-a4ce-b85cf3645713.webp |                                     | 75a689aef244c854db4943b0ee83c6a2      | 85912    |
 
   Scenario: Download
     When GET /photos/download/0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg

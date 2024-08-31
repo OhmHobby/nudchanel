@@ -7,7 +7,7 @@ import { PhotoPathHelper } from './photo-path.helper.model.abstract'
 import { IPhotoPath } from './photo-path.interface'
 
 export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
-  private prefix = 'webdav://webdev/photos'
+  private prefix = 'minio://'
 
   readonly format: ImageFormat
 
@@ -60,7 +60,7 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
   }
 
   private buildFullPath(size: PhotoSize, ext?: string) {
-    return `${this.prefix}/${PhotoSize[size]}/${this.uuid}.${ext ?? PhotoPath.formatToExt(PhotoPath.sizeFormat(size))}`
+    return `${this.prefix}${PhotoSize[size]}/${this.uuid}.${ext ?? PhotoPath.formatToExt(PhotoPath.sizeFormat(size))}`
   }
 
   static fromGetPhotoDto({ size, uuid, ext }: GetPhotoDto) {

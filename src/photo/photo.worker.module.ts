@@ -30,5 +30,6 @@ import { PhotoStreamService } from './stream/photo-stream.service'
     PhotoV1Service,
   ],
   controllers: [PhotoStreamController, PhotoProcessorController],
+  exports: [PhotoV1Service, PhotoProcessorService],
 })
 export class PhotoWorkerModule {}
