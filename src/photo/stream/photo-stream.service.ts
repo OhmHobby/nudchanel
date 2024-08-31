@@ -85,7 +85,7 @@ export class PhotoStreamService {
 
   async tryGravatar(hash: string, size?: number) {
     try {
-      const url = `https://secure.gravatar.com/avatar/${hash}${size ? `?s=${size}` : ''}`
+      const url = `https://secure.gravatar.com/avatar/${hash}?d=identicon${size ? `&s=${size}` : ''}`
       const response = await fetch(url)
       if (response.status !== HttpStatus.OK) return null
       return Readable.fromWeb(response.body as any)
