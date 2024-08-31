@@ -19,8 +19,8 @@ Feature: Photo stream profiles
       | 00000000-0000-0000-0000-000000000000.png  | 512x512   | image/png   |
 
   Scenario: Get avatar
-    When GET /photos/avatar/a8b057c25f8e34b2c5a371252b25411a75150992f76f62716b8b23ce00d852e3
+    When GET /photos/avatar/ec8b7e115526f040a2189d919de499c0f592fa22d3de2d46e9af3ada11809caa
     Then HTTP response status should be OK
-    And HTTP response header "content-disposition" should be "inline;filename=a8b057c25f8e34b2c5a371252b25411a75150992f76f62716b8b23ce00d852e3.jpeg"
+    And HTTP response header "content-disposition" should be "inline;filename=ec8b7e115526f040a2189d919de499c0f592fa22d3de2d46e9af3ada11809caa.jpeg"
     And HTTP response header "content-type" should be "image/jpeg"
     And photo imageSize should be 80x80

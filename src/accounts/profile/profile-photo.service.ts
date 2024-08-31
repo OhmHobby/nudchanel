@@ -17,7 +17,6 @@ import { ProcessPhotoParams } from 'src/photo/processor/process-photo-params'
 import { StorageService } from 'src/storage/storage.service'
 import { v5 as uuidv5 } from 'uuid'
 import MUUID from 'uuid-mongodb'
-import { UserLocalService } from '../user/user-local.service'
 import { ProfileService } from './profile.service'
 
 @Injectable()
@@ -26,23 +25,23 @@ export class ProfilePhotoService {
     @InjectModel(ProfilePhotoModel)
     private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
     private readonly profileService: ProfileService,
-    private readonly userLocalService: UserLocalService,
     private readonly storageService: StorageService,
     @InjectQueue(BullQueueName.Photo)
     private readonly processPhotoQueue: Queue<AsyncProcessPhotoParams>,
   ) {}
 
+  findByUuid(uuid: string) {
+    return this.profilePhotoModel.findById(MUUID.from(uuid)).exec()
+  }
+
   async importFromNas(directory: string, filename: string, profileId: Types.ObjectId) {
-    const [profile, user] = await Promise.all([
-      this.profileService.findById(profileId),
-      this.userLocalService.findByProfile(profileId),
-    ])
+    const profile = await this.profileService.findById(profileId)
     if (!profile) throw new NotFoundException('Profile not found')
     const path = this.getSrcFilepath(directory, filename)
     const md5 = await this.storageService.getFileMd5(path)
     const uuid = this.generateUuidFromMd5HashString(md5)
     const muuid = MUUID.from(uuid)
-    await this.processProfilePhoto(path, uuid, user?.username)
+    await this.processProfilePhoto(path, uuid, profile.emails?.at(0))
     profile.photo = uuid
     const [profilePhoto] = await Promise.all([
       await this.profilePhotoModel.findByIdAndUpdate(
@@ -60,7 +59,7 @@ export class ProfilePhotoService {
     return profilePhoto
   }
 
-  async processProfilePhoto(path: string, uuid: string, username?: string) {
+  async processProfilePhoto(path: string, uuid: string, email?: string) {
     await Promise.all([
       this.processPhoto(
         new AsyncProcessPhotoParams({
@@ -86,7 +85,7 @@ export class ProfilePhotoService {
           }),
         }),
       ),
-      this.processGravatar(path, username),
+      this.processGravatar(path, email),
     ])
   }
 
@@ -99,9 +98,9 @@ export class ProfilePhotoService {
     await job.finished()
   }
 
-  async processGravatar(path: string, username?: string) {
-    if (!username) return
-    const mailHash = createHash('sha256').update(`${username}@nudchannel.com`.trim().toLowerCase()).digest('hex')
+  async processGravatar(path: string, email?: string) {
+    if (!email) return
+    const mailHash = createHash('sha256').update(`${email}`.trim().toLowerCase()).digest('hex')
     const destination = `minio://avatar/${mailHash}`
     await this.processPhoto(
       new AsyncProcessPhotoParams({

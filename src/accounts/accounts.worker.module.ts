@@ -10,30 +10,44 @@ import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { StorageModule } from 'src/storage/storage.module'
 import { ProfileModel } from '../models/accounts/profile.model'
 import { ProfileNameModel } from '../models/accounts/profile.name.model'
 import { AccessTokenService } from './access-token/access-token.service'
 import { DiscordProcessorService } from './discord/discord-processor.service'
 import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
-import { TeamService } from './team/team.service'
+import { ProfilePhotoService } from './profile/profile-photo.service'
 import { ProfileService } from './profile/profile.service'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
+import { TeamService } from './team/team.service'
 import { UserGroupService } from './user/user-group.service'
 
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, RefreshTokenModel, TeamMemberModel, TeamRoleModel],
+      [
+        ProfileModel,
+        ProfileNameModel,
+        ProfilePhotoModel,
+        UserGroupModel,
+        GroupModel,
+        RefreshTokenModel,
+        TeamMemberModel,
+        TeamRoleModel,
+      ],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),
-    BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 2, backoff: 5000 } }),
+    BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 2 } }),
+    BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
+    StorageModule,
     AmqpModule,
   ],
   providers: [
     ProfileService,
     ProfileNameService,
+    ProfilePhotoService,
     TeamService,
     UserGroupService,
     GroupService,
@@ -41,6 +55,6 @@ import { UserGroupService } from './user/user-group.service'
     RefreshTokenService,
     DiscordProcessorService,
   ],
-  exports: [ProfileService, AccessTokenService, RefreshTokenService, DiscordProcessorService],
+  exports: [ProfileService, ProfilePhotoService, AccessTokenService, RefreshTokenService, DiscordProcessorService],
 })
 export class AccountsWorkerModule {}

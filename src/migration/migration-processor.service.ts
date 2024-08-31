@@ -5,11 +5,13 @@ import { ReturnModelType } from '@typegoose/typegoose'
 import { Job, Queue } from 'bull'
 import { join } from 'path'
 import { DiscordProcessorService } from 'src/accounts/discord/discord-processor.service'
+import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullPriority } from 'src/enums/bull-priority.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
+import { ProfileModel } from 'src/models/accounts/profile.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -23,11 +25,14 @@ export class MigrationProcessorService {
   private readonly logger = new Logger(MigrationProcessorService.name)
 
   constructor(
-    private readonly discordProcessorService: DiscordProcessorService,
+    @InjectModel(ProfileModel)
+    private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
     @InjectQueue(BullQueueName.Migration)
     private readonly migrationQueue: Queue,
+    private readonly profilePhotoService: ProfilePhotoService,
+    private readonly discordProcessorService: DiscordProcessorService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
     private readonly photoProcessor: PhotoProcessorService,
@@ -44,7 +49,7 @@ export class MigrationProcessorService {
     }
   }
 
-  @Process(BullJobName.MigratePhoto)
+  @Process({ name: BullJobName.MigratePhoto, concurrency: 1 })
   async migratePhoto({ data: uuid }: Job<string>) {
     const { file, batch, task } = await this.photoV1Service.getFileInfo(uuid)
     const originalPath = `webdav://${join(file.directory, file.filename)}`
@@ -74,6 +79,17 @@ export class MigrationProcessorService {
     }
   }
 
+  @Process({ name: BullJobName.MigrateProfilePhoto, concurrency: 1 })
+  async migrateProfilePhoto({ data: profileId }: Job<string>) {
+    this.logger.debug(`Processing ${profileId}`)
+    const profile = await this.profileModel.findById(profileId).exec()
+    if (!profile?.photo) return this.logger.warn(`No photo for profileId ${profileId}`)
+    const photo = await this.profilePhotoService.findByUuid(profile.photo)
+    if (!photo) return this.logger.warn(`No photo ${profile.photo} for profileId ${profileId}`)
+    await this.profilePhotoService.importFromNas(photo.directory, photo.filename, profile._id)
+    this.logger.log(`Re-processed ${profileId}: ${photo.directory}/${photo.filename}`)
+  }
+
   async triggerReprocessAll() {
     const photosCursor = this.batchFileModel
       .find({ deleted: false, state: UploadTaskBatchFileState.processed })
@@ -91,5 +107,21 @@ export class MigrationProcessorService {
         })
         .then((job) => this.logger.debug(`Queued ${photo.uuid} for migration`, job))
     }
+  }
+
+  async triggerProcessAllProfilePhotos() {
+    const profiles = await this.profileModel
+      .find({ photo: { $ne: null } })
+      .lean()
+      .exec()
+    const promises = profiles.map((profile) =>
+      this.migrationQueue.add(BullJobName.MigrateProfilePhoto, profile._id.toString(), {
+        attempts: 4,
+        backoff: 5000,
+        removeOnComplete: true,
+        removeOnFail: false,
+      }),
+    )
+    return await Promise.all(promises)
   }
 }
