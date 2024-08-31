@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { AccountsWorkerModule } from 'src/accounts/accounts.worker.module'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
+import { ProfileModel } from 'src/models/accounts/profile.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoWorkerModule } from 'src/photo/photo.worker.module'
 import { StorageModule } from 'src/storage/storage.module'
@@ -12,6 +13,7 @@ import { MigrationController } from './migration.controller.service'
 
 @Module({
   imports: [
+    TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
     TypegooseModule.forFeature([UploadBatchFileModel], MongoConnection.Photo),
     BullModule.registerQueue({ name: BullQueueName.Migration }),
     AccountsWorkerModule,

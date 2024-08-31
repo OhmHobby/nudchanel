@@ -31,4 +31,14 @@ export class MigrationController {
   async triggerMigratePhotoStorageAll() {
     return await this.service.triggerReprocessAll()
   }
+
+  @Post('reprocess-profile-photos')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups(['it'])
+  async triggerReprocessProfilesAll() {
+    return await this.service.triggerProcessAllProfilePhotos()
+  }
 }
