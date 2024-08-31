@@ -68,6 +68,32 @@ export class PhotoStreamService {
     throw new NotFoundException()
   }
 
+  async getGravatarStream(response: Response, hash: string, size?: number, requestEtag?: string) {
+    const path = `minio://avatar/${hash}`
+    const currentEtag = await this.storageService.getEtag(path)
+    const isNotModified = this.isNotModified(response, requestEtag, currentEtag)
+    if (isNotModified) return undefined
+
+    const stream = await this.tryStream(path)
+    if (stream) return this.responseWithStream(response, stream, requestEtag, currentEtag)
+
+    const gravatarStream = await this.tryGravatar(hash, size)
+    if (gravatarStream) return this.responseWithStream(response, gravatarStream, requestEtag, currentEtag)
+
+    throw new NotFoundException()
+  }
+
+  async tryGravatar(hash: string, size?: number) {
+    try {
+      const url = `https://secure.gravatar.com/avatar/${hash}${size ? `?s=${size}` : ''}`
+      const response = await fetch(url)
+      if (response.status !== HttpStatus.OK) return null
+      return Readable.fromWeb(response.body as any)
+    } catch (err) {
+      return null
+    }
+  }
+
   isNotModified(response: Response, requestEtag?: string | null, responseEtag?: string | null) {
     const isNotModified = responseEtag && requestEtag === responseEtag
     response.set({ ETag: responseEtag })
