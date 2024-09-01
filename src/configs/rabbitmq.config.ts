@@ -27,7 +27,7 @@ export class RabbitMQConfigService implements ModuleConfigFactory<RabbitMQConfig
       },
       channels: {
         [RabbitChannel.Default]: {
-          prefetchCount: 10,
+          prefetchCount: +this.configService.getOrThrow(Config.RABBITMQ_DEFAULT_PREFETCHCOUNT),
           default: true,
         },
         [RabbitChannel.Process]: {

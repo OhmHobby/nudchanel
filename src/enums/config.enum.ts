@@ -22,6 +22,7 @@ export enum Config {
   RABBITMQ_URI = 'rabbitmq.uri',
   RABBITMQ_WAIT_ENABLED = 'rabbitmq.wait.enabled',
   RABBITMQ_WAIT_TIMEOUT = 'rabbitmq.wait.timeout',
+  RABBITMQ_DEFAULT_PREFETCHCOUNT = 'rabbitmq.default.prefetchCount',
   STORAGE_WEBDAV_URL = 'storage.webdav.url',
   STORAGE_WEBDAV_AUTHTYPE = 'storage.webdav.authtype',
   STORAGE_WEBDAV_USERNAME = 'storage.webdav.username',
