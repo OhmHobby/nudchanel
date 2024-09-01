@@ -12,6 +12,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { ProfilePhotoPath } from 'src/photo/models/profile-photo-path.model'
 import { AsyncProcessPhotoParams } from 'src/photo/processor/async-process-photo-params'
 import { ProcessPhotoParams } from 'src/photo/processor/process-photo-params'
 import { StorageService } from 'src/storage/storage.service'
@@ -60,29 +61,21 @@ export class ProfilePhotoService {
   }
 
   async processProfilePhoto(path: string, uuid: string, email?: string) {
+    const webpPath = new ProfilePhotoPath(uuid, ImageFormat.webp)
+    const jpegPath = new ProfilePhotoPath(uuid, ImageFormat.jpeg)
     await Promise.all([
       this.processPhoto(
         new AsyncProcessPhotoParams({
           source: path,
-          destination: this.getProfilePath(uuid + '.webp'),
-          params: new ProcessPhotoParams({
-            format: ImageFormat.webp,
-            width: 256,
-            height: 256,
-            fit: ImageFit.outside,
-          }),
+          destination: webpPath.path,
+          params: webpPath.buildProcessParams(),
         }),
       ),
       this.processPhoto(
         new AsyncProcessPhotoParams({
           source: path,
-          destination: this.getProfilePath(uuid + '.jpg'),
-          params: new ProcessPhotoParams({
-            format: ImageFormat.jpeg,
-            width: 128,
-            height: 128,
-            fit: ImageFit.outside,
-          }),
+          destination: jpegPath.path,
+          params: jpegPath.buildProcessParams(),
         }),
       ),
       this.processGravatar(path, email),
@@ -115,10 +108,6 @@ export class ProfilePhotoService {
       }),
     )
     return destination
-  }
-
-  getProfilePath(filename: string) {
-    return `minio://profiles/${filename}`
   }
 
   getSrcFilepath(directory: string, filename: string) {
