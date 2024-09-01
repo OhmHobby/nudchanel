@@ -34,7 +34,7 @@ describe('Accounts - refresh token', () => {
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
   })
 
-  it('GET /ping (should not re-new when accessToken is valid)', async () => {
+  it('GET /api/v1/accounts/profiles/me (should not re-new when accessToken is valid)', async () => {
     const accessToken = await TestData.aValidAccessToken().build()
     const refreshToken = TestData.aValidRefreshToken().build()
     mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
@@ -43,14 +43,14 @@ describe('Accounts - refresh token', () => {
       .withRefreshToken(refreshToken._id!.toString())
       .build()
 
-    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+    const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 
     expect(result.status).toBe(HttpStatus.OK)
-    expect(result.text).toBe('pong')
+    expect(result.body).toEqual(expect.any(Object))
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 
-  it('GET /ping (automatically re-new expired accessToken)', async () => {
+  it('GET /api/v1/accounts/profiles/me (automatically re-new expired accessToken)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
     mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
     const cookies = TestData.aValidSupertestCookies()
@@ -58,36 +58,35 @@ describe('Accounts - refresh token', () => {
       .withRefreshToken(refreshToken._id!.toString())
       .build()
 
-    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+    const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 
     expect(result.status).toBe(HttpStatus.OK)
-    expect(result.text).toBe('pong')
+    expect(result.body).toEqual(expect.any(Object))
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/access_token=.+/))
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
   })
 
-  it('GET /ping (automatically re-new missing accessToken)', async () => {
+  it('GET /api/v1/accounts/profiles/me (automatically re-new missing accessToken)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
     mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
     const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
 
-    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+    const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 
     expect(result.status).toBe(HttpStatus.OK)
-    expect(result.text).toBe('pong')
+    expect(result.body).toEqual(expect.any(Object))
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/access_token=.+/))
     expect(result.headers['set-cookie']).toContainEqual(expect.stringMatching(/refresh_token=.+/))
   })
 
-  it('GET /ping (expired refresh token should not be re-newed)', async () => {
+  it('GET /api/v1/accounts/profiles/me (expired refresh token should not be re-newed)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
     mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
     const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
 
-    const result = await request(app.getHttpServer()).get('/ping').set('Cookie', cookies).send()
+    const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 
-    expect(result.status).toBe(HttpStatus.OK)
-    expect(result.text).toBe('pong')
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 

@@ -42,6 +42,8 @@ export class AuthMiddleware implements NestMiddleware {
       const accessToken = await cookieToken.getUpdatedAccessToken(res, true)
       if (!accessToken) return next()
 
+      req.user = await this.accessTokenService.getUserFromAccessToken(accessToken)
+
       return next()
     } catch (err) {
       this.logger.error(`Failed to set User request context.`, err)
