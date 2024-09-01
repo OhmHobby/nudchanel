@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
+import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
 
 export class ProfileNameResponseModel {
   constructor(model?: Partial<ProfileNameResponseModel>) {
@@ -24,7 +24,7 @@ export class ProfileNameResponseModel {
     })
   }
 
-  static fromProfile(profile?: ProfileModel) {
-    return ProfileNameResponseModel.fromModel(profile?.populatedNames?.find((p) => p.lang === 'en'))
+  static fromProfile(profile?: ProfileModel, lang: ProfileNameLanguage = 'en') {
+    return ProfileNameResponseModel.fromModel(profile?.populatedNames?.find((p) => p.lang === lang))
   }
 }

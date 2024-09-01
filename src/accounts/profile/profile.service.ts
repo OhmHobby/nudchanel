@@ -15,6 +15,10 @@ export class ProfileService {
     return this.profileModel.findById(id).exec()
   }
 
+  findByIdPopulated(id: Types.ObjectId | string) {
+    return this.profileModel.findById(id).populate({ path: 'names' }).exec()
+  }
+
   findByDiscordId(discordId: string) {
     return this.profileModel.findOne({ discord_ids: discordId }).exec()
   }
