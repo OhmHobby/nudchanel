@@ -40,6 +40,11 @@ export class PhotoProcessorSteps extends CommonSteps {
     this.workspace.requestQueries.fit = fit
   }
 
+  @given('process photo height ratio {string}')
+  givenHeightRatio(heightRatio: string) {
+    this.workspace.requestQueries.heightRatio = heightRatio
+  }
+
   @given('process photo watermark {string}')
   givenWatermark(watermark: string) {
     this.workspace.requestQueries.watermark = watermark

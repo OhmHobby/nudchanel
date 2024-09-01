@@ -5,6 +5,7 @@ import sharp from 'sharp'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { ProcessPhotoParams } from './process-photo-params'
 import { PhotoWatermarkService } from './watermark.service'
+import { ImageFit } from 'src/enums/image-fit.enum'
 
 @Injectable()
 export class PhotoProcessorService {
@@ -35,7 +36,12 @@ export class PhotoProcessorService {
     this.logger.log({ message: 'Processing', format, width, height, fit, quality, watermark, etag: etag(fileBuffer) })
     let photo: sharp.Sharp = sharp(fileBuffer).rotate()
 
-    if (width || height) photo.resize({ width, height, fit, withoutEnlargement: true })
+    if (fit === ImageFit.cover) {
+      const metadata = await photo.metadata()
+      photo.extract(params.buildPreExtractRegion(metadata.width, metadata.height))
+    }
+
+    if (width || height) photo.resize(params.buildResizeOptions())
 
     if (watermark) photo = await this.insertWatermark(photo, quality, watermark)
 

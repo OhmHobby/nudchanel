@@ -53,6 +53,23 @@ Feature: Photo processor
       | webp   | webdav://2022/[2022.02.02] WebDev CI/P1448472.jpeg | 800   | 600    | 80      | inside | 01        | OK     | 116688 | "1c7d0-NVwY6NKqmib7RqiWcgssydd6zaE" |
       | webp   | webdav://2022/[2022.02.03] Rotation/IMG_4432.JPG   | 800   | 600    | 80      | inside | 01        | OK     | 21490  | "53f2-YEpEI9Sd1+Rht7bwt1En+dhUhvM"  |
 
+  Scenario Outline: Resize profile (cover) <path>
+    Given process photo path "<path>"
+    And process photo format "webp"
+    And process photo width "256"
+    And process photo height "256"
+    And process photo fit "cover"
+    And process photo height ratio "0.1"
+    And HTTP response type "blob"
+    When GET /photo-processor/process
+    Then HTTP response status should be OK
+    And photo imageSize should be 256x256
+    And ETag should be <etag>
+    Examples:
+      | path                                              | etag                              |
+      | webdav://2022/[2022.03.01] Team/IMG_8800_Khim.jpg | "ee0-HtAxiGI1seSfYdwMX9luItUCOvw" |
+      | webdav://2022/[2022.03.01] Team/TOPP-0746.jpg     | "dda-lpg3hje9jyQQBhxnEOvsRf2byp8" |
+
   Scenario: Error <description> - <status> <path>
     Given process photo path "<path>"
     And process photo format "<format>"
