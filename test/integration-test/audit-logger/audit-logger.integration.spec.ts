@@ -56,6 +56,7 @@ describe('Audit logger', () => {
     const result = await request(app.getHttpServer()).post('/1?q=2').send({ test: 3 })
     let doc: AuditLogModel | null = null
     for (let attempts = 3; attempts && !doc; attempts--) {
+      process.stdout.write('.')
       doc = await controller.findByCorrelationId(result.body.correlationId)
       await new Promise<void>((r) => setTimeout(() => r(), 1000))
     }

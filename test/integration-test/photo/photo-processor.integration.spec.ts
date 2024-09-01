@@ -93,6 +93,7 @@ describe('Photo processor', () => {
 
     let fileExist = false
     for (let attempts = 30; attempts && !fileExist; attempts--) {
+      process.stdout.write('.')
       fileExist = await storageService.isExist(destination)
       await new Promise<void>((r) => setTimeout(() => r(), 1000))
     }

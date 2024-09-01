@@ -1,7 +1,7 @@
 import { DEFAULT_UUID } from 'src/constants/uuid.constants'
+import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
-import { ProcessPhotoParams } from '../processor/process-photo-params'
 import { PhotoPath } from './photo-path.model'
 
 describe(PhotoPath.name, () => {
@@ -32,11 +32,26 @@ describe(PhotoPath.name, () => {
     expect(new PhotoPath(PhotoSize.preview, DEFAULT_UUID, ImageFormat.webp).isRequestASource).toBe(true)
   })
 
-  test('buildProcessParams', () => {
-    const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.webp).buildProcessParams()
-    expect(result).toEqual(
-      new ProcessPhotoParams({ format: ImageFormat.webp, width: PhotoSize.card, height: PhotoSize.card }),
-    )
+  describe('buildProcessParams', () => {
+    test('card', () => {
+      const result = new PhotoPath(PhotoSize.card, DEFAULT_UUID, ImageFormat.webp).buildProcessParams()
+      expect(result.format).toBe(ImageFormat.webp)
+      expect(result.width).toBe(PhotoSize.card)
+      expect(result.height).toBe(PhotoSize.card)
+      expect(result.fit).toBe(ImageFit.inside)
+      expect(result.quality).toBe(80)
+      expect(result.watermark).toBeUndefined
+    })
+
+    test('thumbnail', () => {
+      const result = new PhotoPath(PhotoSize.thumbnail, DEFAULT_UUID).buildProcessParams()
+      expect(result.format).toBe(ImageFormat.webp)
+      expect(result.width).toBe(PhotoSize.thumbnail)
+      expect(result.height).toBe(PhotoSize.thumbnail)
+      expect(result.fit).toBe(ImageFit.outside)
+      expect(result.quality).toBe(80)
+      expect(result.watermark).toBeUndefined
+    })
   })
 
   describe('nextFallback', () => {

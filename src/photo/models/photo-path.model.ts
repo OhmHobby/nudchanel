@@ -1,3 +1,4 @@
+import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { DownloadPhotoDto } from '../dto/download-photo-dto'
@@ -20,22 +21,36 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
     this.format = format ?? this.sizeFormat
   }
 
-  get sizeFormat() {
+  get sizeFormat(): ImageFormat {
     return PhotoPath.sizeFormat(this.size)
+  }
+
+  get imageFit(): ImageFit {
+    return PhotoPath.imageFit(this.size)
   }
 
   get mime() {
     return 'image/' + this.format
   }
 
+  /**
+   * File basename with extension
+   * Example: 00000000-0000-0000-0000-000000000000.webp
+   */
   get filename() {
     return `${this.uuid}.${PhotoPath.formatToExt(this.format)}`
   }
 
+  /**
+   * Full path with request extension
+   */
   get requestPath() {
     return this.buildFullPath(this.size, PhotoPath.formatToExt(this.format))
   }
 
+  /**
+   * Full path with size original extension
+   */
   get sourcePath() {
     return this.buildFullPath(this.size)
   }
@@ -49,6 +64,7 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
       format: this.format,
       width: this.size,
       height: this.size,
+      fit: this.imageFit,
       ...params,
     })
   }
@@ -80,5 +96,9 @@ export class PhotoPath extends PhotoPathHelper implements IPhotoPath {
       default:
         return ImageFormat.jpeg
     }
+  }
+
+  private static imageFit(size) {
+    return size === PhotoSize.thumbnail ? ImageFit.outside : ImageFit.inside
   }
 }
