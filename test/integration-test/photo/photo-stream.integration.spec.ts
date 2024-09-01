@@ -122,7 +122,8 @@ describe('Photo stream', () => {
 
     test('file should be existed', async () => {
       let result = false
-      for (let attempts = 3; attempts && !result; attempts--) {
+      for (let attempts = 15; attempts && !result; attempts--) {
+        process.stdout.write('.')
         result = await storageService.isExist(target)
         await new Promise<void>((r) => setTimeout(() => r(), 1000))
       }

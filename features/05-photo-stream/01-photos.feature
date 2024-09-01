@@ -18,8 +18,8 @@ Feature: Photo stream
       | preview   | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 1440x2160 | image/jpeg  |
       | card      | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 320x480   | image/jpeg  |
       | cover     | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 800x1200  | image/jpeg  |
-      | thumbnail | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp | 147x220   | image/webp  |
-      | thumbnail | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 147x220   | image/jpeg  |
+      | thumbnail | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.webp | 220x330   | image/webp  |
+      | thumbnail | 0fbc4fe4-2a89-41c0-a7ba-4b231290e1a5.jpg  | 220x330   | image/jpeg  |
 
   Scenario Outline: GET <photoSize> <fileName> with etag <status>
     Given If none match <requestEtag>

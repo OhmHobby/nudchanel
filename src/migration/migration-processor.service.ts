@@ -9,12 +9,14 @@ import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullPriority } from 'src/enums/bull-priority.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
+import { PhotoMetadataService } from 'src/photo/processor/photo-metadata.service'
 import { PhotoProcessorService } from 'src/photo/processor/photo-processor.service'
 import { UploadTaskRuleWatermark } from 'src/photo/upload-rules/upload-task-rule-watermark'
 import { StorageService } from 'src/storage/storage.service'
@@ -36,6 +38,7 @@ export class MigrationProcessorService {
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
     private readonly photoProcessor: PhotoProcessorService,
+    private readonly photoMetadata: PhotoMetadataService,
   ) {}
 
   @Process(BullJobName.MigrateDiscordProfileSync)
@@ -55,28 +58,36 @@ export class MigrationProcessorService {
     const originalPath = `webdav://${join(file.directory, file.filename)}`
     const isOriginalExist = await this.storageService.isExist(originalPath)
     const previewPath = new PhotoPath(PhotoSize.preview, uuid)
+    const isPreviewExist = await this.storageService.isExist(previewPath.sourcePath)
     const thumbnailPath = new PhotoPath(PhotoSize.thumbnail, uuid)
+    let previewBuffer: Buffer
     if (isOriginalExist) {
-      const buffer = await this.storageService.getBuffer(originalPath)
-      const previewParams = previewPath.buildProcessParams({
-        watermark: new UploadTaskRuleWatermark(task.rules).getValue() ?? undefined,
-      })
-      const previewBuffer = await this.photoProcessor.process(buffer, previewParams)
-      await this.storageService.putFile(previewPath.sourcePath, previewBuffer)
-      const thumbnailBuffer = await this.photoProcessor.process(previewBuffer, thumbnailPath.buildProcessParams())
-      await this.storageService.putFile(thumbnailPath.sourcePath, thumbnailBuffer)
-      this.logger.log(`Re-processed: ${originalPath}`)
+      const originalBuffer = await this.storageService.getBuffer(originalPath)
+      if (file.orientation !== Orientation.Rotated0) {
+        const { width, height } = this.photoMetadata.getFileExif(originalBuffer)
+        await this.batchFileModel.updateOne({ _id: file._id }, { width, height }).exec()
+        this.logger.log(`Updated width/height ${width}x${height} [${file.orientation}]`)
+      }
+      if (isPreviewExist) {
+        previewBuffer = await this.storageService.getBuffer(previewPath.sourcePath)
+      } else {
+        const previewParams = previewPath.buildProcessParams({
+          watermark: new UploadTaskRuleWatermark(task.rules).getValue() ?? undefined,
+        })
+        previewBuffer = await this.photoProcessor.process(originalBuffer, previewParams)
+        await this.storageService.putFile(previewPath.sourcePath, previewBuffer)
+        this.logger.log(`Re-processed preview ${originalPath} => ${previewPath.sourcePath}`)
+      }
     } else {
       this.logger.warn({ message: `${originalPath} is not found`, file, batch, task })
       const previewSource = `webdav://webdev/photos/preview/${uuid}.webp`
-      const thumbnailSource = `webdav://webdev/photos/thumbnail/${uuid}.webp`
-      const previewStream = await this.storageService.getStream(previewSource)
+      previewBuffer = await this.storageService.getBuffer(previewSource)
+      await this.storageService.putFile(previewPath.sourcePath, previewBuffer)
       this.logger.log(`Copied: ${previewSource}`)
-      await this.storageService.putFile(previewPath.sourcePath, previewStream)
-      const thumbnailStream = await this.storageService.getStream(thumbnailSource)
-      await this.storageService.putFile(thumbnailPath.sourcePath, thumbnailStream)
-      this.logger.log(`Copied: ${thumbnailSource}`)
     }
+    const thumbnailBuffer = await this.photoProcessor.process(previewBuffer, thumbnailPath.buildProcessParams())
+    await this.storageService.putFile(thumbnailPath.sourcePath, thumbnailBuffer)
+    this.logger.log(`Re-processed thumbnail ${originalPath} => ${thumbnailPath.sourcePath}`)
   }
 
   @Process({ name: BullJobName.MigrateProfilePhoto, concurrency: 1 })
