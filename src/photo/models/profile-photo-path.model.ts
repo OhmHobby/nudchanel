@@ -1,3 +1,4 @@
+import { DEFAULT_UUID } from 'src/constants/uuid.constants'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { GetProfilePhotoDto } from '../dto/get-profile-photo-dto'
@@ -13,8 +14,8 @@ export class ProfilePhotoPath extends PhotoPathHelper implements IPhotoPath {
   private static readonly jpegSize = 128
 
   constructor(
-    readonly uuid: string,
-    readonly format: ImageFormat,
+    readonly uuid: string = DEFAULT_UUID,
+    readonly format: ImageFormat = ImageFormat.webp,
   ) {
     super()
   }
@@ -40,7 +41,8 @@ export class ProfilePhotoPath extends PhotoPathHelper implements IPhotoPath {
       format: this.format,
       width: this.size,
       height: this.size,
-      fit: ImageFit.outside,
+      fit: ImageFit.cover,
+      heightRatio: 0.1,
       ...params,
     })
   }

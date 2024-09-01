@@ -48,7 +48,7 @@ export class PhotoConsumerService {
   async process({ data }: Job<AsyncProcessPhotoParams>) {
     this.logger.log({ message: `Process photo`, ...data })
     const rawBuffer = await this.storageService.getBuffer(data.source)
-    const processedBuffer = await this.photoProcessorService.process(rawBuffer, data.params)
+    const processedBuffer = await this.photoProcessorService.process(rawBuffer, new ProcessPhotoParams(data.params))
     await this.storageService.putFile(data.destination, processedBuffer)
   }
 

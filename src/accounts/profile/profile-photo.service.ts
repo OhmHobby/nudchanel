@@ -9,12 +9,10 @@ import { join } from 'path'
 import { NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
-import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { ProfilePhotoPath } from 'src/photo/models/profile-photo-path.model'
 import { AsyncProcessPhotoParams } from 'src/photo/processor/async-process-photo-params'
-import { ProcessPhotoParams } from 'src/photo/processor/process-photo-params'
 import { StorageService } from 'src/storage/storage.service'
 import { v5 as uuidv5 } from 'uuid'
 import MUUID from 'uuid-mongodb'
@@ -95,16 +93,14 @@ export class ProfilePhotoService {
     if (!email) return
     const mailHash = createHash('sha256').update(`${email}`.trim().toLowerCase()).digest('hex')
     const destination = `minio://avatar/${mailHash}`
+    const processParams = new ProfilePhotoPath(undefined, ImageFormat.webp).buildProcessParams({
+      format: ImageFormat.jpeg,
+    })
     await this.processPhoto(
       new AsyncProcessPhotoParams({
         source: path,
         destination,
-        params: new ProcessPhotoParams({
-          format: ImageFormat.jpeg,
-          width: 256,
-          height: 256,
-          fit: ImageFit.outside,
-        }),
+        params: processParams,
       }),
     )
     return destination

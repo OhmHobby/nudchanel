@@ -53,13 +53,13 @@ export class PhotoProcessorController {
   async process(
     @Req() request: Request,
     @Query()
-    { path, format, width, height, quality, fit, watermark }: GetProcessDto,
+    { path, format, width, height, quality, fit, watermark, widthRatio, heightRatio }: GetProcessDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile | undefined> {
     const rawBuffer = await this.storageService.getBuffer(path)
     const buffer = await this.processorService.process(
       rawBuffer,
-      new ProcessPhotoParams({ format, width, height, quality, fit, watermark }),
+      new ProcessPhotoParams({ format, width, height, quality, fit, watermark, widthRatio, heightRatio }),
     )
     response.type('image/' + format)
     return this.streamBuffer(request, buffer, response)
