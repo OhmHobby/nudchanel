@@ -63,7 +63,7 @@ export class MigrationProcessorService {
     let previewBuffer: Buffer
     if (isOriginalExist) {
       const originalBuffer = await this.storageService.getBuffer(originalPath)
-      if (file.orientation !== Orientation.Rotated0) {
+      if (!!file.orientation && file.orientation !== Orientation.Rotated0) {
         const { width, height } = this.photoMetadata.getFileExif(originalBuffer)
         await this.batchFileModel.updateOne({ _id: file._id }, { width, height }).exec()
         this.logger.log(`Updated width/height ${width}x${height} [${file.orientation}]`)
