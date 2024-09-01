@@ -4,7 +4,6 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
 import { DnsInstrumentation } from '@opentelemetry/instrumentation-dns'
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
-import { FsInstrumentation } from '@opentelemetry/instrumentation-fs'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis'
 import { MongoDBInstrumentation } from '@opentelemetry/instrumentation-mongodb'
@@ -48,7 +47,6 @@ const otelSDK = new NodeSDK({
   }),
   contextManager: new AsyncLocalStorageContextManager(),
   instrumentations: [
-    new FsInstrumentation(),
     new DnsInstrumentation(),
     new HttpInstrumentation({
       ignoreIncomingRequestHook: (req) => !!req?.url?.startsWith('/ping'),
