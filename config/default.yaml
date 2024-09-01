@@ -46,6 +46,8 @@ rabbitmq:
   wait:
     enabled: false
     timeout: 5000
+  default:
+    prefetchCount: 1
 
 storage:
   webdav:
