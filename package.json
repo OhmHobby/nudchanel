@@ -77,7 +77,7 @@
     "winston-loki": "6.1.2"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^10.8.0",
+    "@cucumber/cucumber": "^11.0.0",
     "@cucumber/pretty-formatter": "^1.0.1",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
