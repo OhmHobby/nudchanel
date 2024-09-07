@@ -6,6 +6,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
@@ -14,7 +15,6 @@ import { StorageModule } from 'src/storage/storage.module'
 import { ProfileModel } from '../models/accounts/profile.model'
 import { ProfileNameModel } from '../models/accounts/profile.name.model'
 import { AccessTokenService } from './access-token/access-token.service'
-import { DiscordProcessorService } from './discord/discord-processor.service'
 import { GroupService } from './group/group.service'
 import { ProfileNameService } from './profile/profile-name.service'
 import { ProfilePhotoService } from './profile/profile-photo.service'
@@ -34,12 +34,12 @@ import { UserGroupService } from './user/user-group.service'
         GroupModel,
         RefreshTokenModel,
         TeamMemberModel,
+        TeamGroupModel,
         TeamRoleModel,
       ],
       MongoConnection.Accounts,
     ),
     TypegooseModule.forFeature([ProfilePhotoModel]),
-    BullModule.registerQueue({ name: BullQueueName.Migration, defaultJobOptions: { attempts: 2 } }),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     AmqpModule,
@@ -53,8 +53,14 @@ import { UserGroupService } from './user/user-group.service'
     GroupService,
     AccessTokenService,
     RefreshTokenService,
-    DiscordProcessorService,
   ],
-  exports: [ProfileService, ProfilePhotoService, AccessTokenService, RefreshTokenService, DiscordProcessorService],
+  exports: [
+    ProfileService,
+    ProfileNameService,
+    ProfilePhotoService,
+    TeamService,
+    AccessTokenService,
+    RefreshTokenService,
+  ],
 })
 export class AccountsWorkerModule {}

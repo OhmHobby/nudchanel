@@ -69,6 +69,8 @@ googleapis:
 discord:
   clientId: ""
   clientSecret: ""
+  token: ""
+  primaryGuildId: ""
 
 photo:
   minio:

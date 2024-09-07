@@ -1,4 +1,4 @@
-import { isDocument, modelOptions, Prop, Ref } from '@typegoose/typegoose'
+import { isDocument, isDocumentArray, modelOptions, Prop, Ref } from '@typegoose/typegoose'
 import { ProfileModel } from './profile.model'
 import { TeamGroupModel } from './team-group.model'
 import { TeamRoleModel } from './team-role.model'
@@ -29,5 +29,13 @@ export class TeamMemberModel {
 
   get populatedProfile() {
     return isDocument(this.profile) ? this.profile : undefined
+  }
+
+  get populatedGroup() {
+    return isDocument(this.group) ? this.group : undefined
+  }
+
+  get populatedRoles() {
+    return isDocumentArray(this.roles) ? this.roles : undefined
   }
 }

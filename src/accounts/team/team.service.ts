@@ -12,17 +12,36 @@ export class TeamService {
   constructor(
     @InjectModel(TeamMemberModel)
     private readonly teamMemberModel: ReturnModelType<typeof TeamMemberModel>,
+    @InjectModel(TeamRoleModel)
+    private readonly teamRoleModel: ReturnModelType<typeof TeamRoleModel>,
+    @InjectModel(TeamGroupModel)
+    private readonly teamGroupModel: ReturnModelType<typeof TeamGroupModel>,
   ) {}
 
-  async getLatestProfileTeamEmoji(profileId: Types.ObjectId): Promise<string | undefined> {
+  async getLatestProfilePrimaryTeam(profileId: Types.ObjectId): Promise<TeamRoleModel | undefined> {
     const teamMember = await this.teamMemberModel
       .find({ profile: profileId })
       .sort({ year: 'desc' })
       .populate('roles')
       .select('roles')
       .exec()
-    const emoji = teamMember.flatMap((el) => el.roles as TeamRoleModel[]).find((el) => el.emoji)?.emoji
-    return emoji
+    const teamRole = teamMember.flatMap((el) => el.roles as TeamRoleModel[]).find((el) => el.emoji)
+    return teamRole
+  }
+
+  async getLatestProfileTeamEmoji(profileId: Types.ObjectId): Promise<string | undefined> {
+    const teamRole = await this.getLatestProfilePrimaryTeam(profileId)
+    return teamRole?.emoji
+  }
+
+  async getProfilePrimaryTeams(profileId: Types.ObjectId) {
+    const profileTeams = await this.teamMemberModel
+      .find({ profile: profileId })
+      .sort({ year: 'desc' })
+      .populate('roles')
+      .populate('group')
+      .exec()
+    return profileTeams.filter((el) => el.populatedGroup?.rank === 0)
   }
 
   @Span()
@@ -37,6 +56,17 @@ export class TeamService {
     members.sort(this.sortRoleComparator)
     members.sort(this.sortGroupComparator)
     return members
+  }
+
+  async getPrimaryTeamRoles() {
+    const roles = await this.teamRoleModel.find({ emoji: { $exists: true } }).exec()
+    return roles.sort((a, b) => a.rank - b.rank)
+  }
+
+  async getPrimaryTeamYears(): Promise<number[]> {
+    const primaryGroup = await this.teamGroupModel.findOne({ rank: 0 }).exec()
+    const years = await this.teamMemberModel.find({ group: primaryGroup?._id }).distinct('year').exec()
+    return years
   }
 
   sortRoleComparator(memberA: TeamMemberModel, memberB: TeamMemberModel): number {

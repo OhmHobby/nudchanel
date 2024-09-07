@@ -4,7 +4,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job, Queue } from 'bull'
 import { join } from 'path'
-import { DiscordProcessorService } from 'src/accounts/discord/discord-processor.service'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullPriority } from 'src/enums/bull-priority.enum'
@@ -34,23 +33,11 @@ export class MigrationProcessorService {
     @InjectQueue(BullQueueName.Migration)
     private readonly migrationQueue: Queue,
     private readonly profilePhotoService: ProfilePhotoService,
-    private readonly discordProcessorService: DiscordProcessorService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
     private readonly photoProcessor: PhotoProcessorService,
     private readonly photoMetadata: PhotoMetadataService,
   ) {}
-
-  @Process(BullJobName.MigrateDiscordProfileSync)
-  async discordProfileSync({ data: discordId }: Job<string>) {
-    try {
-      await this.discordProcessorService.triggerProfileSync(discordId)
-      this.logger.log({ message: 'Succesfully triggered discord profile sync', discordId })
-    } catch (err) {
-      this.logger.error({ message: 'Failed to trigger discord profile sync', discordId }, err)
-      throw err
-    }
-  }
 
   @Process({ name: BullJobName.MigratePhoto, concurrency: 1 })
   async migratePhoto({ data: uuid }: Job<string>) {
