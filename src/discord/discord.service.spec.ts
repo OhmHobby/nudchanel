@@ -66,34 +66,54 @@ describe(DiscordService.name, () => {
   })
 
   describe(DiscordService.prototype.triggerProfileRoleSync.name, () => {
-    it('should add and remove roles correctly', async () => {
+    const discordSyncedRoles: Partial<APIRole>[] = [
+      { id: '2024', name: '2024' },
+      { id: '2023', name: '2023' },
+      { id: '2022', name: '2022' },
+      { id: 'Team1', name: 'Team1' },
+      { id: 'Team2', name: 'Team2' },
+      { id: 'Team3', name: 'Team3' },
+      { id: 'Team1 (All)', name: 'Team1 (All)' },
+      { id: 'Team2 (All)', name: 'Team2 (All)' },
+      { id: 'Team3 (All)', name: 'Team3 (All)' },
+    ]
+
+    beforeEach(() => {
+      botService.getUserById = jest.fn().mockResolvedValue({ roles: ['2023', 'Team2', 'Team2 (All)'] })
+      service.getSyncedDiscordRoles = jest.fn().mockResolvedValue(discordSyncedRoles)
+    })
+
+    it('should add and remove roles with active current year correctly', async () => {
       const discordId = ''
       const profile = new ProfileModel()
       const currentTeamRole = new TeamRoleModel({ name: 'Team1' })
       const previousTeamRole = new TeamRoleModel({ name: 'Team2' })
       const currentTeam: Partial<TeamMemberModel> = { year: 2024, populatedRoles: [currentTeamRole as any] }
       const previousTeam: Partial<TeamMemberModel> = { year: 2023, populatedRoles: [previousTeamRole as any] }
-      const discordSyncedRoles: Partial<APIRole>[] = [
-        { id: '2024', name: '2024' },
-        { id: '2023', name: '2023' },
-        { id: '2022', name: '2022' },
-        { id: 'Team1', name: 'Team1' },
-        { id: 'Team2', name: 'Team2' },
-        { id: 'Team3', name: 'Team3' },
-        { id: 'Team1 (All)', name: 'Team1 (All)' },
-        { id: 'Team2 (All)', name: 'Team2 (All)' },
-        { id: 'Team3 (All)', name: 'Team3 (All)' },
-      ]
 
       profileService.findByDiscordId = jest.fn().mockResolvedValue(profile)
       teamService.getLatestProfilePrimaryTeam = jest.fn().mockResolvedValue(currentTeamRole)
       teamService.getProfilePrimaryTeams = jest.fn().mockResolvedValue([currentTeam, previousTeam])
-      botService.getUserById = jest.fn().mockResolvedValue({ roles: ['2023', 'Team2', 'Team2 (All)'] })
-      service.getSyncedDiscordRoles = jest.fn().mockResolvedValue(discordSyncedRoles)
 
       await service.triggerProfileRoleSync(discordId)
 
       expect(botService.addRoleToMember).toHaveBeenCalledWith(discordId, ['2024', 'Team1', 'Team1 (All)'])
+      expect(botService.removeRoleFromMember).toHaveBeenCalledWith(discordId, ['Team2'])
+    })
+
+    it('should add and remove roles with former member correctly', async () => {
+      const discordId = ''
+      const profile = new ProfileModel()
+      const previousTeamRole = new TeamRoleModel({ name: 'Team2' })
+      const previousTeam: Partial<TeamMemberModel> = { year: 2023, populatedRoles: [previousTeamRole as any] }
+
+      profileService.findByDiscordId = jest.fn().mockResolvedValue(profile)
+      teamService.getLatestProfilePrimaryTeam = jest.fn().mockResolvedValue(previousTeamRole)
+      teamService.getProfilePrimaryTeams = jest.fn().mockResolvedValue([previousTeam])
+
+      await service.triggerProfileRoleSync(discordId)
+
+      expect(botService.addRoleToMember).toHaveBeenCalledWith(discordId, [])
       expect(botService.removeRoleFromMember).toHaveBeenCalledWith(discordId, ['Team2'])
     })
   })

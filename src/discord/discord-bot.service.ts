@@ -30,7 +30,11 @@ export class DiscordBotService {
   }
 
   async getUserById(userId: Snowflake) {
-    return await this.client.guilds.getMember(this.primaryGuildId, userId)
+    try {
+      return await this.client.guilds.getMember(this.primaryGuildId, userId)
+    } catch (err) {
+      this.logger.error(err.message, err)
+    }
   }
 
   getRoles() {
