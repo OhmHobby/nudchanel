@@ -4,6 +4,10 @@ log:
   loki:
     url: http://nudch-wireproxy-cftunnel.nudch-internal.svc:3100
 
+http:
+  baseUrl:
+    accounts: http://localhost:4000
+
 otlp:
   metric:
     url: http://prometheus-server.nudch-internal.svc/api/v1/otlp/v1/metrics
@@ -71,6 +75,8 @@ authentication:
     secure: false
 
 googleapis:
+  clientId: 1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com
+  clientSecret: ""
   service:
     email: dev-85@nudchannel.iam.gserviceaccount.com
     privateKey: |
@@ -102,6 +108,10 @@ googleapis:
       XimmFWAjJ0TkhqmO0HqWQ9K6SiEgMVEPp0yxEQfgXh486TN4COfrmVSwvTLWShYu
       FS8ORJ96zn4FvIZVOP0cnWk=
       -----END PRIVATE KEY-----
+
+discord:
+  clientId: "1095379875226988664"
+  clientSecret: ""
 
 photo:
   minio:

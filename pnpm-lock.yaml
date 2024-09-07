@@ -11,6 +11,9 @@ dependencies:
   '@bull-board/express':
     specifier: 5.21.4
     version: 5.21.4
+  '@discordjs/core':
+    specifier: ^2.0.0
+    version: 2.0.0
   '@golevelup/nestjs-rabbitmq':
     specifier: 5.4.1
     version: 5.4.1(@nestjs/common@10.4.1)(@nestjs/core@10.4.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -859,14 +862,24 @@ packages:
     engines: {node: '>=16.11.0'}
     dev: false
 
-  /@discordjs/collection@2.1.0:
-    resolution: {integrity: sha512-mLcTACtXUuVgutoznkh6hS3UFqYirDYAg5Dc1m8xn6OvPjetnUlf/xjtqnnc47OwWdaoCQnHmHh9KofhD6uRqw==}
-    engines: {node: '>=18'}
-    dev: false
-
   /@discordjs/collection@2.1.1:
     resolution: {integrity: sha512-LiSusze9Tc7qF03sLCujF5iZp7K+vRNEDBZ86FT9aQAv3vxMLihUvKvpsCWiQ2DJq1tVckopKm1rxomgNUc9hg==}
     engines: {node: '>=18'}
+    dev: false
+
+  /@discordjs/core@2.0.0:
+    resolution: {integrity: sha512-N5PaTaEsEJyX9/KpcRN4+Jzc2qWvi55DVD2U6PXlbK1+C1du+B7yC4ey5yNeI2lG8k4vha3iGPR0LPemUkvIZA==}
+    engines: {node: '>=20'}
+    dependencies:
+      '@discordjs/rest': 2.4.0
+      '@discordjs/util': 1.1.1
+      '@discordjs/ws': 2.0.0
+      '@sapphire/snowflake': 3.5.3
+      '@vladfrangu/async_event_emitter': 2.4.6
+      discord-api-types: 0.37.97
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /@discordjs/formatters@0.5.0:
@@ -900,13 +913,31 @@ packages:
     resolution: {integrity: sha512-PZ+vLpxGCRtmr2RMkqh8Zp+BenUaJqlS6xhgWKEZcgC/vfHLEzpHtKkB0sl3nZWpwtcKk6YWy+pU3okL2I97FA==}
     engines: {node: '>=16.11.0'}
     dependencies:
-      '@discordjs/collection': 2.1.0
+      '@discordjs/collection': 2.1.1
       '@discordjs/rest': 2.4.0
       '@discordjs/util': 1.1.1
-      '@sapphire/async-queue': 1.5.2
+      '@sapphire/async-queue': 1.5.3
       '@types/ws': 8.5.12
-      '@vladfrangu/async_event_emitter': 2.2.4
+      '@vladfrangu/async_event_emitter': 2.4.6
       discord-api-types: 0.37.83
+      tslib: 2.7.0
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /@discordjs/ws@2.0.0:
+    resolution: {integrity: sha512-VSVFMOFE+G9bp/2+4e/lFySIU+urxW8NPRXPsKLbP9AUl1MvQxoUVIUfPjZkUP23jjQh+AvWWm6vaA0A5Rb2Rg==}
+    engines: {node: '>=20'}
+    dependencies:
+      '@discordjs/collection': 2.1.1
+      '@discordjs/rest': 2.4.0
+      '@discordjs/util': 1.1.1
+      '@sapphire/async-queue': 1.5.3
+      '@types/ws': 8.5.12
+      '@vladfrangu/async_event_emitter': 2.4.6
+      discord-api-types: 0.37.97
       tslib: 2.7.0
       ws: 8.18.0
     transitivePeerDependencies:
@@ -3495,11 +3526,6 @@ packages:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
     dev: false
 
-  /@sapphire/async-queue@1.5.2:
-    resolution: {integrity: sha512-7X7FFAA4DngXUl95+hYbUF19bp1LGiffjJtu7ygrZrbdCSsdDDBaSjB7Akw0ZbOu6k0xpXyljnJ6/RZUvLfRdg==}
-    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
-    dev: false
-
   /@sapphire/async-queue@1.5.3:
     resolution: {integrity: sha512-x7zadcfJGxFka1Q3f8gCts1F0xMwCKbZweM85xECGI0hBTeIZJGGCrHgLggihBoprlQ/hBmDR5LKfIPqnmHM3w==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
@@ -4019,11 +4045,6 @@ packages:
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
-
-  /@vladfrangu/async_event_emitter@2.2.4:
-    resolution: {integrity: sha512-ButUPz9E9cXMLgvAW8aLAKKJJsPu1dY1/l/E8xzLFuysowXygs6GBcyunK9rnGC4zTsnIc2mQo71rGw9U+Ykug==}
-    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
-    dev: false
 
   /@vladfrangu/async_event_emitter@2.4.6:
     resolution: {integrity: sha512-RaI5qZo6D2CVS6sTHFKg1v5Ohq/+Bo2LZ5gzUEwZ/WkHhwtGTCB/sVLw8ijOkAUxasZ+WshN/Rzj4ywsABJ5ZA==}

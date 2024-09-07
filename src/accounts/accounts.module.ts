@@ -5,6 +5,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { RegistrationTokenModel } from 'src/models/accounts/registration-token.model'
 import { SignInTokenModel } from 'src/models/accounts/signin-token.model'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
@@ -24,6 +25,10 @@ import { ProfileService } from './profile/profile.service'
 import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
+import { RegistrationService } from './registration/registration.service'
+import { DiscordOauth2ProviderService } from './sign-in/oidc/discord-oauth2-provider.service'
+import { GoogleOauth2ProviderService } from './sign-in/oidc/google-oauth2-provider.service'
+import { SignInExternalController } from './sign-in/oidc/sign-in-external.controller'
 import { SignInService } from './sign-in/sign-in.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { SignOutV1Controller } from './sign-in/sign-out-v1.controller'
@@ -46,6 +51,7 @@ import { UserLocalService } from './user/user-local.service'
         TeamRoleModel,
         TeamGroupModel,
         SignInTokenModel,
+        RegistrationTokenModel,
       ],
       MongoConnection.Accounts,
     ),
@@ -61,14 +67,18 @@ import { UserLocalService } from './user/user-local.service'
     RefreshTokenService,
     ProfileNameService,
     TeamService,
+    DiscordOauth2ProviderService,
+    GoogleOauth2ProviderService,
     UserLocalService,
     UserGroupService,
     GroupService,
     SignInService,
+    RegistrationService,
   ],
   controllers: [
     ProfileV1Controller,
     RefreshTokenV1Controller,
+    SignInExternalController,
     SignInV1Controller,
     SignOutV1Controller,
     TeamMemberV1Controller,

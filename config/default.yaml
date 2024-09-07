@@ -10,6 +10,7 @@ http:
     path: bullboard
     authGroups: []
   baseUrl:
+    accounts: https://accounts.nudchannel.com
     photo: https://photos.nudchannel.com
 
 log:
@@ -64,6 +65,10 @@ googleapis:
   service:
     email: ""
     privateKey: ""
+
+discord:
+  clientId: ""
+  clientSecret: ""
 
 photo:
   minio:

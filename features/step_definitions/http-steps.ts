@@ -60,6 +60,11 @@ export class HttpSteps extends CommonSteps {
     expect(this.workspace.response?.headers).toEqual(expect.objectContaining({ [key]: value }))
   }
 
+  @then('HTTP response redirect to be {string}')
+  then(redirect: string) {
+    expect(this.workspace.response?.headers.location).toBe(redirect)
+  }
+
   @then(/^ETag should be (.+)$/)
   thenEtag(etag: string) {
     expect(this.workspace.response?.headers['etag']).toBe(etag)

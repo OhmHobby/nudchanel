@@ -19,6 +19,10 @@ export class ProfileService {
     return this.profileModel.findById(id).populate({ path: 'names' }).exec()
   }
 
+  findByGoogleId(googleId: string) {
+    return this.profileModel.findOne({ google_ids: googleId }).exec()
+  }
+
   findByDiscordId(discordId: string) {
     return this.profileModel.findOne({ discord_ids: discordId }).exec()
   }
@@ -31,5 +35,9 @@ export class ProfileService {
   async discordIdsFromEmails(emails: string[] = []): Promise<string[]> {
     const profiles = await this.profileModel.find({ emails: { $in: emails } }).exec()
     return profiles.flatMap((profile) => (profile.discord_ids ?? []).slice(0, 1))
+  }
+
+  create(profile: Partial<ProfileModel>): Promise<ProfileModel> {
+    return this.profileModel.create(profile)
   }
 }
