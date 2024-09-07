@@ -98,6 +98,7 @@ photo:
     bucket_name: nudch-photos
 
 googleapis:
+  clientId: 1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com
   service:
     email: dev-85@nudchannel.iam.gserviceaccount.com
     privateKey: |
@@ -129,3 +130,6 @@ googleapis:
       XimmFWAjJ0TkhqmO0HqWQ9K6SiEgMVEPp0yxEQfgXh486TN4COfrmVSwvTLWShYu
       FS8ORJ96zn4FvIZVOP0cnWk=
       -----END PRIVATE KEY-----
+
+discord:
+  clientId: "1095379875226988664"
