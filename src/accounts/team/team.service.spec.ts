@@ -9,10 +9,17 @@ import { TeamService } from './team.service'
 describe(TeamService.name, () => {
   let service: TeamService
   const teamMemberModel = getModelForClass(TeamMemberModel)
+  const teamGroupModel = getModelForClass(TeamGroupModel)
+  const teamRoleModel = getModelForClass(TeamRoleModel)
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TeamService, { provide: getModelToken(TeamMemberModel.name), useValue: teamMemberModel }],
+      providers: [
+        TeamService,
+        { provide: getModelToken(TeamMemberModel.name), useValue: teamMemberModel },
+        { provide: getModelToken(TeamGroupModel.name), useValue: teamGroupModel },
+        { provide: getModelToken(TeamRoleModel.name), useValue: teamRoleModel },
+      ],
     }).compile()
 
     service = module.get<TeamService>(TeamService)

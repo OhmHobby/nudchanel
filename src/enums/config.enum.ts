@@ -36,6 +36,8 @@ export enum Config {
   GAPIS_SERVICE_PRIVATEKEY = 'googleapis.service.privateKey',
   DISCORD_CLIENT_ID = 'discord.clientId',
   DISCORD_CLIENT_SECRET = 'discord.clientSecret',
+  DISCORD_TOKEN = 'discord.token',
+  DISCORD_PRIMARY_GUILD_ID = 'discord.primaryGuildId',
   PHOTO_MINIO_ENDPOINT = 'photo.minio.endpoint',
   PHOTO_MINIO_PORT = 'photo.minio.port',
   PHOTO_MINIO_ACCESS_KEY = 'photo.minio.access_key',

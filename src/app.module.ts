@@ -29,8 +29,8 @@ import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
-import { OTELLifecyclesService } from './otel.life-cycles.service'
 import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
+import { OTELLifecyclesService } from './otel.life-cycles.service'
 
 @Module({
   imports: [

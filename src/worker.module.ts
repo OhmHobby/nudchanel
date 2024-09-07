@@ -22,6 +22,7 @@ import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
 import { WinstonConfig } from './configs/winston.config'
 import { DeliveryWorkerModule } from './delivery/delivery.worker.module'
+import { DiscordWorkerModule } from './discord/discord-worker.module'
 import { MongoConnection } from './enums/mongo-connection.enum'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
@@ -51,6 +52,7 @@ import { StorageModule } from './storage/storage.module'
     MigrationWorkerModule,
     SchedulerModule,
     StorageModule,
+    DiscordWorkerModule,
   ],
   controllers: [AppController],
   providers: [
