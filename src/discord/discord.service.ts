@@ -56,15 +56,19 @@ export class DiscordService {
       this.discordBotService.getUserById(discordId),
       this.getSyncedDiscordRoles(),
     ])
+    if (!discordUser) return
 
     const profileYears = profileMembers.map((el) => el.year.toString())
     const profileRoleNames = profileMembers.map((el) => el.populatedRoles?.at(0)?.name + DiscordService.allTeamSuffix)
+    const latestYear = Math.max(...guildRoles.map((el) => +el.name).filter((el) => !isNaN(el)))
+    const profileYear = Math.max(...profileMembers.map((el) => el.year))
+    const isActiveCurrentYear = latestYear === profileYear
     const targetGuildRoleIds = guildRoles
       .filter(
         (role) =>
           profileYears.includes(role.name) ||
           profileRoleNames.includes(role.name) ||
-          role.name === latestProfileRole?.name ||
+          (isActiveCurrentYear && role.name === latestProfileRole?.name) ||
           role.name === latestProfileRole?.name + DiscordService.allTeamSuffix,
       )
       .map((role) => role.id)
