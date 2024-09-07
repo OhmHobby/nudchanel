@@ -28,7 +28,7 @@ export class DiscordService {
     const discordIds = await this.profileService.findAllDiscordIds()
     await this.queue.addBulk(
       discordIds.map((discordId, i) => ({
-        name: BullJobName.MigrateDiscordProfileSync,
+        name: BullJobName.DiscordProfileSync,
         data: discordId,
         opts: { delay: delayFactorMs * i },
       })),
