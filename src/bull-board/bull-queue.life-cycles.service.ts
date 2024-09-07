@@ -12,6 +12,8 @@ export class BullQueueLifecyclesService implements OnApplicationShutdown {
     private readonly saikoQueue: Queue,
     @InjectQueue(BullQueueName.Email)
     private readonly emailQueue: Queue,
+    @InjectQueue(BullQueueName.Discord)
+    private readonly discordQueue: Queue,
     @InjectQueue(BullQueueName.Migration)
     private readonly migrationQueue: Queue,
     @InjectQueue(BullQueueName.Photo)
@@ -24,6 +26,7 @@ export class BullQueueLifecyclesService implements OnApplicationShutdown {
       await Promise.all([
         this.saikoQueue.close(),
         this.emailQueue.close(),
+        this.discordQueue.close(),
         this.migrationQueue.close(),
         this.photoQueue.close(),
       ])
