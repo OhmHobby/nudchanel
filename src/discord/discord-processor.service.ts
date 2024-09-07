@@ -17,10 +17,11 @@ export class DiscordProcessorService {
 
   constructor(private readonly discordService: DiscordService) {}
 
-  @Process(BullJobName.MigrateDiscordProfileSync)
+  @Process(BullJobName.DiscordProfileSync)
   async discordProfileSync({ data: discordId }: Job<string>) {
     try {
       await this.discordService.triggerProfileNameSync(discordId)
+      await this.discordService.triggerProfileRoleSync(discordId)
       this.logger.log({ message: 'Succesfully triggered discord profile sync', discordId })
     } catch (err) {
       this.logger.error({ message: 'Failed to trigger discord profile sync', discordId }, err)
