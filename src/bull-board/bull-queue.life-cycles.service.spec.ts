@@ -11,7 +11,6 @@ describe(BullQueueLifecyclesService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BullQueueLifecyclesService,
-        { provide: getQueueToken(BullQueueName.DiscordEventsNotifier), useValue: { close: mockCloseQueue } },
         { provide: getQueueToken(BullQueueName.Discord), useValue: { close: mockCloseQueue } },
         { provide: getQueueToken(BullQueueName.Email), useValue: { close: mockCloseQueue } },
         { provide: getQueueToken(BullQueueName.Migration), useValue: { close: mockCloseQueue } },
