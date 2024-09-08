@@ -22,8 +22,7 @@ default:
   interruptible: true
 
 .node:
-  variables:
-    NODE_IMAGE_TAG: 20-alpine
+  image: node:20-alpine
 
 lint:
   stage: lint
