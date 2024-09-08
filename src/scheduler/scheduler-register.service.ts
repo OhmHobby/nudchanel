@@ -11,8 +11,8 @@ export class SchedulerRegisterService {
   private readonly logger = new Logger(SchedulerRegisterService.name)
 
   constructor(
-    @InjectQueue(BullQueueName.DiscordEventsNotifier)
-    private readonly discordEventsNotifierQueue: Queue,
+    @InjectQueue(BullQueueName.Discord)
+    private readonly discordQueue: Queue,
     private readonly configService: ConfigService,
   ) {}
 
@@ -20,13 +20,13 @@ export class SchedulerRegisterService {
     const upcomingCron = this.configService.get<string>(Config.DELIVERY_UPCOMINGEVENTS_CRON)
     const startingCron = this.configService.get<string>(Config.DELIVERY_STARTINGEVENTS_CRON)
     if (upcomingCron) {
-      await this.discordEventsNotifierQueue.add(BullJobName.DiscordUpcomingEvents, null, {
+      await this.discordQueue.add(BullJobName.DiscordUpcomingEvents, null, {
         repeat: { cron: upcomingCron },
       })
       this.logger.log(`Registered ${BullJobName.DiscordUpcomingEvents} ${upcomingCron}`)
     }
     if (startingCron) {
-      await this.discordEventsNotifierQueue.add(BullJobName.DiscordStartingEvents, null, {
+      await this.discordQueue.add(BullJobName.DiscordStartingEvents, null, {
         repeat: { cron: startingCron },
       })
       this.logger.log(`Registered ${BullJobName.DiscordStartingEvents} ${startingCron}`)
@@ -39,6 +39,6 @@ export class SchedulerRegisterService {
   }
 
   async unregister() {
-    await this.discordEventsNotifierQueue.clean(0, 'delayed')
+    await this.discordQueue.clean(0, 'delayed')
   }
 }

@@ -6,7 +6,7 @@ import { SchedulerRegisterService } from './scheduler-register.service'
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: BullQueueName.DiscordEventsNotifier,
+      name: BullQueueName.Discord,
       defaultJobOptions: { attempts: 11, backoff: 5000, removeOnComplete: true },
     }),
   ],
