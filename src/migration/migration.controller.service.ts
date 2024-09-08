@@ -13,7 +13,7 @@ export class MigrationController {
   @ApiOkResponse()
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   async triggerMigratePhotoStorageAll() {
     return await this.service.triggerReprocessAll()
   }
@@ -23,7 +23,7 @@ export class MigrationController {
   @ApiOkResponse()
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   async triggerReprocessProfilesAll() {
     return await this.service.triggerProcessAllProfilePhotos()
   }

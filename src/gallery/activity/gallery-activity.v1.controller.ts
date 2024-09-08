@@ -36,7 +36,7 @@ export class GalleryActivityV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiCreatedResponse({ type: GalleryActivityResponseModel })
-  @AuthGroups(['pr'])
+  @AuthGroups('pr')
   @AuditLog(GalleryActivityV1Controller.prototype.createGalleryActivity.name)
   async createGalleryActivity(@Body() body: GalleryActivityDto): Promise<GalleryActivityResponseModel> {
     const activity = await this.galleryActivityService.create(body.toModel())

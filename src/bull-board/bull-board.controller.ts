@@ -27,7 +27,7 @@ export class BullBoardController {
   ) {}
 
   @All('*')
-  @AuthGroups(config.get<string[]>(Config.HTTP_BULLBOARD_AUTH_GROUPS))
+  @AuthGroups(...config.get<string[]>(Config.HTTP_BULLBOARD_AUTH_GROUPS))
   @SkipHttpLogging()
   bullboard(@Request() req: Request, @Response() res: Response, @Next() next: NextFunction) {
     const basePath = '/' + config.get<string>(Config.HTTP_BULLBOARD_PATH)
