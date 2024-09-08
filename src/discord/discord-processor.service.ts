@@ -24,7 +24,7 @@ export class DiscordProcessorService {
     private readonly configService: ConfigService,
     private readonly discordService: DiscordService,
     private readonly discordBotService: DiscordBotService,
-    private readonly discortEventsNotifierService: DiscortEventsNotifierService,
+    private readonly discordEventsNotifierService: DiscortEventsNotifierService,
   ) {}
 
   @Process(BullJobName.DiscordProfileSync)
@@ -36,12 +36,12 @@ export class DiscordProcessorService {
   processUpcomingCronJob() {
     const hourLookAhead = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_LOOKAHEADHOURS)
     const range = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_RANGEHOURS)
-    return this.discortEventsNotifierService.triggerUpcoming(hourLookAhead, range)
+    return this.discordEventsNotifierService.triggerUpcoming(hourLookAhead, range)
   }
 
   @Process(BullJobName.DiscordStartingEvents)
   processStartingCronJob() {
-    return this.discortEventsNotifierService.triggerStaring()
+    return this.discordEventsNotifierService.triggerStaring()
   }
 
   @RabbitRPC({
