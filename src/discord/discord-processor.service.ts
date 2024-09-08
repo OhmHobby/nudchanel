@@ -11,6 +11,9 @@ import { RabbitQueue } from 'src/enums/rabbit-queue.enum'
 import { RabbitRoutingKey } from 'src/enums/rabbit-routing-key.enum'
 import { DiscordBotService } from './discord-bot.service'
 import { DiscordService } from './discord.service'
+import { ConfigService } from '@nestjs/config'
+import { DiscortEventsNotifierService } from './events-notifier/discord-events-notifier.service'
+import { Config } from 'src/enums/config.enum'
 
 @Injectable()
 @Processor(BullQueueName.Discord)
@@ -18,13 +21,27 @@ export class DiscordProcessorService {
   private readonly logger = new Logger(DiscordProcessorService.name)
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly discordService: DiscordService,
     private readonly discordBotService: DiscordBotService,
+    private readonly discortEventsNotifierService: DiscortEventsNotifierService,
   ) {}
 
   @Process(BullJobName.DiscordProfileSync)
   async discordProfileSync({ data: discordId }: Job<Snowflake>) {
     return await this.triggerProfileSync(discordId)
+  }
+
+  @Process(BullJobName.DiscordUpcomingEvents)
+  processUpcomingCronJob() {
+    const hourLookAhead = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_LOOKAHEADHOURS)
+    const range = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_RANGEHOURS)
+    return this.discortEventsNotifierService.triggerUpcoming(hourLookAhead, range)
+  }
+
+  @Process(BullJobName.DiscordStartingEvents)
+  processStartingCronJob() {
+    return this.discortEventsNotifierService.triggerStaring()
   }
 
   @RabbitRPC({

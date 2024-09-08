@@ -1,19 +1,15 @@
-import { Process, Processor } from '@nestjs/bull'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import dayjs from 'dayjs'
 import { WebhookClient } from 'discord.js'
 import { calendar_v3 } from 'googleapis'
 import { ProfileService } from 'src/accounts/profile/profile.service'
-import { BullJobName } from 'src/enums/bull-job-name.enum'
-import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Config } from 'src/enums/config.enum'
 import { GoogleCalendarService } from 'src/google/google-calendar.service'
 import { DiscordEmbedEvent } from './discord-embed-event.model'
 import { Saiko } from './saiko'
 
 @Injectable()
-@Processor(BullQueueName.DiscordEventsNotifier)
 export class DiscortEventsNotifierService {
   private readonly logger = new Logger(DiscortEventsNotifierService.name)
 
@@ -25,9 +21,7 @@ export class DiscortEventsNotifierService {
     private readonly profileService: ProfileService,
   ) {
     const url = configService.get(Config.DELIVERY_UPCOMINGEVENTS_DISCORDWEBHOOK)
-    if (url) {
-      this.webhookClient = new WebhookClient({ url })
-    }
+    if (url) this.webhookClient = new WebhookClient({ url })
   }
 
   executeWebhook(content: string, embeds: DiscordEmbedEvent[], saiko = new Saiko()) {
@@ -80,18 +74,6 @@ export class DiscortEventsNotifierService {
       return message + '\n' + discordIdFormated
     }
     return message
-  }
-
-  @Process(BullJobName.DiscordUpcomingEvents)
-  processUpcomingCronJob() {
-    const hourLookAhead = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_LOOKAHEADHOURS)
-    const range = this.configService.getOrThrow(Config.DELIVERY_UPCOMINGEVENTS_RANGEHOURS)
-    return this.triggerUpcoming(hourLookAhead, range)
-  }
-
-  @Process(BullJobName.DiscordStartingEvents)
-  processStartingCronJob() {
-    return this.triggerStaring()
   }
 
   triggerUpcoming(hourLookAhead: number, range: number, dryrun = false) {
