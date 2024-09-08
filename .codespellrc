@@ -2,4 +2,4 @@
 check-filenames =
 enable-colors =
 ignore-words-list = afterall
-skip = pnpm-lock.yaml,node_modules,.git
+skip = pnpm-lock.yaml,node_modules,.git,config

@@ -42,7 +42,7 @@ Feature: Photo stream
     And HTTP response header "content-type" should be "image/jpeg"
     And photo imageSize should be 1440x2160
 
-  Scenario: GET <photoSize> <fileName>
+  Scenario: GET <photoSize> <fileName> (error)
     When GET /photos/<photoSize>/<fileName>
     Then HTTP response status should be <status>
     Examples:

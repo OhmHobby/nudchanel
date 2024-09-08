@@ -4,7 +4,7 @@ Feature: Photo color
   Background:
     Given request to worker url
 
-  Scenario Outline: Color <path> (<scription>)
+  Scenario Outline: Color <path> (<description>)
     Given process photo path "<path>"
     When GET /photo-processor/color
     Then HTTP response status should be OK
