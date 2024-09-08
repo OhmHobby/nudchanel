@@ -10,7 +10,6 @@ describe(BullBoardController.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BullBoardController],
       providers: [
-        { provide: getQueueToken(BullQueueName.DiscordEventsNotifier), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Discord), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Email), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Migration), useValue: { close: jest.fn() } },

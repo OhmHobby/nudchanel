@@ -8,8 +8,6 @@ export class BullQueueLifecyclesService implements OnApplicationShutdown {
   private readonly logger = new Logger(BullQueueLifecyclesService.name)
 
   constructor(
-    @InjectQueue(BullQueueName.DiscordEventsNotifier)
-    private readonly saikoQueue: Queue,
     @InjectQueue(BullQueueName.Email)
     private readonly emailQueue: Queue,
     @InjectQueue(BullQueueName.Discord)
@@ -24,7 +22,6 @@ export class BullQueueLifecyclesService implements OnApplicationShutdown {
     try {
       this.logger.warn({ message: `Closing bullQueue connections`, signal })
       await Promise.all([
-        this.saikoQueue.close(),
         this.emailQueue.close(),
         this.discordQueue.close(),
         this.migrationQueue.close(),

@@ -16,8 +16,6 @@ import { SkipHttpLogging } from 'src/helpers/skip-http-logging.decorator'
 @ApiExcludeController()
 export class BullBoardController {
   constructor(
-    @InjectQueue(BullQueueName.DiscordEventsNotifier)
-    private readonly discordEventsNotifierQueue: Queue,
     @InjectQueue(BullQueueName.Email)
     private readonly emailQueue: Queue,
     @InjectQueue(BullQueueName.Discord)
@@ -46,7 +44,6 @@ export class BullBoardController {
 
   get queues() {
     return [
-      new BullAdapter(this.discordEventsNotifierQueue),
       new BullAdapter(this.emailQueue),
       new BullAdapter(this.discordQueue),
       new BullAdapter(this.migrationQueue),

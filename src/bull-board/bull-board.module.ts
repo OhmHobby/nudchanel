@@ -6,7 +6,6 @@ import { BullQueueLifecyclesService } from './bull-queue.life-cycles.service'
 
 @Module({
   imports: [
-    BullModule.registerQueue({ name: BullQueueName.DiscordEventsNotifier }),
     BullModule.registerQueue({ name: BullQueueName.Email }),
     BullModule.registerQueue({ name: BullQueueName.Discord }),
     BullModule.registerQueue({ name: BullQueueName.Migration }),
