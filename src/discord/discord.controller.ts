@@ -21,7 +21,7 @@ export class DiscordController {
   @Get('users/@me')
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   getDiscordCurrentUser() {
     return this.discordBotService.getCurrentUser()
   }
@@ -29,7 +29,7 @@ export class DiscordController {
   @Get('users/:userId')
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   getDiscordUserById(@Param('userId') userId: Snowflake) {
     return this.discordBotService.getUserById(userId)
   }
@@ -37,7 +37,7 @@ export class DiscordController {
   @Get('roles')
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   getDiscordRoles() {
     return this.discordBotService.getRoles()
   }
@@ -47,7 +47,7 @@ export class DiscordController {
   @ApiOkResponse()
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   async triggerDiscordProfileSync(@Param('discordId') discordId: Snowflake) {
     await this.discordService.triggerProfileNameSync(discordId)
     await this.discordService.triggerProfileRoleSync(discordId)
@@ -58,7 +58,7 @@ export class DiscordController {
   @ApiOkResponse()
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   async triggerDiscordProfileSyncAll(@Query('delayMs') delay: string) {
     return await this.discordService.triggerProfileSyncAll(+delay)
   }
@@ -67,7 +67,7 @@ export class DiscordController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   triggerDiscordRoleSyncAll() {
     return this.discordService.triggerRoleSyncAll()
   }
@@ -77,7 +77,7 @@ export class DiscordController {
   @ApiCookieAuth()
   @ApiOkResponse({ type: [DiscordEmbedEvent] })
   @Post('upcoming-events')
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   triggerDiscordUpcomingEvents(
     @Body() { hourLookAhead, range, dryrun }: UpcomingEventsDiscordTriggerDto,
   ): Promise<DiscordEmbedEvent[]> {
@@ -89,7 +89,7 @@ export class DiscordController {
   @ApiCookieAuth()
   @ApiOkResponse({ type: [DiscordEmbedEvent] })
   @Post('starting-events')
-  @AuthGroups(['it'])
+  @AuthGroups('it')
   triggerDiscordStartingEvents(@Body() { now, dryrun }: StartingEventsDiscordTriggerDto): Promise<DiscordEmbedEvent[]> {
     return this.discordUpcomingEventService.triggerStaring(now, dryrun)
   }
