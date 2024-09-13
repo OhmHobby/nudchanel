@@ -150,8 +150,8 @@ dependencies:
     specifier: 1.0.2
     version: 1.0.2
   webdav:
-    specifier: 4.11.3
-    version: 4.11.3
+    specifier: 4.11.4
+    version: 4.11.4
   winston:
     specifier: 3.14.2
     version: 3.14.2
@@ -10315,8 +10315,8 @@ packages:
       '@zxing/text-encoding': 0.9.0
     dev: false
 
-  /webdav@4.11.3:
-    resolution: {integrity: sha512-NIuREBXYo5xb+zB4zy502snynbhugWjepg5Oke0ByEb7J/Ofmbk+JgFYM+sZdnKG3+XQ87rictDIF+SHUJkwlg==}
+  /webdav@4.11.4:
+    resolution: {integrity: sha512-abrHtgE9N/7U7sO7veJO3HeE5cHZ35YOOIU1//SKbVlVlfwq5XvW4omNC1++gRnMwf89qjZI8hWy7jCz2D5haQ==}
     engines: {node: '>=10'}
     dependencies:
       axios: 0.27.2
