@@ -45,7 +45,7 @@
     "@tirke/node-cache-manager-ioredis": "3.6.0",
     "@typegoose/auto-increment": "4.6.0",
     "argon2": "0.41.1",
-    "bull": "4.16.2",
+    "bull": "4.16.3",
     "cache-manager": "5.7.6",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
