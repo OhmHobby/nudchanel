@@ -17,9 +17,9 @@ export class PhotoProcessorService {
   ) {}
 
   @Span()
-  async insertWatermark(original: sharp.Sharp, quality?: number, watermarkPreset?: string) {
+  async insertWatermark(original: sharp.Sharp, watermarkPreset?: string) {
     try {
-      const result = await this.watermarkService.insertWatermark(original.jpeg({ quality }), watermarkPreset)
+      const result = await this.watermarkService.insertWatermark(original, watermarkPreset)
       return result
     } catch (err) {
       this.logger.error(`Failed to insert watermark`, err)
@@ -40,7 +40,7 @@ export class PhotoProcessorService {
 
     if (width || height) photo.resize(params.buildResizeOptions())
 
-    if (watermark) photo = await this.insertWatermark(photo, quality, watermark)
+    if (watermark) photo = await this.insertWatermark(photo, watermark)
 
     if (format === ImageFormat.webp) photo.webp({ quality })
     else photo.jpeg({ quality })
