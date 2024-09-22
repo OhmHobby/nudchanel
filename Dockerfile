@@ -1,8 +1,8 @@
-FROM oven/bun:1.1-slim
-RUN apt update && \
-    apt install -y --no-install-recommends libjemalloc2 && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
+FROM oven/bun:1.1-alpine
+RUN apk add --update --no-cache \
+    --repository http://dl-3.alpinelinux.org/alpine/edge/community \
+    --repository http://dl-3.alpinelinux.org/alpine/edge/main \
+    vips-dev jemalloc
 ENV LD_PRELOAD=libjemalloc.so.2
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
