@@ -2,7 +2,7 @@ FROM oven/bun:1.1-alpine
 RUN apk add --update --no-cache \
     --repository http://dl-3.alpinelinux.org/alpine/edge/community \
     --repository http://dl-3.alpinelinux.org/alpine/edge/main \
-    vips-dev jemalloc
+    vips-dev jemalloc glibc
 ENV LD_PRELOAD=libjemalloc.so.2
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
