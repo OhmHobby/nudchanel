@@ -50,8 +50,8 @@ Feature: Photo processor
     And ETag should be <etag>
     Examples:
       | format | path                                               | width | height | quality | fit    | watermark | status | size   | etag                                |
-      | webp   | webdav://2022/[2022.02.02] WebDev CI/P1448472.jpeg | 800   | 600    | 80      | inside | 01        | OK     | 114662 | "1bfe6-jm7ZGCtmkr8CaJuiUaKG10X8lKw" |
-      | webp   | webdav://2022/[2022.02.03] Rotation/IMG_4432.JPG   | 800   | 600    | 80      | inside | 01        | OK     | 21304  | "5338-sOIY5steqzybIX1x8fqpr0JNDSE"  |
+      | webp   | webdav://2022/[2022.02.02] WebDev CI/P1448472.jpeg | 800   | 600    | 80      | inside | 01        | OK     | 117084 | "1c95c-CdVk4k0FADCOe72iti6bJZ2OF24" |
+      | webp   | webdav://2022/[2022.02.03] Rotation/IMG_4432.JPG   | 800   | 600    | 80      | inside | 01        | OK     | 20746  | "510a-iTOZtljdRQVE2Xl8RmC6GRL9rhI"  |
 
   Scenario Outline: Resize profile (cover) <path>
     Given process photo path "<path>"

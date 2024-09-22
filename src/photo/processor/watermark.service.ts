@@ -46,14 +46,16 @@ export class PhotoWatermarkService {
     const sizePercentage = config.size
     const marginX = config.marginX
     const marginY = config.marginY
-    photo = sharp(await photo.toBuffer())
-    const [photoMeta, watermarkMeta] = await Promise.all([photo.metadata(), watermark.metadata()])
-    const photoResolution = photoMeta.width! * photoMeta.height!
+    const [resizedPhoto, watermarkMeta] = await Promise.all([
+      photo.toBuffer({ resolveWithObject: true }),
+      watermark.metadata(),
+    ])
+    const photoResolution = resizedPhoto.info.width * resizedPhoto.info.height
     const watermarkRatio = watermarkMeta.width! / watermarkMeta.height!
     const watermarkTargetWidth = Math.sqrt(sizePercentage * photoResolution * watermarkRatio)
     const watermarkTargetHeight = watermarkTargetWidth / watermarkRatio
-    const watermarkPositionX = photoMeta.width! - watermarkTargetWidth - photoMeta.width! * marginX
-    const watermarkPositionY = photoMeta.height! - watermarkTargetHeight - photoMeta.height! * marginY
+    const watermarkPositionX = resizedPhoto.info.width - watermarkTargetWidth - resizedPhoto.info.width * marginX
+    const watermarkPositionY = resizedPhoto.info.height - watermarkTargetHeight - resizedPhoto.info.height * marginY
     const watermarkBuffer = await watermark.resize({ width: Math.floor(watermarkTargetWidth) }).toBuffer()
     return photo.composite([
       {
