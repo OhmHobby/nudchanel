@@ -1,16 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { readFile } from 'fs/promises'
-import Jimp from 'jimp'
-import JPEG from 'jpeg-js'
 import { Span, TraceService } from 'nestjs-otel'
 import { resolve } from 'path'
-
-Jimp.decoders['image/jpeg'] = (data) =>
-  JPEG.decode(data, {
-    maxMemoryUsageInMB: 4096,
-  })
-
-import { ConfigService } from '@nestjs/config'
+import sharp from 'sharp'
 import { Config } from 'src/enums/config.enum'
 import { WatermarkPosition } from 'src/enums/watermark-position.enum'
 import { WatermarkConfig } from './watermark-config'
@@ -37,37 +30,37 @@ export class PhotoWatermarkService {
   }
 
   @Span()
-  async insertWatermark(photoBuffer: Buffer, preset?: string) {
-    if (!preset) return photoBuffer
-    const watermark = this.getWatermarkPreset(preset)
-    if (!watermark) return photoBuffer
-    const watermarkBuffer = await this.loadWatermarkBuffer(watermark.file)
-    if (watermark.position === WatermarkPosition.BottomLeft) {
-      return this.insertBottomLeft(photoBuffer, watermarkBuffer, watermark)
+  async insertWatermark(photo: sharp.Sharp, preset?: string) {
+    if (!preset) return photo
+    const watermarkConfig = this.getWatermarkPreset(preset)
+    if (!watermarkConfig) return photo
+    const watermarkBuffer = await this.loadWatermarkBuffer(watermarkConfig.file)
+    if (watermarkConfig.position === WatermarkPosition.BottomLeft) {
+      return this.insertBottomLeft(photo, sharp(watermarkBuffer), watermarkConfig)
     }
+    return photo
   }
 
   @Span()
-  async insertBottomLeft(photoBuffer: Buffer, watermarkBuffer: Buffer, config: WatermarkConfig) {
+  async insertBottomLeft(photo: sharp.Sharp, watermark: sharp.Sharp, config: WatermarkConfig) {
     const sizePercentage = config.size
     const marginX = config.marginX
     const marginY = config.marginY
-    const opacity = config.opacity
-    const jimpReadSpan = this.traceService.startSpan('Jimp.read')
-    const [photo, watermark] = await Promise.all([Jimp.read(photoBuffer), Jimp.read(watermarkBuffer)])
-    jimpReadSpan.end()
-    const photoResolution = photo.bitmap.width * photo.bitmap.height
-    const watermarkRatio = watermark.bitmap.width / watermark.bitmap.height
+    photo = sharp(await photo.toBuffer())
+    const [photoMeta, watermarkMeta] = await Promise.all([photo.metadata(), watermark.metadata()])
+    const photoResolution = photoMeta.width! * photoMeta.height!
+    const watermarkRatio = watermarkMeta.width! / watermarkMeta.height!
     const watermarkTargetWidth = Math.sqrt(sizePercentage * photoResolution * watermarkRatio)
-    watermark.resize(watermarkTargetWidth, Jimp.AUTO)
-    watermark.opacity(opacity)
-    const watermarkPositionX = photo.bitmap.width - watermark.bitmap.width - photo.bitmap.width * marginX
-    const watermarkPositionY = photo.bitmap.height - watermark.bitmap.height - photo.bitmap.height * marginY
-    const jimpCompositeSpan = this.traceService.startSpan('Jimp.composite')
-    const withWatermark = await photo
-      .composite(watermark, watermarkPositionX, watermarkPositionY)
-      .getBufferAsync(Jimp.MIME_JPEG)
-    jimpCompositeSpan.end()
-    return withWatermark
+    const watermarkTargetHeight = watermarkTargetWidth / watermarkRatio
+    const watermarkPositionX = photoMeta.width! - watermarkTargetWidth - photoMeta.width! * marginX
+    const watermarkPositionY = photoMeta.height! - watermarkTargetHeight - photoMeta.height! * marginY
+    const watermarkBuffer = await watermark.resize({ width: Math.floor(watermarkTargetWidth) }).toBuffer()
+    return photo.composite([
+      {
+        input: watermarkBuffer,
+        left: Math.floor(watermarkPositionX),
+        top: Math.floor(watermarkPositionY),
+      },
+    ])
   }
 }

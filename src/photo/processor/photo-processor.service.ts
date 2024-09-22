@@ -18,12 +18,9 @@ export class PhotoProcessorService {
 
   @Span()
   async insertWatermark(original: sharp.Sharp, quality?: number, watermarkPreset?: string) {
-    const span = this.traceService.startSpan('preWatermarkJpeg')
-    const originalBuffer = await original.jpeg({ quality }).toBuffer()
-    span.end()
     try {
-      const result = await this.watermarkService.insertWatermark(originalBuffer, watermarkPreset)
-      return sharp(result)
+      const result = await this.watermarkService.insertWatermark(original.jpeg({ quality }), watermarkPreset)
+      return result
     } catch (err) {
       this.logger.error(`Failed to insert watermark`, err)
       return original
