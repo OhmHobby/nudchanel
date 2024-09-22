@@ -8,6 +8,4 @@ export class WatermarkConfig {
   marginX: number
 
   marginY: number
-
-  opacity: number
 }

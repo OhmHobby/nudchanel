@@ -96,7 +96,6 @@ photo:
         size: 0.01
         marginX: 0
         marginY: 0.01
-        opacity: 0.75
 
 authentication:
   accessToken:
