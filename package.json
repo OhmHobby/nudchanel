@@ -36,7 +36,7 @@
     "@nestjs/config": "3.2.3",
     "@nestjs/core": "10.4.3",
     "@nestjs/platform-express": "10.4.3",
-    "@nestjs/swagger": "7.4.0",
+    "@nestjs/swagger": "7.4.2",
     "@nudchannel/auth": "1.5.0",
     "@nudchannel/protobuf": "1.5.0",
     "@opentelemetry/auto-instrumentations-node": "^0.50.0",
