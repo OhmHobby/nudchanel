@@ -15,8 +15,8 @@ dependencies:
     specifier: ^2.0.0
     version: 2.0.0
   '@golevelup/nestjs-rabbitmq':
-    specifier: 5.4.1
-    version: 5.4.1(@nestjs/common@10.4.3)(@nestjs/core@10.4.3)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+    specifier: 5.5.0
+    version: 5.5.0(@nestjs/common@10.4.3)(@nestjs/core@10.4.3)(reflect-metadata@0.2.2)(rxjs@7.8.1)
   '@m8a/nestjs-typegoose':
     specifier: 12.0.0
     version: 12.0.0(@nestjs/common@10.4.3)(@nestjs/core@10.4.3)(@typegoose/typegoose@12.7.0)(mongoose@8.6.3)
@@ -1027,8 +1027,8 @@ packages:
       rxjs: 7.8.1
     dev: false
 
-  /@golevelup/nestjs-rabbitmq@5.4.1(@nestjs/common@10.4.3)(@nestjs/core@10.4.3)(reflect-metadata@0.2.2)(rxjs@7.8.1):
-    resolution: {integrity: sha512-p9TXxdCcsxiqlid9uvxoYFqKkpAEcaCCeCKzxw4FO4CpfA28qhZC8kqVGeItIFaLnCdT/Eb0Ut2gY5okYr0Q6A==}
+  /@golevelup/nestjs-rabbitmq@5.5.0(@nestjs/common@10.4.3)(@nestjs/core@10.4.3)(reflect-metadata@0.2.2)(rxjs@7.8.1):
+    resolution: {integrity: sha512-sS2d40ZeWonSvy3aF2Oaav7+eu30oyAGShDDDebcBQJ/bPqxpofpiB0pq5PW628exyXVKUNe0jPV83plhvJkAg==}
     peerDependencies:
       '@nestjs/common': ^10.x
       '@nestjs/core': ^10.x
