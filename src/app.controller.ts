@@ -15,4 +15,10 @@ export class AppController {
   getVersion() {
     return process.env.npm_package_version
   }
+
+  @Get('/baseurl')
+  @Header('content-type', 'text/plain')
+  getBaseUrl() {
+    return this.configService.get(BASEURL)
+  }
 }
