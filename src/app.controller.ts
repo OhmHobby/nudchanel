@@ -1,8 +1,12 @@
 import { Controller, Get, Header } from '@nestjs/common'
 import { SkipHttpLogging } from './helpers/skip-http-logging.decorator'
+import { ConfigService } from '@nestjs/config'
+const BASEURL = 'http.baseUrl'
 
 @Controller()
 export class AppController {
+  constructor(private readonly configService: ConfigService) {}
+
   @Get('/ping')
   @Header('content-type', 'text/plain')
   @SkipHttpLogging()
