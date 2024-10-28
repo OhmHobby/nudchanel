@@ -6,7 +6,7 @@ log:
 
 http:
   baseUrl:
-    accounts: http://webservice.dev.nudchannel.com 
+    accounts: http://webservice.dev.nudchannel.com
 
 otlp:
   metric:
