@@ -31,6 +31,7 @@ import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { BaseV1Controller } from './base.v1.controller'
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     GalleryModule,
     GoogleModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, BaseV1Controller],
   providers: [
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
