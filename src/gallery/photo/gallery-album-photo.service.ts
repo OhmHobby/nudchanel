@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { ProfileNameResponseModel } from 'src/accounts/models/profile-name.response.model'
+import { Span } from 'nestjs-otel'
+import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
 import { GalleryAlbumPhotoModel } from '../dto/gallery-album-photo.model'
-import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class GalleryAlbumPhotoService {
@@ -27,8 +27,8 @@ export class GalleryAlbumPhotoService {
       [...batches]
         .filter(([, profileId]) => !!profileId)
         .map(([batchId, profileId]) => {
-          const profile = profileId && profileNameMap.get(profileId.toHexString())
-          const response = profile && ProfileNameResponseModel.fromModel(profile)
+          const profileName = profileId && profileNameMap.get(profileId.toHexString())
+          const response = profileName && ProfileDetailResponseModel.fromModel(profileId, profileName)
           return [batchId.toHexString(), response]
         }),
     )
@@ -40,6 +40,7 @@ export class GalleryAlbumPhotoService {
           width: photo.width,
           height: photo.height,
           color: photo.color,
+          timestamp: photo.taken_timestamp?.getTime() ?? 0,
           takenBy: batchProfileNameMap.get(photo.batch.toString()),
         }),
     )
