@@ -8,6 +8,9 @@ export class ProfileResponseModel {
   }
 
   @ApiProperty()
+  id: string
+
+  @ApiProperty()
   name: ProfileNameResponseModel
 
   @ApiProperty()
@@ -15,6 +18,7 @@ export class ProfileResponseModel {
 
   static fromModel(profile?: ProfileModel) {
     return new ProfileResponseModel({
+      id: profile?._id.toString(),
       name: ProfileNameResponseModel.fromProfile(profile, 'en'),
       localName: ProfileNameResponseModel.fromProfile(profile, 'th'),
     })

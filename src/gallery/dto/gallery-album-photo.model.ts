@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
-import { ProfileNameResponseModel } from 'src/accounts/models/profile-name.response.model'
+import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 
 export class GalleryAlbumPhotoModel {
@@ -15,6 +15,9 @@ export class GalleryAlbumPhotoModel {
 
   @ApiProperty()
   height: number
+
+  @ApiProperty()
+  timestamp: number
 
   @ApiProperty({ description: 'Color in hex' })
   color: string
@@ -31,8 +34,8 @@ export class GalleryAlbumPhotoModel {
     return PhotoUrlHelper.preview(this.uuid)
   }
 
-  @ApiPropertyOptional({ type: ProfileNameResponseModel })
-  takenBy?: ProfileNameResponseModel
+  @ApiPropertyOptional({ type: ProfileDetailResponseModel })
+  takenBy?: ProfileDetailResponseModel
 
   constructor(model: Partial<GalleryAlbumPhotoModel>) {
     Object.assign(this, model)

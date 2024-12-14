@@ -3,6 +3,7 @@ database:
     default: mongodb://localhost/main
     accounts: mongodb://localhost/accounts
     gallery: mongodb://localhost/gallery
+    photo: mongodb://localhost/photo
     mailer: mongodb://localhost/mailer
     audit: mongodb://localhost/audit
   redis:
