@@ -35,7 +35,7 @@ export class SignInV1Controller {
   @Get()
   @ApiFoundResponse()
   async signInWithCode(
-    @Res() response: Pick<Response, 'cookie' | 'redirect'>,
+    @Res({ passthrough: true }) response: Pick<Response, 'cookie' | 'redirect'>,
     @Query() { code, continue: redirectTo }: SignInCodeDto,
   ) {
     const profileId = await this.signInService.useCode(code)
