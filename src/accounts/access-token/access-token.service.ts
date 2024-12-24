@@ -4,6 +4,7 @@ import { SignAccessToken, User, VerifyAccessToken } from '@nudchannel/auth'
 import { IUserOptions } from '@nudchannel/auth/lib/user/user-options.interface'
 import { Response } from 'express'
 import { IncomingHttpHeaders } from 'http'
+import { Types } from 'mongoose'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
@@ -34,21 +35,21 @@ export class AccessTokenService {
     this.verifyAccessToken = new VerifyAccessToken(publicKey)
   }
 
-  async generateAccessToken(profileId: string) {
+  async generateAccessToken(profileId: Types.ObjectId) {
     const privateKey = this.configService.get(Config.NUDCH_TOKEN_PRIVATE_KEY)
     const issuer = this.configService.get(Config.NUDCH_TOKEN_ISSUER)
     const signAccessToken = new SignAccessToken(issuer, privateKey)
     const [profile, name, groups] = await Promise.all([
       this.profileService.findById(profileId),
       this.profileNameService.getProfileName(profileId, 'en'),
-      this.userGroupService.getProfileGroups(profileId),
+      this.userGroupService.getProfileGroups(profileId.toString()),
     ])
 
     const photo = PhotoUrlHelper.profileJpg(profile?.photo)
 
     const fullname = `${name.firstname} ${name.lastname}`
 
-    return signAccessToken.setProfileId(profileId).setGroups(groups).setName(fullname).setPhoto(photo).sign()
+    return signAccessToken.setProfileId(profileId.toString()).setGroups(groups).setName(fullname).setPhoto(photo).sign()
   }
 
   setHttpAccessTokenCookie(response: Pick<Response, 'cookie'>, accessToken: string, expires?: Date) {

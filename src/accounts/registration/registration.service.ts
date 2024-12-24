@@ -1,9 +1,7 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { ReturnModelType } from '@typegoose/typegoose'
 import dayjs from 'dayjs'
-import { Config } from 'src/enums/config.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { RegistrationTokenModel } from 'src/models/accounts/registration-token.model'
@@ -15,7 +13,6 @@ export class RegistrationService {
   constructor(
     @InjectModel(RegistrationTokenModel)
     private readonly registrationTokenModel: ReturnModelType<typeof RegistrationTokenModel>,
-    private readonly configService: ConfigService,
     private readonly profileService: ProfileService,
     private readonly profileNameService: ProfileNameService,
   ) {}
@@ -48,13 +45,7 @@ export class RegistrationService {
     return profile
   }
 
-  redirectToAppRegistrationUrl(registrationToken: string, continueTo?: string): string {
-    const continueToUrl = new URL(continueTo ?? this.configService.getOrThrow(Config.HTTP_BASEURL_ACCOUNTS))
-    const appBaseUrl = continueToUrl.origin
-
-    const redirectUrl = new URL('/register', appBaseUrl)
-    redirectUrl.searchParams.set('code', registrationToken)
-
-    return redirectUrl.href
+  redirectToAppRegistrationUrl(registrationToken: string): string {
+    return `/register?code=${registrationToken}`
   }
 }

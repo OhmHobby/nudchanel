@@ -5,20 +5,29 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  NotFoundException,
+  Param,
   Post,
   Query,
+  Req,
   Res,
-  UnauthorizedException,
 } from '@nestjs/common'
-import { ApiFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
-import { Response } from 'express'
+import { ConfigService } from '@nestjs/config'
+import { ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { Request, Response } from 'express'
+import { Types } from 'mongoose'
+import { Config } from 'src/enums/config.enum'
+import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { AccessTokenService } from '../access-token/access-token.service'
+import { AuthProviderResponseModel } from '../models/auth-provider.response.model'
 import { RefreshTokenService } from '../refresh-token/refresh-token.service'
 import { UserLocalService } from '../user/user-local.service'
-import { SignInCodeDto } from './dto/sign-in-code.dto'
 import { SignInLocalUserRequestDto } from './dto/sign-in-local-user-request.dto'
 import { SignInLocalUserResponseDto, SignInStatus } from './dto/sign-in-local-user-response.dto'
-import { SignInService } from './sign-in.service'
+import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
+import { SignInProviderDto } from './dto/sign-in-provider.dto'
+import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
+import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
 
 @Controller({ path: 'accounts/sign-in', version: '1' })
 @ApiTags('SignInV1')
@@ -26,23 +35,22 @@ export class SignInV1Controller {
   private readonly logger = new Logger(SignInV1Controller.name)
 
   constructor(
-    private readonly signInService: SignInService,
+    private readonly configService: ConfigService,
     private readonly userLocalService: UserLocalService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly accessTokenService: AccessTokenService,
+    private readonly googleOauth2ProviderService: GoogleOauth2ProviderService,
+    private readonly discordOauth2ProviderService: DiscordOauth2ProviderService,
   ) {}
 
-  @Get()
-  @ApiFoundResponse()
-  async signInWithCode(
-    @Res({ passthrough: true }) response: Pick<Response, 'cookie' | 'redirect'>,
-    @Query() { code, continue: redirectTo }: SignInCodeDto,
-  ) {
-    const profileId = await this.signInService.useCode(code)
-    if (!profileId) throw new UnauthorizedException('Code expired')
-    await this.setAccessRefreshTokenCookiesByProfile(response, profileId, true)
-    this.logger.log({ message: 'Successful sign-in', profileId }, SignInV1Controller.prototype.signInWithCode.name)
-    response.redirect(HttpStatus.FOUND, redirectTo)
+  @Get('providers')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: [AuthProviderResponseModel] })
+  getProviders(@Req() { headers }: Pick<Request, 'headers'>): AuthProviderResponseModel[] {
+    return [
+      this.googleOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
+      this.discordOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
+    ]
   }
 
   @Post('/local')
@@ -54,7 +62,7 @@ export class SignInV1Controller {
     @Res({ passthrough: true }) response: Pick<Response, 'cookie'>,
   ): Promise<SignInLocalUserResponseDto> {
     const user = await this.userLocalService.signIn(username, password)
-    const profileId = user.profile!.toString()
+    const profileId = user.profile! as Types.ObjectId
     await this.setAccessRefreshTokenCookiesByProfile(response, profileId, !persistent)
     this.logger.log(
       { message: 'Successful sign-in', username, persistent },
@@ -63,9 +71,51 @@ export class SignInV1Controller {
     return { status: SignInStatus.ok }
   }
 
+  @Get(':provider/callback')
+  @HttpCode(HttpStatus.FOUND)
+  async redirectSignInWithProviderCallback(
+    @Req() { headers, cookies }: Pick<Request, 'headers' | 'cookies'>,
+    @Param() { provider }: SignInProviderDto,
+    @Query() { code, baseUrl }: SignInProviderCodeDto,
+    @Res({ passthrough: true }) res: Pick<Response, 'cookie' | 'redirect' | 'clearCookie'>,
+  ) {
+    baseUrl = baseUrl || this.getBaseUrl(headers.host)
+
+    const providerService = {
+      [OidcProvider.Google]: this.googleOauth2ProviderService,
+      [OidcProvider.Discord]: this.discordOauth2ProviderService,
+    }[provider]
+    if (!providerService) throw new NotFoundException('Unknown provider')
+    try {
+      const profileIdOrRegistrationUrl = await providerService.profileIdBySignInWithCodeOrRegistrationUrl(code, baseUrl)
+      if (typeof profileIdOrRegistrationUrl === 'string') {
+        return res.redirect(HttpStatus.FOUND, profileIdOrRegistrationUrl)
+      } else {
+        await this.setAccessRefreshTokenCookiesByProfile(res, profileIdOrRegistrationUrl, true)
+        return res.redirect(HttpStatus.FOUND, this.getContinuePath(cookies, res) ?? '/')
+      }
+    } catch (err) {
+      this.logger.warn(err)
+      res.redirect(HttpStatus.FOUND, '/sign-in/?error=' + encodeURIComponent(err.message))
+    }
+  }
+
+  private getBaseUrl(host?: string) {
+    return `${this.configService.get(Config.NUDCH_TOKEN_SECURE) ? 'https' : 'http'}://${host ?? 'nudchannel.com'}`
+  }
+
+  private getContinuePath(cookies: Record<string, any>, response: Pick<Response, 'clearCookie'>) {
+    const key = 'continue_path'
+    const continuePath = cookies[key]
+    if (continuePath) {
+      response.clearCookie(key)
+    }
+    return continuePath
+  }
+
   private async setAccessRefreshTokenCookiesByProfile(
     response: Pick<Response, 'cookie'>,
-    profileId: string,
+    profileId: Types.ObjectId,
     isSession = false,
   ) {
     const [accessToken, refreshToken] = await Promise.all([
@@ -76,5 +126,6 @@ export class SignInV1Controller {
     const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
     this.accessTokenService.setHttpAccessTokenCookie(response, accessToken, expires)
     this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken._id.toString(), expires)
+    this.logger.log({ message: 'Successful sign-in', profileId, isSession })
   }
 }

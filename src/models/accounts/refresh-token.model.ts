@@ -1,10 +1,14 @@
 import { modelOptions, Prop, Ref } from '@typegoose/typegoose'
-import { uuidv4 } from 'uuidv7'
 import { toBuffer, toString } from 'uuid-buffer'
+import { uuidv4 } from 'uuidv7'
 import { ProfileModel } from './profile.model'
 
 @modelOptions({ schemaOptions: { collection: 'tokens.refresh' } })
 export class RefreshTokenModel {
+  constructor(model?: Partial<RefreshTokenModel>) {
+    Object.assign(this, model)
+  }
+
   @Prop({
     type: Buffer,
     subtype: 4,

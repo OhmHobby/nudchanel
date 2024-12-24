@@ -41,7 +41,7 @@ describe(RefreshTokenService.name, () => {
 
   describe('create', () => {
     it('should create correctly', async () => {
-      const profileId = '0'
+      const profileId = new Types.ObjectId()
       refreshTokenModel.create = jest.fn().mockResolvedValue(new RefreshTokenModel())
       const result = await service.create(profileId)
       expect(result).toBeInstanceOf(RefreshTokenModel)

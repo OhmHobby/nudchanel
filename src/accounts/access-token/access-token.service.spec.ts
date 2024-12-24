@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { SignAccessToken } from '@nudchannel/auth'
+import { Types } from 'mongoose'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { ProfileNameService } from '../profile/profile-name.service'
 import { ProfileService } from '../profile/profile.service'
@@ -46,7 +47,7 @@ describe(AccessTokenService.name, () => {
         sign: jest.fn().mockResolvedValue(accessToken),
       })
 
-      const result = await service.generateAccessToken('profile-id')
+      const result = await service.generateAccessToken(new Types.ObjectId())
       expect(result).toBe(accessToken)
     })
   })

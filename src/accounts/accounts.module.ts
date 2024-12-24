@@ -1,12 +1,17 @@
+import { OAuth2API } from '@discordjs/core'
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { REST } from 'discord.js'
+import { Auth, google } from 'googleapis'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { Config } from 'src/enums/config.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
+import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { RegistrationTokenModel } from 'src/models/accounts/registration-token.model'
-import { SignInTokenModel } from 'src/models/accounts/signin-token.model'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
@@ -26,10 +31,12 @@ import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { RegistrationService } from './registration/registration.service'
-import { DiscordOauth2ProviderService } from './sign-in/oidc/discord-oauth2-provider.service'
-import { GoogleOauth2ProviderService } from './sign-in/oidc/google-oauth2-provider.service'
-import { SignInExternalController } from './sign-in/oidc/sign-in-external.controller'
-import { SignInService } from './sign-in/sign-in.service'
+import { DiscordOauth2ProviderService } from './sign-in/oidc/discord/discord-oauth2-provider.service'
+import { GoogleOauth2ProviderService } from './sign-in/oidc/google/google-oauth2-provider.service'
+import {
+  UnintializedGoogleOauth2,
+  UnintializedGoogleOauth2Client,
+} from './sign-in/oidc/google/uninitialized-google.types'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { SignOutV1Controller } from './sign-in/sign-out-v1.controller'
 import { TeamMemberV1Controller } from './team/team-member.v1.controller'
@@ -50,7 +57,6 @@ import { UserLocalService } from './user/user-local.service'
         TeamMemberModel,
         TeamRoleModel,
         TeamGroupModel,
-        SignInTokenModel,
         RegistrationTokenModel,
       ],
       MongoConnection.Accounts,
@@ -72,13 +78,34 @@ import { UserLocalService } from './user/user-local.service'
     UserLocalService,
     UserGroupService,
     GroupService,
-    SignInService,
     RegistrationService,
+    { provide: ServiceProvider.DISCORD_REST, useValue: () => new REST({ authPrefix: 'Bearer' }) },
+    {
+      provide: ServiceProvider.DISCORD_OAUTH2_API,
+      useFactory: (rest: () => REST) => new OAuth2API(rest()),
+      inject: [{ token: ServiceProvider.DISCORD_REST, optional: false }],
+    },
+    {
+      provide: ServiceProvider.GOOGLE_OAUTH2_CLIENT,
+      useFactory:
+        (configService: ConfigService): UnintializedGoogleOauth2Client =>
+        (redirectUri?: string) =>
+          new google.auth.OAuth2(
+            configService.getOrThrow(Config.GAPIS_CLIENT_ID),
+            configService.getOrThrow(Config.GAPIS_CLIENT_SECRET),
+            redirectUri,
+          ),
+      inject: [ConfigService],
+    },
+    {
+      provide: ServiceProvider.GOOGLE_OAUTH2,
+      useFactory: (): UnintializedGoogleOauth2 => (oauth2Client: Auth.OAuth2Client) =>
+        google.oauth2({ auth: oauth2Client, version: 'v2' }),
+    },
   ],
   controllers: [
     ProfileV1Controller,
     RefreshTokenV1Controller,
-    SignInExternalController,
     SignInV1Controller,
     SignOutV1Controller,
     TeamMemberV1Controller,
