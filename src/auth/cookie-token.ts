@@ -1,4 +1,5 @@
 import { Response } from 'express'
+import { Types } from 'mongoose'
 import { AccessTokenService } from 'src/accounts/access-token/access-token.service'
 import { RefreshTokenService } from 'src/accounts/refresh-token/refresh-token.service'
 import { Request } from './request.interface'
@@ -51,7 +52,7 @@ export class CookieToken {
     if (!refreshToken) return
 
     const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
-    this._accessToken = await this.accessTokenService.generateAccessToken(refreshToken.profile.toString())
+    this._accessToken = await this.accessTokenService.generateAccessToken(refreshToken.profile as Types.ObjectId)
     this._refreshToken = refreshToken._id.toString()
     if (response) {
       this.accessTokenService.setHttpAccessTokenCookie(response, this._accessToken, expires)

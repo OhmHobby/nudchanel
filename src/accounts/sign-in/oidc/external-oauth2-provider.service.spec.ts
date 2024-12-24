@@ -1,56 +1,64 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { APIUser } from 'discord.js'
 import { Types } from 'mongoose'
+import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
-import { SignInService } from '../sign-in.service'
-import { ExternalOauth2ProviderService } from './external-oauth2-provider.service'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
+import { ExternalOauth2ProviderService } from './external-oauth2-provider.service'
 
-jest.mock('../sign-in.service')
 jest.mock('src/accounts/registration/registration.service')
 
-class ClassUnderTest extends ExternalOauth2ProviderService<any, any> {
-  constructor(signInService: SignInService, registrationService: RegistrationService) {
-    super(OidcProvider.Discord, 'https://accounts.nudchannel.com', signInService, registrationService)
+class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
+  protected providerName: OidcProvider
+
+  constructor(registrationService: RegistrationService) {
+    super(registrationService)
   }
 
-  get providerUser(): any {
-    throw new Error('Method not implemented.')
+  getProviderInfo(): AuthProviderResponseModel {
+    return new AuthProviderResponseModel()
+  }
+
+  getProviderUser(): Promise<APIUser> {
+    return Promise.resolve(<APIUser>{})
   }
 
   findProfileId(): Promise<Types.ObjectId | undefined> {
-    throw new Error('Method not implemented.')
+    return Promise.resolve(undefined)
   }
 
   createRegistrationTokenFromProviderUser(): Promise<string> {
-    throw new Error('Method not implemented.')
+    return Promise.resolve('')
   }
 }
 
 describe(ExternalOauth2ProviderService.name, () => {
-  let signInService: SignInService
   let registrationService: RegistrationService
 
   let cut: ClassUnderTest
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SignInService, RegistrationService],
+      providers: [RegistrationService],
     }).compile()
 
-    signInService = module.get(SignInService)
     registrationService = module.get(RegistrationService)
-    cut = new ClassUnderTest(signInService, registrationService)
+    cut = new ClassUnderTest(registrationService)
   })
 
-  describe(ExternalOauth2ProviderService.prototype.getRedirectToAppSignInUrl.name, () => {
-    it('should continue to default path correctly', () => {
-      const result = cut.getRedirectToAppSignInUrl('signInCode')
-      expect(result).toBe('https://accounts.nudchannel.com/api/v1/accounts/sign-in?code=signInCode&continue=%2F')
+  describe(ExternalOauth2ProviderService.prototype.profileIdBySignInWithCodeOrRegistrationUrl.name, () => {
+    it('should continue to default path correctly', async () => {
+      const profileId = new Types.ObjectId()
+      cut.findProfileId = jest.fn().mockResolvedValue(profileId)
+      const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
+      expect(result).toEqual(profileId)
     })
 
-    it('should continue to cross origin correctly', () => {
-      const result = cut.getRedirectToAppSignInUrl('signInCode', 'https://admin.nudchannel.com/dashboard')
-      expect(result).toBe('https://admin.nudchannel.com/api/v1/accounts/sign-in?code=signInCode&continue=%2Fdashboard')
+    it('should continue to cross origin correctly', async () => {
+      const registrationUrl = 'http://dev.nudchannel.com/register?code=0'
+      registrationService.redirectToAppRegistrationUrl = jest.fn().mockReturnValue(registrationUrl)
+      const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
+      expect(result).toBe(registrationUrl)
     })
   })
 })

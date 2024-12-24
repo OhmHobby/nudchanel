@@ -8,6 +8,8 @@ import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { ServiceProvider } from 'src/enums/service-provider.enum'
+import { mockDiscordRestClient } from './mock-discord-rest-client'
 import { MockOpenTelemetryModule } from './mock-opentelemetry-module'
 import { MockRabbitMQModule } from './mock-rabbitmq-module'
 import { MockTypegooseModule } from './mock-typegoose-module'
@@ -29,6 +31,8 @@ export class AppBuilder {
       .useModule(MockRabbitMQModule)
       .overrideModule(OpenTelemetryModule)
       .useModule(MockOpenTelemetryModule)
+      .overrideProvider(ServiceProvider.DISCORD_REST)
+      .useValue(() => mockDiscordRestClient)
     return this
   }
 

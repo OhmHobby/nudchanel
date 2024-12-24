@@ -1,5 +1,4 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
-import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getModelForClass } from '@typegoose/typegoose'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
@@ -8,7 +7,6 @@ import { ProfileNameService } from '../profile/profile-name.service'
 import { ProfileService } from '../profile/profile.service'
 import { RegistrationService } from './registration.service'
 
-jest.mock('@nestjs/config')
 jest.mock('../profile/profile-name.service')
 jest.mock('../profile/profile.service')
 
@@ -17,12 +15,10 @@ describe('RegistrationService', () => {
   const registrationTokenModel = getModelForClass(RegistrationTokenModel)
   let profileService: ProfileService
   let profileNameService: ProfileNameService
-  let configService: ConfigService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ConfigService,
         RegistrationService,
         { provide: getModelToken('RegistrationTokenModel'), useValue: registrationTokenModel },
         ProfileService,
@@ -33,7 +29,6 @@ describe('RegistrationService', () => {
     service = module.get<RegistrationService>(RegistrationService)
     profileService = module.get(ProfileService)
     profileNameService = module.get(ProfileNameService)
-    configService = module.get(ConfigService)
   })
 
   it('should be defined', () => {
@@ -82,16 +77,9 @@ describe('RegistrationService', () => {
   describe('redirectToAppRegistrationUrl', () => {
     const registrationToken = 'registration-token'
 
-    it('should return app base url correctly', () => {
-      const continueTo = 'https://dev.nudchannel.com/test'
-      const result = service.redirectToAppRegistrationUrl(registrationToken, continueTo)
-      expect(result).toBe(`https://dev.nudchannel.com/register?code=registration-token`)
-    })
-
     it('should return default base url correctly', () => {
-      configService.getOrThrow = jest.fn().mockReturnValueOnce('https://accounts.nudchannel.com')
       const result = service.redirectToAppRegistrationUrl(registrationToken)
-      expect(result).toBe(`https://accounts.nudchannel.com/register?code=registration-token`)
+      expect(result).toBe(`/register?code=registration-token`)
     })
   })
 })
