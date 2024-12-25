@@ -1,11 +1,11 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
 import { Span } from 'nestjs-otel'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
+import { ProfileId } from 'src/models/types'
 
 @Injectable()
 export class TeamService {
@@ -18,7 +18,7 @@ export class TeamService {
     private readonly teamGroupModel: ReturnModelType<typeof TeamGroupModel>,
   ) {}
 
-  async getLatestProfilePrimaryTeam(profileId: Types.ObjectId): Promise<TeamRoleModel | undefined> {
+  async getLatestProfilePrimaryTeam(profileId: ProfileId): Promise<TeamRoleModel | undefined> {
     const teamMember = await this.teamMemberModel
       .find({ profile: profileId })
       .sort({ year: 'desc' })
@@ -29,12 +29,12 @@ export class TeamService {
     return teamRole
   }
 
-  async getLatestProfileTeamEmoji(profileId: Types.ObjectId): Promise<string | undefined> {
+  async getLatestProfileTeamEmoji(profileId: ProfileId): Promise<string | undefined> {
     const teamRole = await this.getLatestProfilePrimaryTeam(profileId)
     return teamRole?.emoji
   }
 
-  async getProfilePrimaryTeams(profileId: Types.ObjectId) {
+  async getProfilePrimaryTeams(profileId: ProfileId) {
     const profileTeams = await this.teamMemberModel
       .find({ profile: profileId })
       .sort({ year: 'desc' })

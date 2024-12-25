@@ -2,13 +2,13 @@ import { APIUser, OAuth2API, UsersAPI } from '@discordjs/core'
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { REST } from 'discord.js'
-import { Types } from 'mongoose'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { Config } from 'src/enums/config.enum'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
+import { ProfileId } from 'src/models/types'
 import { ExternalOauth2ProviderService } from '../external-oauth2-provider.service'
 
 @Injectable()
@@ -48,7 +48,7 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
     return user
   }
 
-  async findProfileId(user: APIUser): Promise<Types.ObjectId | undefined> {
+  async findProfileId(user: APIUser): Promise<ProfileId | undefined> {
     const profile = await this.profileService.findByDiscordId(user.id)
     return profile?._id
   }

@@ -1,5 +1,5 @@
 import { index, modelOptions, prop } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
+import { ProfileIdDto } from 'src/accounts/dto/profile-id.dto'
 import { GalleryBaseModel } from './base.model'
 
 @modelOptions({ schemaOptions: { collection: 'activities' } })
@@ -16,8 +16,8 @@ export class GalleryActivityModel extends GalleryBaseModel {
   @prop({ required: true, type: Date })
   time: Date
 
-  @prop({ default: () => [], type: Types.ObjectId })
-  contributors?: Types.ObjectId[]
+  @prop({ default: () => [], type: ProfileIdDto })
+  contributors?: ProfileIdDto[]
 
   @prop({ default: () => [], text: true, trim: true, dim: 1, type: String })
   tags?: string[]

@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
+import { Types } from 'mongoose'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
@@ -29,7 +30,7 @@ export class ProfileV1Controller {
   @AuthGroups()
   @AuditLog(ProfileV1Controller.prototype.importProfilePhoto.name)
   async getMyProfile(@UserCtx() user: User): Promise<ProfileResponseModel> {
-    const doc = await this.profileService.findByIdPopulated(user.id!)
+    const doc = await this.profileService.findByIdPopulated(new Types.ObjectId(user.id!))
     return ProfileResponseModel.fromModel(doc!)
   }
 

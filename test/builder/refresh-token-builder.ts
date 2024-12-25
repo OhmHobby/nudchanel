@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
-import { Types } from 'mongoose'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { ProfileId } from 'src/models/types'
 import { TestData } from 'test/test-data'
 import { uuidv4 } from 'uuidv7'
 
@@ -20,7 +20,7 @@ export class RefreshTokenBuilder {
     return this
   }
 
-  withProfile(profile: Types.ObjectId) {
+  withProfile(profile: ProfileId) {
     this.refreshToken.profile = profile
     return this
   }

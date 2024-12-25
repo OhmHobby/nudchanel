@@ -1,8 +1,8 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
 import { ProfileModel } from 'src/models/accounts/profile.model'
+import { ProfileId } from 'src/models/types'
 
 @Injectable()
 export class ProfileService {
@@ -11,11 +11,11 @@ export class ProfileService {
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
   ) {}
 
-  findById(id: Types.ObjectId | string) {
+  findById(id: ProfileId) {
     return this.profileModel.findById(id).exec()
   }
 
-  findByIdPopulated(id: Types.ObjectId | string) {
+  findByIdPopulated(id: ProfileId) {
     return this.profileModel.findById(id).populate({ path: 'names' }).exec()
   }
 

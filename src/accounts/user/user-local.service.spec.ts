@@ -103,7 +103,7 @@ describe(UserLocalService.name, () => {
   })
 
   describe('requestUsername', () => {
-    const profileId = 'profile-id'
+    const profileId = new Types.ObjectId()
     const profileName = new ProfileNameModel()
 
     beforeEach(() => {

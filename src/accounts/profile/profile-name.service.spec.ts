@@ -65,7 +65,7 @@ describe(ProfileNameService.name, () => {
   })
 
   describe(ProfileNameService.prototype.getFallbackProfileName.name, () => {
-    const profileId = new Types.ObjectId().toHexString()
+    const profileId = new Types.ObjectId()
 
     it('should return value when found', async () => {
       profileNameModel.findOne = jest.fn().mockReturnValue({
@@ -89,7 +89,7 @@ describe(ProfileNameService.name, () => {
   })
 
   describe(ProfileNameService.prototype.getProfileName.name, () => {
-    const profileId = new Types.ObjectId().toHexString()
+    const profileId = new Types.ObjectId()
 
     beforeEach(() => {
       service.getFallbackProfileName = jest.fn()

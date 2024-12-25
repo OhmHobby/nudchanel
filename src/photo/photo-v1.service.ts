@@ -1,13 +1,13 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
 import { Span } from 'nestjs-otel'
 import { join } from 'path'
 import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
+import { PhotoBatchId, ProfileId } from 'src/models/types'
 import { PhotoPath } from './models/photo-path.model'
 import { UploadTaskRuleWatermark } from './upload-rules/upload-task-rule-watermark'
 
@@ -23,7 +23,7 @@ export class PhotoV1Service {
   ) {}
 
   @Span()
-  async getBatchProfilePairs(albumId: string): Promise<Map<Types.ObjectId, Types.ObjectId | undefined>> {
+  async getBatchProfilePairs(albumId: string): Promise<Map<PhotoBatchId, ProfileId | undefined>> {
     const tasks = await this.taskModel.find({ album: albumId }).select('_id').lean().exec()
     const taskIds = tasks.map((el) => el._id)
     const batches = await this.batchJobModel
@@ -35,7 +35,7 @@ export class PhotoV1Service {
   }
 
   @Span()
-  async getBatchesProcessedPhotos(batchIds: Types.ObjectId[]): Promise<UploadBatchFileModel[]> {
+  async getBatchesProcessedPhotos(batchIds: PhotoBatchId[]): Promise<UploadBatchFileModel[]> {
     const photos = await this.batchFileModel
       .find({ batch: { $in: batchIds }, state: UploadTaskBatchFileState.processed, deleted: false })
       .sort({ taken_timestamp: 'asc', md5: 'asc' })

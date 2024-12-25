@@ -5,10 +5,10 @@ import { DocumentType, ReturnModelType } from '@typegoose/typegoose'
 import dayjs from 'dayjs'
 import dayjsDuration from 'dayjs/plugin/duration'
 import { Response } from 'express'
-import { Types } from 'mongoose'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
 import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { ProfileId } from 'src/models/types'
 import { uuidv4 } from 'uuidv7'
 
 dayjs.extend(dayjsDuration)
@@ -29,7 +29,7 @@ export class RefreshTokenService {
     return dayjs().add(sessionDuration).toDate()
   }
 
-  async create(profileId: Types.ObjectId, sessionToken = false): Promise<RefreshTokenModel> {
+  async create(profileId: ProfileId, sessionToken = false): Promise<RefreshTokenModel> {
     const refreshTokenDocument = await this.refreshTokenModel.create({
       _id: uuidv4(),
       profile: profileId,
@@ -115,7 +115,7 @@ export class RefreshTokenService {
 
     const isSessionToken = this.isSessionToken(currentRefreshToken.created_at!, currentRefreshToken.expires_at!)
 
-    const profileId = currentRefreshToken.profile as Types.ObjectId
+    const profileId = currentRefreshToken.profile as ProfileId
     const newRefreshToken = await this.create(profileId, isSessionToken)
     await this.revokeToken(refreshToken, newRefreshToken._id!.toString())
 

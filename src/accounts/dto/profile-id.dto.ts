@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 import { Types } from 'mongoose'
+import { ProfileId } from 'src/models/types'
 
 export class ProfileIdDto {
   @ApiProperty({ type: String })
@@ -12,5 +13,5 @@ export class ProfileIdDto {
       throw new BadRequestException('ProfileId must be an ObjectId')
     }
   })
-  profileId: Types.ObjectId
+  profileId: ProfileId
 }
