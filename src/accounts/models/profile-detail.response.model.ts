@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Types } from 'mongoose'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
+import { ProfileId } from 'src/models/types'
 
 export class ProfileDetailResponseModel {
   constructor(model?: Partial<ProfileDetailResponseModel>) {
@@ -20,7 +20,7 @@ export class ProfileDetailResponseModel {
   @ApiPropertyOptional()
   nickname?: string
 
-  static fromModel(profileId?: Types.ObjectId, name?: ProfileNameModel) {
+  static fromModel(profileId?: ProfileId, name?: ProfileNameModel) {
     return new ProfileDetailResponseModel({
       profileId: profileId?.toHexString(),
       firstname: name?.firstname,

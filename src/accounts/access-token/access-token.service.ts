@@ -4,10 +4,10 @@ import { SignAccessToken, User, VerifyAccessToken } from '@nudchannel/auth'
 import { IUserOptions } from '@nudchannel/auth/lib/user/user-options.interface'
 import { Response } from 'express'
 import { IncomingHttpHeaders } from 'http'
-import { Types } from 'mongoose'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
+import { ProfileId } from 'src/models/types'
 import { ProfileNameService } from '../profile/profile-name.service'
 import { ProfileService } from '../profile/profile.service'
 import { UserGroupService } from '../user/user-group.service'
@@ -35,7 +35,7 @@ export class AccessTokenService {
     this.verifyAccessToken = new VerifyAccessToken(publicKey)
   }
 
-  async generateAccessToken(profileId: Types.ObjectId) {
+  async generateAccessToken(profileId: ProfileId) {
     const privateKey = this.configService.get(Config.NUDCH_TOKEN_PRIVATE_KEY)
     const issuer = this.configService.get(Config.NUDCH_TOKEN_ISSUER)
     const signAccessToken = new SignAccessToken(issuer, privateKey)

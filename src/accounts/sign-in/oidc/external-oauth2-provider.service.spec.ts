@@ -4,6 +4,7 @@ import { Types } from 'mongoose'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
+import { ProfileId } from 'src/models/types'
 import { ExternalOauth2ProviderService } from './external-oauth2-provider.service'
 
 jest.mock('src/accounts/registration/registration.service')
@@ -23,7 +24,7 @@ class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
     return Promise.resolve(<APIUser>{})
   }
 
-  findProfileId(): Promise<Types.ObjectId | undefined> {
+  findProfileId(): Promise<ProfileId | undefined> {
     return Promise.resolve(undefined)
   }
 

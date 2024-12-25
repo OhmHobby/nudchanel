@@ -1,9 +1,9 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
 import { Span } from 'nestjs-otel'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
+import { ProfileId } from 'src/models/types'
 import { TeamService } from '../team/team.service'
 
 @Injectable()
@@ -16,7 +16,7 @@ export class ProfileNameService {
     private readonly profileTeamService: TeamService,
   ) {}
 
-  findProfile(search?: string, profileIds?: Types.ObjectId[]): Promise<Types.ObjectId[]> {
+  findProfile(search?: string, profileIds?: ProfileId[]): Promise<ProfileId[]> {
     const query = this.profileNameModel.find()
     if (search) {
       query.or([
@@ -28,27 +28,21 @@ export class ProfileNameService {
     if (profileIds?.length) {
       query.where({ profile: { $in: profileIds } })
     }
-    return query.distinct('profile').exec() as Promise<Types.ObjectId[]>
+    return query.distinct('profile').exec() as Promise<ProfileId[]>
   }
 
-  async getFallbackProfileName(profileId: string | Types.ObjectId) {
+  async getFallbackProfileName(profileId: ProfileId) {
     const profile = await this.profileNameModel.findOne({ profile: profileId }).exec()
     return profile ?? new ProfileNameModel()
   }
 
-  async getProfileName(
-    profileId: string | Types.ObjectId,
-    language: ProfileNameLanguage = 'en',
-  ): Promise<ProfileNameModel> {
+  async getProfileName(profileId: ProfileId, language: ProfileNameLanguage = 'en'): Promise<ProfileNameModel> {
     const profile = await this.profileNameModel.findOne({ profile: profileId, lang: language }).exec()
 
     return profile ?? this.getFallbackProfileName(profileId)
   }
 
-  async getProfilesName(
-    profileIds: Types.ObjectId[],
-    language: ProfileNameLanguage = 'en',
-  ): Promise<ProfileNameModel[]> {
+  async getProfilesName(profileIds: ProfileId[], language: ProfileNameLanguage = 'en'): Promise<ProfileNameModel[]> {
     const profiles = await this.profileNameModel
       .find({ profile: { $in: profileIds }, lang: language })
       .lean()
@@ -58,14 +52,14 @@ export class ProfileNameService {
 
   @Span()
   async getProfilesNameMap(
-    profileIds: Types.ObjectId[],
+    profileIds: ProfileId[],
     language: ProfileNameLanguage = 'en',
   ): Promise<Map<String, ProfileNameModel>> {
     const profiles = await this.getProfilesName(profileIds, language)
     return new Map(profiles.map((el) => [el.profile.toString(), el]))
   }
 
-  async getNickNameWithInitials(profileId: Types.ObjectId) {
+  async getNickNameWithInitials(profileId: ProfileId) {
     const name = await this.getProfileName(profileId, 'en')
     if (name?.lang !== 'en') return null
     const nicknameCased = this.casedName(name.nickname)
@@ -74,7 +68,7 @@ export class ProfileNameService {
     return nicknameCased + firstLetterOfFirstName + firstLetterOfLastName
   }
 
-  async getNickNameWithFirstNameAndInitial(profileId: Types.ObjectId) {
+  async getNickNameWithFirstNameAndInitial(profileId: ProfileId) {
     const maxLength = 32
     const name = await this.getProfileName(profileId, 'en')
     if (name?.lang !== 'en') return null
@@ -88,7 +82,7 @@ export class ProfileNameService {
     return this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, `${trimmedFirstname}${lastnameInitial}`)
   }
 
-  async getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profileId: Types.ObjectId) {
+  async getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profileId: ProfileId) {
     const maxLength = 32
     const [name, emoji] = await Promise.all([
       this.getProfileName(profileId, 'en'),
@@ -130,7 +124,7 @@ export class ProfileNameService {
 
   upsert(
     lang: ProfileNameLanguage,
-    profile: Types.ObjectId,
+    profile: ProfileId,
     name: Pick<ProfileNameModel, 'firstname' | 'lastname' | 'nickname' | 'title'>,
   ): Promise<ProfileNameModel> {
     return this.profileNameModel

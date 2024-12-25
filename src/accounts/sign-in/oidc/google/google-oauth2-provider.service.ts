@@ -1,11 +1,11 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common'
 import { Auth, oauth2_v2 } from 'googleapis'
-import { Types } from 'mongoose'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
+import { ProfileId } from 'src/models/types'
 import { ExternalOauth2ProviderService } from '../external-oauth2-provider.service'
 import { UnintializedGoogleOauth2, UnintializedGoogleOauth2Client } from './uninitialized-google.types'
 
@@ -33,7 +33,7 @@ export class GoogleOauth2ProviderService extends ExternalOauth2ProviderService<o
     })
   }
 
-  async findProfileId(user: oauth2_v2.Schema$Userinfo): Promise<Types.ObjectId | undefined> {
+  async findProfileId(user: oauth2_v2.Schema$Userinfo): Promise<ProfileId | undefined> {
     if (!user.id) throw new Error('Missing google user id')
     const profile = await this.profileService.findByGoogleId(user.id)
     return profile?._id

@@ -2,9 +2,9 @@ import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
-import { Types } from 'mongoose'
 import { Span } from 'nestjs-otel'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { ProfileId } from 'src/models/types'
 import { ProfileNameService } from '../profile/profile-name.service'
 
 @Injectable()
@@ -28,7 +28,7 @@ export class UserLocalService {
     return await query.exec()
   }
 
-  async findByProfile(profile: Types.ObjectId) {
+  async findByProfile(profile: ProfileId) {
     return await this.userLocalModel.findOne({ profile }).exec()
   }
 
@@ -49,7 +49,7 @@ export class UserLocalService {
     return name?.toLocaleLowerCase()?.replace(/[^a-z]/g, '')
   }
 
-  async requestUsername(profileId: Types.ObjectId | string): Promise<string> {
+  async requestUsername(profileId: ProfileId): Promise<string> {
     const name = await this.profileNameService.getProfileName(profileId, 'en')
     const firstname = this.usernameCleanUp(name?.firstname)
     const lastname = this.usernameCleanUp(name?.lastname)
@@ -85,7 +85,7 @@ export class UserLocalService {
       .exec()
   }
 
-  async create(username: string, plainPassword: string, profile?: Types.ObjectId) {
+  async create(username: string, plainPassword: string, profile?: ProfileId) {
     const hashedPassword = await this.hashPassword(plainPassword)
     return this.userLocalModel.create({
       username,

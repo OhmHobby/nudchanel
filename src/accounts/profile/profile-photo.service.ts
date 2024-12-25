@@ -4,13 +4,13 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Queue } from 'bull'
 import { createHash } from 'crypto'
-import { Types } from 'mongoose'
 import { join } from 'path'
 import { NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { ProfileId } from 'src/models/types'
 import { ProfilePhotoPath } from 'src/photo/models/profile-photo-path.model'
 import { AsyncProcessPhotoParams } from 'src/photo/processor/async-process-photo-params'
 import { StorageService } from 'src/storage/storage.service'
@@ -33,7 +33,7 @@ export class ProfilePhotoService {
     return this.profilePhotoModel.findById(MUUID.from(uuid)).exec()
   }
 
-  async importFromNas(directory: string, filename: string, profileId: Types.ObjectId) {
+  async importFromNas(directory: string, filename: string, profileId: ProfileId) {
     const profile = await this.profileService.findById(profileId)
     if (!profile) throw new NotFoundException('Profile not found')
     const path = this.getSrcFilepath(directory, filename)

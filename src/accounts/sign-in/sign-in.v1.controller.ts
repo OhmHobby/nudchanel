@@ -15,9 +15,9 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { Request, Response } from 'express'
-import { Types } from 'mongoose'
 import { Config } from 'src/enums/config.enum'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
+import { ProfileId } from 'src/models/types'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { AuthProviderResponseModel } from '../models/auth-provider.response.model'
 import { RefreshTokenService } from '../refresh-token/refresh-token.service'
@@ -62,7 +62,7 @@ export class SignInV1Controller {
     @Res({ passthrough: true }) response: Pick<Response, 'cookie'>,
   ): Promise<SignInLocalUserResponseDto> {
     const user = await this.userLocalService.signIn(username, password)
-    const profileId = user.profile! as Types.ObjectId
+    const profileId = user.profile! as ProfileId
     await this.setAccessRefreshTokenCookiesByProfile(response, profileId, !persistent)
     this.logger.log(
       { message: 'Successful sign-in', username, persistent },
@@ -115,7 +115,7 @@ export class SignInV1Controller {
 
   private async setAccessRefreshTokenCookiesByProfile(
     response: Pick<Response, 'cookie'>,
-    profileId: Types.ObjectId,
+    profileId: ProfileId,
     isSession = false,
   ) {
     const [accessToken, refreshToken] = await Promise.all([
