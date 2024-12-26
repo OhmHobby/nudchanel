@@ -1,3 +1,3 @@
 export enum LdapRequestScope {
-  Base = 0,
+  Base = 'base',
 }

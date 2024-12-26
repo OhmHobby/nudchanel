@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { parseDN } from 'ldapjs'
 import { SearchDnOrganizationService } from './organization.service'
 
 @Injectable()
@@ -13,14 +14,14 @@ export class SearchDnOrganizationalUnitService extends SearchDnOrganizationServi
   protected get objects() {
     return [
       {
-        dn: 'ou=users, ' + this.baseDn,
+        dn: parseDN('ou=users, ' + this.baseDn),
         attributes: {
           objectclass: ['top', 'organizationalUnit'],
           ou: 'users',
         },
       },
       {
-        dn: 'ou=groups, ' + this.baseDn,
+        dn: parseDN('ou=groups, ' + this.baseDn),
         attributes: {
           objectclass: ['top', 'organizationalUnit'],
           ou: 'groups',

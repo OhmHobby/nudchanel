@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { parseDN } from 'ldapjs'
 import { Config } from 'src/enums/config.enum'
 import { LdapRequestScope } from 'src/enums/ldap-request-scope.enum'
 import { LdapRequest } from 'src/ldap-server/types/ldap-request.type'
@@ -17,7 +18,7 @@ export class SearchDnOrganizationService {
   protected get objects() {
     return [
       {
-        dn: this.baseDn,
+        dn: parseDN(this.baseDn),
         attributes: {
           objectclass: ['top', 'dcObject', 'organization'],
         },

@@ -14,13 +14,15 @@ export class BindRootService {
     private readonly configService: ConfigService,
   ) {
     server.bind('cn=root', this.handler.bind(this))
+    this.logger.verbose(`Init ${BindRootService.name}`)
   }
 
   handler(req, res, next) {
+    this.logger.log({ message: `Binding root ${req.dn.toString()}` })
     const credentials = req.credentials.toString()
-    res.end()
     if (credentials === this.configService.getOrThrow(Config.LDAP_ROOT_SECRET)) {
       this.logger.log('Binding root successfully')
+      res.end()
       return next()
     } else {
       this.logger.warn('Binding root with invalid credential')

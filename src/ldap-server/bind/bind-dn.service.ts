@@ -18,10 +18,12 @@ export class BindDnService {
     private readonly userLocalService: UserLocalService,
   ) {
     server.bind(configService.getOrThrow(Config.LDAP_BASE_DN), this.handler.bind(this))
+    this.logger.verbose(`Init ${BindDnService.name}`)
   }
 
   @Span()
   async handler(req: LdapRequest, res, next) {
+    this.logger.log({ message: `Binding DN ${req.dn.toString()}` })
     try {
       const username = /uid=(\w+)/.exec(req.dn.toString())!.at(1)!
       const password = req.credentials!

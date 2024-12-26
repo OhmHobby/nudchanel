@@ -36,7 +36,7 @@ export class SearchDnGroupService {
     const filterByCommonNames = req.filter.filters
       ?.filter((el) => el.attribute === 'cn' && el.raw)
       ?.map((el) => el.raw?.toString())
-    if (filterByCommonNames.length) query.where({ name: { $in: filterByCommonNames } })
+    if (filterByCommonNames?.length) query.where({ name: { $in: filterByCommonNames } })
 
     return query
       .populate({

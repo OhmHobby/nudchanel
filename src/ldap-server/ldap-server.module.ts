@@ -1,5 +1,5 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
-import { Module } from '@nestjs/common'
+import { Logger, Module } from '@nestjs/common'
 import { createServer } from 'ldapjs'
 import { AccountsModule } from 'src/accounts/accounts.module'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
@@ -34,7 +34,22 @@ import { SearchSubschemaService } from './search/subschema.service'
     SearchDnOrganizationalUnitService,
     SearchDnGroupService,
     SearchDnUserService,
-    { provide: ServiceProvider.LDAP_SERVER, useValue: createServer() },
+    {
+      provide: ServiceProvider.LDAP_SERVER,
+      useFactory: () => {
+        const logger = new Logger('LdapServer')
+        return createServer({
+          log: {
+            trace: (...args) => logger.debug(args),
+            debug: (...args) => logger.debug(args),
+            info: (...args) => logger.log(args),
+            warn: (...args) => logger.warn(args),
+            error: (...args) => logger.error(args),
+            fatal: (...args) => logger.error(args),
+          },
+        })
+      },
+    },
   ],
 })
 export class LdapServerModule {}

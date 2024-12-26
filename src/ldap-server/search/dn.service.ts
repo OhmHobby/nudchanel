@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { OperationsError, Server } from 'ldapjs'
+import { Span } from 'nestjs-otel'
 import { Config } from 'src/enums/config.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { LdapAuthorizeService } from '../authorize.service'
@@ -10,7 +11,6 @@ import { SearchDnOrganizationService } from './dn/organization.service'
 import { SearchDnOrganizationalRoleService } from './dn/organizational-role.service'
 import { SearchDnOrganizationalUnitService } from './dn/organizational-unit.service'
 import { SearchDnUserService } from './dn/user.service'
-import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class SearchDnService {
@@ -32,12 +32,13 @@ export class SearchDnService {
       authorizeService.handler.bind(authorizeService),
       this.handler.bind(this),
     )
+    this.logger.verbose(`Init ${SearchDnService.name}`)
   }
 
   @Span()
   async handler(req: LdapRequest, res, next) {
+    this.logger.log({ message: 'Searching DN', req: req.pojo })
     try {
-      this.logger.debug({ message: 'Searching DN', req: req.pojo })
       const org = this.searchDnOrganizationService.handler(req, res)
       const orgRole = this.searchDnOrganizationalRoleService.handler(req, res)
       const orgUnit = this.searchDnOrganizationalUnitService.handler(req, res)
@@ -47,19 +48,18 @@ export class SearchDnService {
       ])
       this.logger.log({
         message: `Sent ${users.length} users, ${groups.length} groups.`,
-        org: org.map((el) => el.dn),
-        orgRole: orgRole.map((el) => el.dn),
-        orgUnit: orgUnit.map((el) => el.dn),
-        groups: groups.map((el) => el.dn),
-        users: users.map((el) => el.dn),
+        org: org.map((el) => el.dn.toString()),
+        orgRole: orgRole.map((el) => el.dn.toString()),
+        orgUnit: orgUnit.map((el) => el.dn.toString()),
+        groups: groups.map((el) => el.dn.toString()),
+        users: users.map((el) => el.dn.toString()),
         req: req.pojo,
       })
-    } catch (err) {
-      this.logger.error({ message: err.message, req: req.pojo }, err)
-      throw new OperationsError(err.message)
-    } finally {
       res.end()
       return next()
+    } catch (err) {
+      this.logger.error({ message: err.message, req: req.pojo }, err)
+      return next(new OperationsError())
     }
   }
 }
