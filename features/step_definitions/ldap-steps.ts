@@ -113,23 +113,31 @@ export class LdapSteps {
 
   @then('search result DN {string} should have {string} = {string}')
   thenSearchResultDnShouldHave(dn: string, type: string, value: string) {
-    expect(this.searchEntries.map((el) => el.pojo.objectName)).toContain(dn)
-    expect(this.searchEntries.find((el) => el.pojo.objectName === dn)?.attributes).toContainEqual(
-      expect.objectContaining({ type, values: [value] }),
+    expect(this.searchEntries.map((el) => el.json.objectName)).toContain(dn)
+    expect(this.searchEntries.find((el) => el.json.objectName === dn)?.json.attributes).toContainEqual(
+      expect.objectContaining({ type, vals: [value] }),
     )
   }
 
   @then('search result DN {string} should have {string} contains {string}')
   thenSearchResultDnShouldContain(dn: string, type: string, value: string) {
-    expect(this.searchEntries.map((el) => el.pojo.objectName)).toContain(dn)
-    expect(this.searchEntries.find((el) => el.pojo.objectName === dn)?.attributes).toContainEqual(
-      expect.objectContaining({ type, values: expect.arrayContaining([value]) }),
+    expect(this.searchEntries.map((el) => el.json.objectName)).toContain(dn)
+    expect(this.searchEntries.find((el) => el.json.objectName === dn)?.json.attributes).toContainEqual(
+      expect.objectContaining({ type, vals: expect.arrayContaining([value]) }),
+    )
+  }
+
+  @then('search result DN {string} should not have {string}')
+  thenSearchResultDnShouldNotHave(dn: string, type: string) {
+    expect(this.searchEntries.map((el) => el.json.objectName)).toContain(dn)
+    expect(this.searchEntries.find((el) => el.json.objectName === dn)?.json.attributes).toContainEqual(
+      expect.objectContaining({ type, vals: [] }),
     )
   }
 
   @then('search result should not have DN {string}')
   thenSearchResultShouldNotHaveDn(dn: string) {
-    expect(this.searchEntries.map((el) => el.pojo.objectName)).not.toContain(dn)
+    expect(this.searchEntries.map((el) => el.json.objectName)).not.toContain(dn)
   }
 
   @after()

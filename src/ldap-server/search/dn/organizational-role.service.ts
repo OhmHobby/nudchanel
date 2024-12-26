@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { SearchDnOrganizationService } from './organization.service'
+import { parseDN } from 'ldapjs'
 
 @Injectable()
 export class SearchDnOrganizationalRoleService extends SearchDnOrganizationService {
@@ -8,7 +9,7 @@ export class SearchDnOrganizationalRoleService extends SearchDnOrganizationServi
   protected get objects() {
     return [
       {
-        dn: 'cn=root',
+        dn: parseDN('cn=root'),
         attributes: {
           objectclass: ['simpleSecurityObject', 'organizationalRole'],
           hasSubordinates: ['FALSE'],

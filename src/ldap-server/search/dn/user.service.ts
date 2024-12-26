@@ -37,7 +37,7 @@ export class SearchDnUserService {
     if (req.scope === LdapRequestScope.Base && findUid) query.where({ username: findUid })
 
     const filterByUid = req.filter.filters?.filter((el) => el.attribute === 'uid' && el.value)?.map((el) => el.value)
-    if (filterByUid.length) query.where({ username: { $in: filterByUid } })
+    if (filterByUid?.length) query.where({ username: { $in: filterByUid } })
 
     return query
       .populate({

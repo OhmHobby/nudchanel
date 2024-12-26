@@ -37,7 +37,7 @@ Feature: LDAP Search DN users
     And search result DN "uid=yanisab,ou=users,o=nudchannel.com" should have "uidNumber" = "1005"
     And search result DN "uid=yanisab,ou=users,o=nudchannel.com" should have "gidNumber" = "1005"
     And search result DN "uid=yanisab,ou=users,o=nudchannel.com" should have "objectclass" contains "posixAccount"
-    And search result DN "uid=yanisab,ou=users,o=nudchannel.com" should have "jpegPhoto" = "null"
+    And search result DN "uid=yanisab,ou=users,o=nudchannel.com" should not have "jpegPhoto"
 
   @search_dn_user
   Scenario: Search posixAccount - objectClass and uid and any uid

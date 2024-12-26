@@ -8,8 +8,7 @@ export class LdapAuthorizeService {
     if (req.connection.ldap.bindDN.equals('cn=root')) {
       return next()
     } else {
-      next(new InsufficientAccessRightsError())
-      return res.end()
+      return next(new InsufficientAccessRightsError())
     }
   }
 }
