@@ -110,6 +110,13 @@ import { UserLocalService } from './user/user-local.service'
     SignOutV1Controller,
     TeamMemberV1Controller,
   ],
-  exports: [ProfileService, ProfileNameService, ProfilePhotoService, AccessTokenService, RefreshTokenService],
+  exports: [
+    ProfileService,
+    ProfileNameService,
+    ProfilePhotoService,
+    AccessTokenService,
+    RefreshTokenService,
+    UserLocalService,
+  ],
 })
 export class AccountsModule {}

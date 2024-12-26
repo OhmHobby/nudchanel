@@ -34,7 +34,7 @@ test:e2e:
   variables:
     SERVER_URL: http://webservice:4000
     WORKER_URL: http://webservice-worker:4000
-    NODE_APP_INSTANCE: e2e
+    LDAP_SERVER_URL: ldap://webservice:1389
   script: npm run test:e2e
   after_script:
     - npm run test:cucumber:report

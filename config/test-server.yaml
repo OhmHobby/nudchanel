@@ -3,3 +3,7 @@ runMode: server
 log:
   loki:
     url: http://nas.nudchannel.com:3100
+
+ldap:
+  enabled: true
+  root_secret: secret

@@ -8,6 +8,9 @@ http:
   baseUrl:
     accounts: http://webservice.dev.nudchannel.com
 
+ldap:
+  root_secret: secret
+
 otlp:
   metric:
     url: http://prometheus-server.nudch-internal.svc/api/v1/otlp/v1/metrics

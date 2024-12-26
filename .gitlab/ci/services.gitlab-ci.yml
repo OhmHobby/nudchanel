@@ -11,9 +11,11 @@
     - &redis
       name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/redis:7-alpine
       alias: redis
-    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/mock-webdav
+    - &webdav
+      name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/mock-webdav
       alias: webdav
-    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/minio
+    - &minio
+      name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/minio
       alias: minio
   tags:
     - docker
@@ -25,10 +27,8 @@
     - <<: *rabbitmq
     - <<: *mongodb
     - <<: *redis
-    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/mock-webdav
-      alias: webdav
-    - name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/minio
-      alias: minio
+    - <<: *webdav
+    - <<: *minio
     - name: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
       alias: webservice-worker
       variables:
