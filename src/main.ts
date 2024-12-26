@@ -12,6 +12,10 @@ import { AppRunMode } from './enums/app-run-mode.enum'
 import { Config } from './enums/config.enum'
 import { SchedulerRegisterService } from './scheduler/scheduler-register.service'
 import { WorkerModule } from './worker.module'
+import { ServiceProvider } from './enums/service-provider.enum'
+import { Server } from 'ldapjs'
+
+const LOG_CONTEXT = 'Bootstrap'
 
 async function bootstrapServer() {
   const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
@@ -25,8 +29,14 @@ async function bootstrapServer() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')
+  if (config.get<boolean>(Config.LDAP_ENABLED)) {
+    const ldapServer = app.get<Server>(ServiceProvider.LDAP_SERVER)
+    ldapServer.listen(config.get<number>(Config.LDAP_PORT), '0.0.0.0', () =>
+      logger.log(`LDAP server listening on ${ldapServer.url}`, LOG_CONTEXT),
+    )
+  }
   await app.listen(config.get<number>(Config.HTTP_PORT))
-  logger.log(`Server listening on ${await app.getUrl()}`, 'Bootstrap')
+  logger.log(`Server listening on ${await app.getUrl()}`, LOG_CONTEXT)
 }
 
 async function bootstrapWorker(portConfigName: string) {
@@ -42,7 +52,7 @@ async function bootstrapWorker(portConfigName: string) {
   await app.get(SwaggerConfigBuilder).build(app)
   app.getHttpAdapter().getInstance().disable('x-powered-by')
   await app.listen(config.get<number>(portConfigName))
-  logger.log(`Worker listening on ${await app.getUrl()}`, 'Bootstrap')
+  logger.log(`Worker listening on ${await app.getUrl()}`, LOG_CONTEXT)
 }
 
 async function bootstrap() {

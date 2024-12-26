@@ -5,7 +5,7 @@ import { ReturnModelType } from '@typegoose/typegoose'
 import { Queue } from 'bull'
 import { createHash } from 'crypto'
 import { join } from 'path'
-import { NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
+import { DEFAULT_UUID, NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
@@ -108,5 +108,10 @@ export class ProfilePhotoService {
 
   getSrcFilepath(directory: string, filename: string) {
     return `webdav://${join(directory, filename)}`
+  }
+
+  getPhotoBuffer(uuid: string = DEFAULT_UUID, format: ImageFormat): Promise<Buffer> {
+    const file = new ProfilePhotoPath(uuid, format).path
+    return this.storageService.getBuffer(file)
   }
 }

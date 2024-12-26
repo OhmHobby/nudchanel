@@ -1,7 +1,6 @@
 import { modelOptions, prop, Ref } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { UploadTaskBatchJobStatus } from 'src/enums/upload-task-batch-job-status.enum'
-import { PhotoBatchId } from '../types'
 import { UploadBatchFileModel } from './upload-batch-file.model'
 import { UploadTaskModel } from './upload-task.model'
 
@@ -12,7 +11,7 @@ export class UploadBatchJobModel {
   }
 
   @prop({ auto: true })
-  _id?: PhotoBatchId
+  _id?: Types.ObjectId
 
   @prop({ ref: () => UploadTaskModel })
   task?: Ref<UploadTaskModel>
