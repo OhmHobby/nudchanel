@@ -10,6 +10,7 @@ import { LdapAuthorizeService } from './authorize.service'
 import { BindDnService } from './bind/bind-dn.service'
 import { BindRootService } from './bind/bind-root.service'
 import { LdapServerLifecyclesService } from './ldap-server.life-cycles.service'
+import { LdapMetricService } from './metric.service'
 import { SearchBaseService } from './search/base.service'
 import { SearchDnService } from './search/dn.service'
 import { SearchDnGroupService } from './search/dn/group.service'
@@ -23,6 +24,7 @@ import { SearchSubschemaService } from './search/subschema.service'
   imports: [TypegooseModule.forFeature([GroupModel, UserLocalModel], MongoConnection.Accounts), AccountsModule],
   providers: [
     LdapServerLifecyclesService,
+    LdapMetricService,
     BindRootService,
     BindDnService,
     LdapAuthorizeService,

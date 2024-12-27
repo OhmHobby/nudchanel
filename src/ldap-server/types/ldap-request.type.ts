@@ -10,8 +10,10 @@ export type LdapRequest = {
   dn: DN
   scope: LdapRequestScope
   filter: LdapRequestFilter
-  pojo: object
+  json: Record<string, any>
   connection: { ldap: { bindDN: DN } }
   attributes: string[]
   credentials?: string
+  startTime: number
+  suffix: object
 }

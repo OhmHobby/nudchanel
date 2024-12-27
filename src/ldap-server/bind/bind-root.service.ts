@@ -14,7 +14,6 @@ export class BindRootService {
     private readonly configService: ConfigService,
   ) {
     server.bind('cn=root', this.handler.bind(this))
-    this.logger.verbose(`Init ${BindRootService.name}`)
   }
 
   handler(req, res, next) {

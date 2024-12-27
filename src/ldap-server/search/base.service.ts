@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { OperationsError, parseDN, Server } from 'ldapjs'
 import { Config } from 'src/enums/config.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
+import { LdapMetricService } from '../metric.service'
 
 @Injectable()
 export class SearchBaseService {
@@ -14,14 +15,14 @@ export class SearchBaseService {
     @Inject(ServiceProvider.LDAP_SERVER)
     server: Server,
     configService: ConfigService,
+    ldapMetricService: LdapMetricService,
   ) {
     this.baseDn = configService.getOrThrow(Config.LDAP_BASE_DN)
-    server.search('', this.handler.bind(this))
-    this.logger.verbose(`Init ${SearchBaseService.name}`)
+    server.search('', this.handler.bind(this), ldapMetricService.searchMetric.bind(ldapMetricService))
   }
 
   handler(req, res, next) {
-    this.logger.log({ message: 'Searching base DN', req: req.pojo })
+    this.logger.log({ message: 'Searching base DN', req: req.json })
     const object = {
       dn: parseDN(''),
       structuralObjectClass: 'OpenLDAProotDSE',
@@ -37,11 +38,11 @@ export class SearchBaseService {
     }
     try {
       res.send(object)
-      this.logger.log({ message: 'Sent baseObject', pojo: req.pojo })
+      this.logger.log({ message: 'Sent baseObject', req: req.json })
       res.end()
       return next()
     } catch (err) {
-      this.logger.error({ message: err.message, pojo: req.pojo }, err)
+      this.logger.error({ message: err.message, req: req.json }, err)
       return next(new OperationsError())
     }
   }
