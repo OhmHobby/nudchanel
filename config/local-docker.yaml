@@ -21,6 +21,8 @@ rabbitmq:
 otlp:
   trace:
     url: http://localhost:4318
+  metric:
+    url: http://localhost:9090/api/v1/otlp/v1/metrics
 
 storage:
   webdav:

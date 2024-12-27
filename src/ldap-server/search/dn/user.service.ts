@@ -62,7 +62,7 @@ export class SearchDnUserService {
       this.logger.debug({
         message: isMatched ? `Sending ${user.dn}` : `Skipped ${user.dn}`,
         object: user,
-        pojo: req.pojo,
+        req: req.json,
       })
       if (isMatched) {
         res.send(user)

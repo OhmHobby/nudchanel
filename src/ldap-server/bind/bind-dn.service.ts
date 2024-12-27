@@ -18,7 +18,6 @@ export class BindDnService {
     private readonly userLocalService: UserLocalService,
   ) {
     server.bind(configService.getOrThrow(Config.LDAP_BASE_DN), this.handler.bind(this))
-    this.logger.verbose(`Init ${BindDnService.name}`)
   }
 
   @Span()

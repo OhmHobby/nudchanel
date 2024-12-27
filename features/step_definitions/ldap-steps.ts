@@ -18,12 +18,15 @@ export class LdapSteps {
 
   private responseError: Error | null
 
-  @before()
-  before() {
+  constructor() {
     this.client = createClient({
       url: [process.env.LDAP_SERVER_URL ?? `ldap://127.0.0.1:1389`],
       connectTimeout: 10000,
     })
+  }
+
+  @before()
+  before() {
     this.bindDn = ''
     this.bindSecret = 'secret'
     this.responseError = null
@@ -142,6 +145,6 @@ export class LdapSteps {
 
   @after()
   after() {
-    this.client.destroy()
+    this.client.unbind()
   }
 }

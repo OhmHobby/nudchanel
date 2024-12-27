@@ -5,6 +5,7 @@ import { Span } from 'nestjs-otel'
 import { Config } from 'src/enums/config.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { LdapAuthorizeService } from '../authorize.service'
+import { LdapMetricService } from '../metric.service'
 import { LdapRequest } from '../types/ldap-request.type'
 import { SearchDnGroupService } from './dn/group.service'
 import { SearchDnOrganizationService } from './dn/organization.service'
@@ -26,18 +27,19 @@ export class SearchDnService {
     private readonly searchDnGroupService: SearchDnGroupService,
     private readonly searchDnUserService: SearchDnUserService,
     authorizeService: LdapAuthorizeService,
+    ldapMetricService: LdapMetricService,
   ) {
     server.search(
       configService.getOrThrow(Config.LDAP_BASE_DN),
       authorizeService.handler.bind(authorizeService),
       this.handler.bind(this),
+      ldapMetricService.searchMetric.bind(ldapMetricService),
     )
-    this.logger.verbose(`Init ${SearchDnService.name}`)
   }
 
   @Span()
   async handler(req: LdapRequest, res, next) {
-    this.logger.log({ message: 'Searching DN', req: req.pojo })
+    this.logger.log({ message: 'Searching DN', req: req.json })
     try {
       const org = this.searchDnOrganizationService.handler(req, res)
       const orgRole = this.searchDnOrganizationalRoleService.handler(req, res)
@@ -53,12 +55,12 @@ export class SearchDnService {
         orgUnit: orgUnit.map((el) => el.dn.toString()),
         groups: groups.map((el) => el.dn.toString()),
         users: users.map((el) => el.dn.toString()),
-        req: req.pojo,
+        req: req.json,
       })
       res.end()
       return next()
     } catch (err) {
-      this.logger.error({ message: err.message, req: req.pojo }, err)
+      this.logger.error({ message: err.message, req: req.json }, err)
       return next(new OperationsError())
     }
   }

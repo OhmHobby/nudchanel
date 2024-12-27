@@ -60,7 +60,7 @@ export class SearchDnGroupService {
         this.logger.debug({
           message: isMatched ? `Sending ${group.dn}` : `Skipped ${group.dn}`,
           object: group,
-          pojo: req.pojo,
+          req: req.json,
         })
         return isMatched
       })
