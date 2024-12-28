@@ -9,7 +9,6 @@ import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import request from 'supertest'
 import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
-
 describe('Gallery activity', () => {
   let app: INestApplication
   let mockGalleryActivityModel: MockModelType<typeof GalleryActivityModel>
@@ -156,12 +155,58 @@ describe('Gallery activity', () => {
     const cookie = TestData.aValidSupertestCookies()
       .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
       .build()
+    const exampleActivity = TestData.aValidGalleryActivity().build()
     const result = await request(app.getHttpServer()).post('/api/v1/gallery/activities').set('Cookie', cookie).send({
-      title: 'test - create activity',
+      title: exampleActivity.title,
       time: date.toISOString(),
     })
     expect(result.status).toBe(HttpStatus.CREATED)
-    expect(result.body).toEqual(expect.objectContaining({ published: false, time: date.getTime().toString() }))
+    expect(result.body).toEqual(
+      expect.objectContaining({
+        published: false,
+        time: date.getTime().toString(),
+        publishedAt: expect.any(String),
+        cardUrl: 'https://photos.nudchannel.com/photos/card/00000000-0000-0000-0000-000000000000.webp',
+        coverUrl: 'https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg',
+      }),
+    )
+  })
+
+  it('PUT /api/v1/gallery/activities/AINfyH5', async () => {
+    const date = new Date('2024-02-28T07:00:00Z')
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
+      .build()
+    const exampleActivity = TestData.aValidGalleryActivity().build()
+    const result = await request(app.getHttpServer())
+      .put('/api/v1/gallery/activities/AINfyH5')
+      .set('Cookie', cookie)
+      .send({
+        title: exampleActivity.title,
+        cover: exampleActivity.cover,
+        published: true,
+        time: date.toISOString(),
+        publishedAt: date.toISOString(),
+      })
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.body).toEqual(
+      expect.objectContaining({
+        cover: exampleActivity.cover,
+        published: true,
+        time: date.getTime().toString(),
+        publishedAt: date.getTime().toString(),
+        cardUrl: `https://photos.nudchannel.com/photos/card/${exampleActivity.cover}.webp`,
+        coverUrl: `https://photos.nudchannel.com/photos/cover/${exampleActivity.cover}.jpg`,
+      }),
+    )
+  })
+
+  it('DELETE /api/v1/gallery/activities/AINfyH5', async () => {
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
+      .build()
+    const result = await request(app.getHttpServer()).delete('/api/v1/gallery/activities/AINfyH5').set('Cookie', cookie)
+    expect(result.status).toBe(HttpStatus.NO_CONTENT)
   })
 
   afterAll(() => {

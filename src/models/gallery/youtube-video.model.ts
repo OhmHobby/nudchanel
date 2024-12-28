@@ -4,6 +4,10 @@ import { GalleryActivityModel } from './activity.model'
 
 @modelOptions({ schemaOptions: { collection: 'videos.youtube' } })
 export class YouTubeVideoModel {
+  constructor(model?: Partial<YouTubeVideoModel>) {
+    Object.assign(this, model)
+  }
+
   @prop({ auto: true })
   _id: Types.ObjectId
 

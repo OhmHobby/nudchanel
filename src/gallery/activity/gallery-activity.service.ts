@@ -24,6 +24,15 @@ export class GalleryActivityService {
     return activity
   }
 
+  async update(id: string, model: Omit<GalleryActivityModel, '_id' | 'deleted'>) {
+    const activity = await this.activityModel.findByIdAndUpdate(id, model, { new: true }).exec()
+    return activity
+  }
+
+  async remove(id: string) {
+    return await this.activityModel.updateOne({ _id: id }, { deleted: true }).exec()
+  }
+
   @Span()
   async findActivities(
     limit: number,

@@ -1,5 +1,24 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { GalleryAlbumService } from '../album/gallery-album.service'
@@ -56,5 +75,31 @@ export class GalleryActivityV1Controller {
     ])
     if (!activity) throw new NotFoundException()
     return GalleryActivityResponseModel.fromModel(activity).withAlbums(albums).withVideos(videos)
+  }
+
+  @Put(':activityId')
+  @ApiOkResponse({ type: GalleryActivityResponseModel })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups('pr')
+  @AuditLog(GalleryActivityV1Controller.prototype.updateGalleryActivityById.name)
+  async updateGalleryActivityById(
+    @Param() { activityId }: ActivityIdParamDto,
+    @Body() body: GalleryActivityDto,
+  ): Promise<GalleryActivityResponseModel> {
+    const activity = await this.galleryActivityService.update(activityId, body.toModel())
+    if (!activity) throw new NotFoundException()
+    return GalleryActivityResponseModel.fromModel(activity)
+  }
+
+  @Delete(':activityId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ type: GalleryActivityResponseModel })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups('pr')
+  @AuditLog(GalleryActivityV1Controller.prototype.deleteGalleryActivityById.name)
+  async deleteGalleryActivityById(@Param() { activityId }: ActivityIdParamDto): Promise<void> {
+    await this.galleryActivityService.remove(activityId)
   }
 }

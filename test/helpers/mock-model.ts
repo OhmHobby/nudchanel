@@ -13,6 +13,7 @@ export function resetMockModel<T extends new (...args: any[]) => any>(model: Moc
   })
   model.findOne = jest.fn().mockReturnValue({ select: jest.fn().mockReturnThis(), exec: jest.fn() })
   model.findById = jest.fn().mockReturnValue({ populate: jest.fn().mockReturnThis(), exec: jest.fn() })
+  model.findByIdAndUpdate = jest.fn().mockImplementation((id, obj) => ({ exec: jest.fn().mockResolvedValue(obj) }))
   model.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn() })
   model.deleteOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 1 }) })
   model.updateOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue({ modifiedCount: 1 }) })
