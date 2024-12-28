@@ -1,11 +1,12 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 
 export class GalleryAlbumBuilder {
-  private readonly galleryAlbum: GalleryAlbumModel
+  private readonly galleryAlbum: DocumentType<GalleryAlbumModel>
 
   constructor() {
-    this.galleryAlbum = new GalleryAlbumModel()
+    this.galleryAlbum = new GalleryAlbumModel() as DocumentType<GalleryAlbumModel>
     this.galleryAlbum._id = 'PNBwEli'
     this.galleryAlbum.title = 'Music Band Audition'
     this.galleryAlbum.rank = 0
@@ -13,6 +14,8 @@ export class GalleryAlbumBuilder {
     this.galleryAlbum.published = true
     this.galleryAlbum.publishedAt = new Date(1607544267171)
     this.galleryAlbum.activity = 'AINfyH5'
+
+    this.galleryAlbum.save = jest.fn()
   }
 
   withId(id: string) {

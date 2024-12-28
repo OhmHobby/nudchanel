@@ -1,10 +1,10 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Span } from 'nestjs-otel'
 import { YouTubeService } from 'src/google/youtube.service'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import { IGalleryYouTubeVideo } from '../interfaces/gallery-youtube-video.interface'
-import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class GalleryVideoService {
@@ -19,6 +19,16 @@ export class GalleryVideoService {
     const videos = await this.youtubeVideoModel.find({ activity: activityId }).exec()
     const youtubeVideos = await Promise.all(videos.map((el) => this.getGalleryYoutubeVideo(el)))
     return youtubeVideos.filter(({ published }) => includesUnpublished || published).sort(this.sortByPublishedAt)
+  }
+
+  async create(activityId: string, model: Omit<YouTubeVideoModel, '_id'>): Promise<IGalleryYouTubeVideo> {
+    const doc = await this.youtubeVideoModel.create({ ...model, activity: activityId })
+    const youtubeVideo = await this.getGalleryYoutubeVideo(doc)
+    return youtubeVideo
+  }
+
+  async remove(id) {
+    return await this.youtubeVideoModel.deleteOne({ _id: id }).exec()
   }
 
   @Span()

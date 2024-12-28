@@ -14,9 +14,13 @@ describe('Gallery album', () => {
   let mockGalleryActivityModel: MockModelType<typeof GalleryActivityModel>
   let mockGalleryAlbumModel: MockModelType<typeof GalleryAlbumModel>
   let mockYouTubeVideoModel: MockModelType<typeof YouTubeVideoModel>
+  let prCookie: string[]
 
   beforeAll(async () => {
     app = await TestData.aValidApp().build()
+    prCookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
+      .build()
   })
 
   beforeEach(async () => {
@@ -28,7 +32,28 @@ describe('Gallery album', () => {
     resetMockModel(mockYouTubeVideoModel)
   })
 
-  it('GET /api/v1/gallery/albums/:id', async () => {
+  test('GET /api/v1/gallery/albums', async () => {
+    const album = TestData.aValidGalleryAlbum().build()
+    const albumQuery = {
+      where: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([album]),
+    }
+    mockGalleryAlbumModel.find = jest.fn().mockReturnValue(albumQuery)
+
+    const result = await request(app.getHttpServer()).get('/api/v1/gallery/albums?activityId=AINfyH5').send()
+
+    expect(result.status).toBe(HttpStatus.OK)
+    const body: GalleryAlbumResponseModel[] = result.body
+
+    expect(body?.at(0)?.id).toBe(album._id)
+    expect(body?.at(0)?.cover).toBe(album.cover)
+    expect(body?.at(0)?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
+    expect(body?.at(0)?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
+    expect(body?.at(0)?.activity).toBeUndefined()
+  })
+
+  test('GET /api/v1/gallery/albums/:id', async () => {
     const activity = TestData.aValidGalleryActivity().build()
     const album = TestData.aValidGalleryAlbum().withActivity(activity).build()
     mockGalleryAlbumModel.findById = jest.fn().mockReturnValue({
@@ -51,6 +76,102 @@ describe('Gallery album', () => {
     expect(body?.activity?.id).toBe(activity._id)
     expect(body?.activity?.title).toBe(activity.title)
     expect(body?.activity?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
+  })
+
+  describe('POST /api/v1/gallery/albums', () => {
+    test(`${HttpStatus.OK} OK`, async () => {
+      const activity = TestData.aValidGalleryActivity().build()
+      const exampleAlbum = TestData.aValidGalleryAlbum().build()
+      const result = await request(app.getHttpServer())
+        .post('/api/v1/gallery/albums?activityId=' + activity._id)
+        .set('Cookie', prCookie)
+        .send({ title: exampleAlbum.title })
+      expect(result.status).toBe(HttpStatus.CREATED)
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          title: exampleAlbum.title,
+          published: false,
+          publishedAt: expect.any(String),
+          cardUrl: 'https://photos.nudchannel.com/photos/card/00000000-0000-0000-0000-000000000000.webp',
+          coverUrl: 'https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg',
+        }),
+      )
+    })
+
+    test(`${HttpStatus.BAD_REQUEST} BAD_REQUEST - Missing activityId`, async () => {
+      const result = await request(app.getHttpServer())
+        .post('/api/v1/gallery/albums')
+        .set('Cookie', prCookie)
+        .send({ title: 'test' })
+      expect(result.status).toBe(HttpStatus.BAD_REQUEST)
+    })
+
+    test(`${HttpStatus.UNAUTHORIZED} UNAUTHORIZED`, async () => {
+      const result = await request(app.getHttpServer())
+        .post('/api/v1/gallery/albums?activityId=test')
+        .send({ title: 'test' })
+      expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
+    })
+  })
+
+  test('PUT /api/v1/gallery/albums/PNBwEli', async () => {
+    const date = new Date('2024-02-28T07:00:00Z')
+    const cookie = TestData.aValidSupertestCookies()
+      .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
+      .build()
+    const exampleAlbum = TestData.aValidGalleryAlbum().build()
+    const result = await request(app.getHttpServer()).put('/api/v1/gallery/albums/PNBwEli').set('Cookie', cookie).send({
+      title: exampleAlbum.title,
+      cover: exampleAlbum.cover,
+      published: true,
+      publishedAt: date.toISOString(),
+    })
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.body).toEqual(
+      expect.objectContaining({
+        title: exampleAlbum.title,
+        cover: exampleAlbum.cover,
+        published: true,
+        publishedAt: date.getTime().toString(),
+        cardUrl: `https://photos.nudchannel.com/photos/card/${exampleAlbum.cover}.webp`,
+        coverUrl: `https://photos.nudchannel.com/photos/cover/${exampleAlbum.cover}.jpg`,
+      }),
+    )
+  })
+
+  test('PUT /api/v1/gallery/albums/rank', async () => {
+    mockGalleryAlbumModel.find = jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      exec: jest
+        .fn()
+        .mockResolvedValue([
+          TestData.aValidGalleryAlbum().withId('album-1').build(),
+          TestData.aValidGalleryAlbum().withId('album-2').build(),
+          TestData.aValidGalleryAlbum().withId('album-3').build(),
+          TestData.aValidGalleryAlbum().withId('album-4').build(),
+          TestData.aValidGalleryAlbum().withId('album-5').build(),
+        ]),
+    })
+    const result = await request(app.getHttpServer())
+      .put('/api/v1/gallery/albums/rank?activityId=AINfyH5')
+      .set('Cookie', prCookie)
+      .send({ albumIds: ['album-3', 'album-2', 'album-5'] })
+    expect(result.status).toBe(HttpStatus.OK)
+    expect(result.body).toEqual([
+      expect.objectContaining({ id: 'album-3', rank: 0 }),
+      expect.objectContaining({ id: 'album-2', rank: 1 }),
+      expect.objectContaining({ id: 'album-5', rank: 2 }),
+      expect.objectContaining({ id: 'album-1', rank: 3 }),
+      expect.objectContaining({ id: 'album-4', rank: 3 }),
+    ])
+  })
+
+  test('DELETE /api/v1/gallery/albums/PNBwEli', async () => {
+    const result = await request(app.getHttpServer())
+      .delete('/api/v1/gallery/activities/PNBwEli')
+      .set('Cookie', prCookie)
+    expect(result.status).toBe(HttpStatus.NO_CONTENT)
   })
 
   afterAll(() => {
