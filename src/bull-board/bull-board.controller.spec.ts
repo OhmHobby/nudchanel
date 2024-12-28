@@ -1,3 +1,5 @@
+jest.mock('@bull-board/api/dist/src/queueAdapters/bull')
+
 import { getQueueToken } from '@nestjs/bull'
 import { Test, TestingModule } from '@nestjs/testing'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
