@@ -2,7 +2,6 @@ import { BullModule } from '@nestjs/bull'
 import { Module } from '@nestjs/common'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { BullBoardController } from './bull-board.controller'
-import { BullQueueLifecyclesService } from './bull-queue.life-cycles.service'
 
 @Module({
   imports: [
@@ -12,6 +11,6 @@ import { BullQueueLifecyclesService } from './bull-queue.life-cycles.service'
     BullModule.registerQueue({ name: BullQueueName.Photo }),
   ],
   controllers: [BullBoardController],
-  providers: [BullQueueLifecyclesService],
+  providers: [],
 })
 export class BullBoardModule {}

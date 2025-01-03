@@ -17,6 +17,7 @@ import { AuthGroupGuard } from './auth/auth-group.guard'
 import { AuthMiddleware } from './auth/auth.middleware'
 import { BaseV1Controller } from './base.v1.controller'
 import { BullBoardModule } from './bull-board/bull-board.module'
+import { CacheLifeCyclesService } from './cache-life-cycles.service'
 import { BullConfig } from './configs/bull.config'
 import { CacheConfig } from './configs/cache.config'
 import { clsConfigFactory } from './configs/cls.config'
@@ -65,6 +66,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     { provide: APP_INTERCEPTOR, useClass: AuditLogger },
     AuthMiddleware,
     SwaggerConfigBuilder,
+    CacheLifeCyclesService,
     MongooseServerLifecyclesService,
     OTELLifecyclesService,
   ],

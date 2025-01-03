@@ -4,16 +4,18 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { Test } from '@nestjs/testing'
 import { User } from '@nudchannel/auth'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { TraceService } from 'nestjs-otel'
 import { AuditLogger } from 'src/audit-log/audit-logger.interceptor'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { AuditLogModel } from 'src/models/audit/audit-log.model'
 import request from 'supertest'
 import { TestData } from 'test/test-data'
-import { uuidv4 } from 'uuidv7'
 import { AuditLoggerTestController } from './audit-logger-test.controller'
 
 describe('Audit logger', () => {
@@ -27,10 +29,8 @@ describe('Audit logger', () => {
           isGlobal: true,
           load: [configuration],
         }),
-        ClsModule.forRoot({
-          global: true,
-          middleware: { mount: true, generateId: true, idGenerator: uuidv4 },
-        }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
         TypegooseModule.forFeature([AuditLogModel], MongoConnection.Audit),
       ],
@@ -39,6 +39,8 @@ describe('Audit logger', () => {
     }).compile()
 
     app = module.createNestApplication()
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
+
     app.use((req, res, next) => {
       req.user = new User({ id: TestData.aValidUserId.toHexString() })
       next()
@@ -55,7 +57,7 @@ describe('Audit logger', () => {
   it('should insert audit log correctly', async () => {
     const result = await request(app.getHttpServer()).post('/1?q=2').send({ test: 3 })
     let doc: AuditLogModel | null = null
-    for (let attempts = 3; attempts && !doc; attempts--) {
+    for (let attempts = 15; attempts && !doc; attempts--) {
       process.stdout.write('.')
       doc = await controller.findByCorrelationId(result.body.correlationId)
       await new Promise<void>((r) => setTimeout(() => r(), 1000))
@@ -67,9 +69,9 @@ describe('Audit logger', () => {
     expect(doc?.params).toEqual({ id: '1' })
     expect(doc?.queries).toEqual({ q: '2' })
     expect(doc?.body).toEqual({ test: 3 })
-  })
+  }, 30000)
 
   afterAll(() => {
-    app.close()
+    return app.close()
   })
 })

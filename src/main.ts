@@ -18,7 +18,10 @@ import { Server } from 'ldapjs'
 const LOG_CONTEXT = 'Bootstrap'
 
 async function bootstrapServer() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: config.get<boolean>(Config.LOG_BUFFER),
+    forceCloseConnections: true,
+  })
   app.enableVersioning({ prefix: 'api/v', type: VersioningType.URI })
   const logger = app.get<Logger>(WINSTON_MODULE_NEST_PROVIDER)
   app.useLogger(logger)
@@ -40,7 +43,10 @@ async function bootstrapServer() {
 }
 
 async function bootstrapWorker(portConfigName: string) {
-  const app = await NestFactory.create(WorkerModule, { bufferLogs: config.get<boolean>(Config.LOG_BUFFER) })
+  const app = await NestFactory.create(WorkerModule, {
+    bufferLogs: config.get<boolean>(Config.LOG_BUFFER),
+    forceCloseConnections: true,
+  })
   const logger = app.get<Logger>(WINSTON_MODULE_NEST_PROVIDER)
   app.useLogger(logger)
   app.enableShutdownHooks()

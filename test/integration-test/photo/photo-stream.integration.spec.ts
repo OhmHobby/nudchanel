@@ -6,10 +6,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
 import { TraceService } from 'nestjs-otel'
 import sharp from 'sharp'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { Config } from 'src/enums/config.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
@@ -41,6 +45,8 @@ describe('Photo stream', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
         TypegooseModule.forFeature([UploadTaskModel, UploadBatchJobModel, UploadBatchFileModel], MongoConnection.Photo),
       ],
@@ -57,6 +63,7 @@ describe('Photo stream', () => {
     }).compile()
 
     app = module.createNestApplication()
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
     photoStreamService = module.get(PhotoStreamService)
     storageService = module.get(StorageService)
@@ -132,6 +139,6 @@ describe('Photo stream', () => {
   })
 
   afterAll(() => {
-    app.close()
+    return app.close()
   })
 })

@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Queue } from 'bull'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
@@ -7,7 +7,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Config } from 'src/enums/config.enum'
 
 @Injectable()
-export class SchedulerRegisterService {
+export class SchedulerRegisterService implements OnModuleDestroy {
   private readonly logger = new Logger(SchedulerRegisterService.name)
 
   constructor(
@@ -40,5 +40,10 @@ export class SchedulerRegisterService {
 
   async unregister() {
     await this.discordQueue.clean(0, 'delayed')
+  }
+
+  async onModuleDestroy() {
+    await this.discordQueue.close()
+    this.logger.log('Successfully closed bull queues')
   }
 }

@@ -9,7 +9,7 @@ http:
       - it
 
 log:
-  level: debug
+  level: info
   buffer: false
 
 otlp:

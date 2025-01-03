@@ -13,6 +13,7 @@ import { AppController } from './app.controller'
 import { AuthGroupGuard } from './auth/auth-group.guard'
 import { AuthMiddleware } from './auth/auth.middleware'
 import { BullBoardModule } from './bull-board/bull-board.module'
+import { CacheLifeCyclesService } from './cache-life-cycles.service'
 import { BullConfig } from './configs/bull.config'
 import { CacheConfig } from './configs/cache.config'
 import { clsConfigFactory } from './configs/cls.config'
@@ -59,6 +60,7 @@ import { StorageModule } from './storage/storage.module'
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
     AuthMiddleware,
+    CacheLifeCyclesService,
     MongooseWorkerLifecyclesService,
     SwaggerConfigBuilder,
     OTELLifecyclesService,

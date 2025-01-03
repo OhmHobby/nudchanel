@@ -59,7 +59,7 @@ export class AuditLogger implements NestInterceptor {
     try {
       await this.auditLogModel.insertOne(model)
     } catch (err) {
-      this.logger.error(`Failed to insert audit log`, model, err)
+      this.logger.error({ message: `Failed to insert audit log: ${err.message}`, ...model }, err)
     } finally {
       span.end()
     }

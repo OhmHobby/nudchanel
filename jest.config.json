@@ -11,6 +11,9 @@
     "^src/(.*)$": "<rootDir>/$1",
     "^test/(.*)$": "<rootDir>/../test/$1"
   },
+  "clearMocks": true,
+  "resetMocks": true,
+  "restoreMocks": true,
   "collectCoverageFrom": ["**/*.ts", "!**/*.module.ts", "!**/*.model.ts", "!**/config/**", "!features/**/*.ts"],
   "coverageReporters": ["text", "cobertura", "lcov"]
 }

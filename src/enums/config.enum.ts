@@ -15,6 +15,7 @@ export enum Config {
   LOG_LEVEL = 'log.level',
   LOG_BUFFER = 'log.buffer',
   LOG_LOKI_URL = 'log.loki.url',
+  LOG_DIR = 'log.directory',
   OTLP_ENABLED = 'otlp.enabled',
   OTLP_TRACE_URL = 'otlp.trace.url',
   OTLP_METRIC_URL = 'otlp.metric.url',

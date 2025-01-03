@@ -2,7 +2,7 @@ import { createBullBoard } from '@bull-board/api'
 import { BullAdapter } from '@bull-board/api/dist/src/queueAdapters/bull'
 import { ExpressAdapter } from '@bull-board/express'
 import { InjectQueue } from '@nestjs/bull'
-import { All, Controller, Next, Request, Response } from '@nestjs/common'
+import { All, Controller, Logger, Next, OnModuleDestroy, Request, Response } from '@nestjs/common'
 import { ApiExcludeController } from '@nestjs/swagger'
 import { Queue } from 'bull'
 import config from 'config'
@@ -14,7 +14,9 @@ import { SkipHttpLogging } from 'src/helpers/skip-http-logging.decorator'
 
 @Controller(config.get<string>(Config.HTTP_BULLBOARD_PATH))
 @ApiExcludeController()
-export class BullBoardController {
+export class BullBoardController implements OnModuleDestroy {
+  private readonly logger = new Logger(BullBoardController.name)
+
   constructor(
     @InjectQueue(BullQueueName.Email)
     private readonly emailQueue: Queue,
@@ -49,5 +51,15 @@ export class BullBoardController {
       new BullAdapter(this.migrationQueue),
       new BullAdapter(this.photoQueue),
     ]
+  }
+
+  async onModuleDestroy() {
+    await Promise.all([
+      this.emailQueue.close(),
+      this.discordQueue.close(),
+      this.migrationQueue.close(),
+      this.photoQueue.close(),
+    ])
+    this.logger.log('Successfully closed bull queues')
   }
 }

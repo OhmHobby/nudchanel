@@ -6,6 +6,7 @@ http:
 log:
   level: LOG_LEVEL
   buffer: BUFFER
+  directory: LOG_DIR
   loki:
     url: LOG_LOKI_URL
 

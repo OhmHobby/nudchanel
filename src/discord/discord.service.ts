@@ -1,6 +1,6 @@
 import { Snowflake } from '@discordjs/core'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { Queue } from 'bull'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { ProfileService } from 'src/accounts/profile/profile.service'
@@ -10,7 +10,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DiscordBotService } from './discord-bot.service'
 
 @Injectable()
-export class DiscordService {
+export class DiscordService implements OnModuleDestroy {
   private static readonly allTeamSuffix = ' (All)'
 
   private readonly logger = new Logger(DiscordService.name)
@@ -121,5 +121,10 @@ export class DiscordService {
 
   nicknameWithSuffix(nickname: string, index = 0) {
     return index > 0 ? `${nickname} ${index + 1}` : nickname
+  }
+
+  async onModuleDestroy() {
+    await this.queue.close()
+    this.logger.log('Successfully closed bull queues')
   }
 }

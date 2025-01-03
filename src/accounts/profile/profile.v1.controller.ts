@@ -28,7 +28,6 @@ export class ProfileV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @AuthGroups()
-  @AuditLog(ProfileV1Controller.prototype.importProfilePhoto.name)
   async getMyProfile(@UserCtx() user: User): Promise<ProfileResponseModel> {
     const doc = await this.profileService.findByIdPopulated(new Types.ObjectId(user.id!))
     return ProfileResponseModel.fromModel(doc!)

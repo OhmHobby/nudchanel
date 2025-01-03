@@ -1,6 +1,6 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Queue } from 'bull'
@@ -13,7 +13,9 @@ import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
 
 @Injectable()
-export class MailProviderService {
+export class MailProviderService implements OnModuleDestroy {
+  private readonly logger = new Logger(MailProviderService.name)
+
   private readonly defaultEmail: string
 
   constructor(
@@ -48,5 +50,10 @@ export class MailProviderService {
 
   async send(data: Mail.Options, priority?: BullPriority) {
     return await this.emailQueue.add(BullJobName.Email, data, { priority })
+  }
+
+  async onModuleDestroy() {
+    await this.emailQueue.close()
+    this.logger.log('Successfully closed bull queues')
   }
 }
