@@ -197,7 +197,7 @@ importers:
         version: 29.5.14
       '@types/ldapjs':
         specifier: ^2.2.4
-        version: 2.2.4
+        version: 2.2.5
       '@types/node':
         specifier: ^20.3.1
         version: 20.16.10
@@ -1760,8 +1760,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/ldapjs@2.2.4':
-    resolution: {integrity: sha512-+ZMVolW4N1zpnQ4SgH8nfpIFuiDOfbnXSbwQoBiLaq8mF0vo8FOKotQzKkfoWxbV0lWU1d4V+keZZ07klyOSng==}
+  '@types/ldapjs@2.2.5':
+    resolution: {integrity: sha512-Lv/nD6QDCmcT+V1vaTRnEKE8UgOilVv5pHcQuzkU1LcRe4mbHHuUo/KHi0LKrpdHhQY8FJzryF38fcVdeUIrzg==}
 
   '@types/memcached@2.2.10':
     resolution: {integrity: sha512-AM9smvZN55Gzs2wRrqeMHVP7KE8KWgCJO/XL5yCly2xF6EKa4YlbpK+cLSAH4NG/Ah64HrlegmGqW8kYws7Vxg==}
@@ -7441,7 +7441,7 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/ldapjs@2.2.4':
+  '@types/ldapjs@2.2.5':
     dependencies:
       '@types/node': 20.16.10
 
