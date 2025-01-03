@@ -132,6 +132,7 @@ export class PhotoStreamService {
       const sourceStream = await this.storageService.getStream(sourcePath)
       return sourceStream
     } catch (err) {
+      this.logger.log({ message: `Error on try stream: ${err.message}`, sourcePath })
       return null
     }
   }
@@ -145,6 +146,7 @@ export class PhotoStreamService {
       this.saveProcssedBuffer(targetPath, processedBuffer)
       return processedBuffer
     } catch (err) {
+      this.logger.log({ message: `Error on try process: ${err.message}`, processPath, targetPath })
       return null
     }
   }
@@ -166,6 +168,7 @@ export class PhotoStreamService {
       this.saveProcssedBuffer(requestPath, processedBuffer)
       return processedBuffer
     } catch (err) {
+      this.logger.log({ message: `Error on try original: ${err.message}`, requestPath })
       return null
     }
   }

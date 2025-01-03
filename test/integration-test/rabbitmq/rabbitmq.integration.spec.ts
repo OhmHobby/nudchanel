@@ -2,7 +2,11 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { Config } from 'src/enums/config.enum'
 import { RabbitTestConfigService } from './rabbit-test-config.service'
 import { RabbitTestService } from './rabbit-test.service'
@@ -21,11 +25,14 @@ describe('RabbitMQ', () => {
         RabbitMQModule.forRootAsync(RabbitMQModule, {
           useClass: RabbitTestConfigService,
         }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
       ],
       providers: [RabbitTestService],
     }).compile()
 
     app = module.createNestApplication()
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
 
     service = module.get(RabbitTestService)
@@ -37,13 +44,13 @@ describe('RabbitMQ', () => {
 
   it('should publish and receive correctly', async () => {
     await service.publish()
-    while (!service.haveBeenCalled) {
-      await new Promise((r) => setTimeout(r, 1000))
+    for (let attempts = 15; attempts && !service.haveBeenCalled; attempts--) {
+      await new Promise<void>((r) => setTimeout(() => r(), 1000))
     }
     expect(service.haveBeenCalled).toBeGreaterThan(0)
-  })
+  }, 30000)
 
   afterAll(() => {
-    app.close()
+    return app.close()
   })
 })

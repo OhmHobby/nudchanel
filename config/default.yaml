@@ -17,20 +17,21 @@ ldap:
   enabled: false
   port: 1389
   base_dn: o=nudchannel.com
-  root_secret: ""
+  root_secret: null
 
 log:
   level: info
   buffer: true
+  directory: null
   loki:
-    url: ""
+    url: null
 
 otlp:
   enabled: false
   trace:
-    url: ""
+    url: null
   metric:
-    url: ""
+    url: null
     intervalMillis: 15000
 
 database:

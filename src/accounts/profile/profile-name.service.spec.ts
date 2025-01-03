@@ -32,13 +32,17 @@ describe(ProfileNameService.name, () => {
 
   describe(ProfileNameService.prototype.findProfile.name, () => {
     const find = {
-      or: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      distinct: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue([]),
+      or: jest.fn(),
+      where: jest.fn(),
+      distinct: jest.fn(),
+      exec: jest.fn(),
     }
 
     beforeEach(() => {
+      find.or.mockReturnThis()
+      find.where.mockReturnThis()
+      find.distinct.mockReturnThis()
+      find.exec.mockResolvedValue([])
       profileNameModel.find = jest.fn().mockReturnValue(find)
     })
 

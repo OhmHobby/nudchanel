@@ -1,6 +1,6 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { InjectQueue, Process, Processor } from '@nestjs/bull'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job, Queue } from 'bull'
 import { join } from 'path'
@@ -22,7 +22,7 @@ import { StorageService } from 'src/storage/storage.service'
 
 @Injectable()
 @Processor(BullQueueName.Migration)
-export class MigrationProcessorService {
+export class MigrationProcessorService implements OnModuleDestroy {
   private readonly logger = new Logger(MigrationProcessorService.name)
 
   constructor(
@@ -121,5 +121,10 @@ export class MigrationProcessorService {
       }),
     )
     return await Promise.all(promises)
+  }
+
+  async onModuleDestroy() {
+    await this.migrationQueue.close()
+    this.logger.log('Successfully closed bull queues')
   }
 }

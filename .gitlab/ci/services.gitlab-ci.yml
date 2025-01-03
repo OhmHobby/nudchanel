@@ -8,6 +8,8 @@
     - &mongodb
       name: $NUDCH_IMAGE_REGISTRY/nudchannel/database/devdb
       alias: mongodb
+      variables:
+        NODE_OPTIONS: ""
     - &redis
       name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/redis:7-alpine
       alias: redis
@@ -18,6 +20,7 @@
       name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/minio
       alias: minio
   tags:
+    - medium
     - docker
 
 .use-app:
@@ -40,4 +43,5 @@
         NODE_ENV: test
         NODE_APP_INSTANCE: server
   tags:
+    - medium
     - docker

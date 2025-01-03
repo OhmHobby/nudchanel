@@ -1,7 +1,11 @@
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { PhotoMinioStorageService } from 'src/storage/photo-minio-storage.service'
 
 describe('Photo minio', () => {
@@ -12,11 +16,16 @@ describe('Photo minio', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true, load: [configuration] })],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
+      ],
       providers: [PhotoMinioStorageService],
     }).compile()
 
     app = module.createNestApplication()
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
 
     service = module.get(PhotoMinioStorageService)
@@ -47,6 +56,6 @@ describe('Photo minio', () => {
   })
 
   afterAll(() => {
-    app.close()
+    return app.close()
   })
 })

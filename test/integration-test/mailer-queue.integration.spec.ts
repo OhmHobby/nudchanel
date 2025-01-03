@@ -3,10 +3,14 @@ import { INestApplication } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Queue } from 'bull'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
 import { createTestAccount, TestAccount } from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { BullConfig } from 'src/configs/bull.config'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { MailProcessorService } from 'src/delivery/mail/processor.service'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
@@ -48,11 +52,14 @@ describe('Mailer queue', () => {
           inject: [ConfigService],
         }),
         BullModule.registerQueue({ name: BullQueueName.Email }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
       ],
       providers: [MailProcessorService],
     }).compile()
 
     app = module.createNestApplication()
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
 
     mailProcessorService = module.get(MailProcessorService)
@@ -88,6 +95,6 @@ describe('Mailer queue', () => {
   })
 
   afterAll(() => {
-    app.close()
+    return app.close()
   })
 })

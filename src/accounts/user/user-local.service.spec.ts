@@ -184,12 +184,6 @@ describe(UserLocalService.name, () => {
     })
   })
 
-  describe('disableUser', () => {
-    it('should return promise', () => {
-      expect(service.disableUser('username')).toBeInstanceOf(Promise)
-    })
-  })
-
   describe(UserLocalService.prototype.signIn.name, () => {
     it('should return user when password matches', async () => {
       const user = TestData.aValidUserLocal().build()

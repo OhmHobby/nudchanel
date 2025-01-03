@@ -1,6 +1,6 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { InjectQueue } from '@nestjs/bull'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Queue } from 'bull'
 import { createHash } from 'crypto'
@@ -19,7 +19,9 @@ import MUUID from 'uuid-mongodb'
 import { ProfileService } from './profile.service'
 
 @Injectable()
-export class ProfilePhotoService {
+export class ProfilePhotoService implements OnModuleDestroy {
+  private readonly logger = new Logger(ProfilePhotoService.name)
+
   constructor(
     @InjectModel(ProfilePhotoModel)
     private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
@@ -113,5 +115,10 @@ export class ProfilePhotoService {
   getPhotoBuffer(uuid: string = DEFAULT_UUID, format: ImageFormat): Promise<Buffer> {
     const file = new ProfilePhotoPath(uuid, format).path
     return this.storageService.getBuffer(file)
+  }
+
+  async onModuleDestroy() {
+    await this.processPhotoQueue.close()
+    this.logger.log('Successfully closed bull queues')
   }
 }

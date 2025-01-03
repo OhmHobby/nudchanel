@@ -5,11 +5,15 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { ImageFormat as ImageFormatProto } from '@nudchannel/protobuf/dist/image_format'
 import { ProcessPhoto } from '@nudchannel/protobuf/dist/process_photo'
 import { ResizeFit } from '@nudchannel/protobuf/dist/sharp_resize_fit'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
+import { ClsModule } from 'nestjs-cls'
 import { TraceService } from 'nestjs-otel'
 import { AmqpLifecyclesService } from 'src/amqp/amqp.life-cycles.service'
 import { AmqpService } from 'src/amqp/amqp.service'
+import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { RabbitMQConfigService } from 'src/configs/rabbitmq.config'
+import { WinstonConfig } from 'src/configs/winston.config'
 import { Config } from 'src/enums/config.enum'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
@@ -39,6 +43,8 @@ describe('Photo processor', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+        ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
+        WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         RabbitMQModule.forRootAsync(RabbitMQModule, {
           useClass: RabbitMQConfigService,
         }),
@@ -57,7 +63,8 @@ describe('Photo processor', () => {
       ],
     }).compile()
 
-    app = module.createNestApplication()
+    app = module.createNestApplication({ forceCloseConnections: true })
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
     amqpService = app.get(AmqpService)
     storageService = app.get(StorageService)
@@ -77,7 +84,7 @@ describe('Photo processor', () => {
     expect(resultFromSync.length).toBeGreaterThan(0)
   }, 30000)
 
-  it('should process sync correctly', async () => {
+  it('should process async correctly', async () => {
     await storageService.removeFile(destination).catch()
 
     await amqpService.publish(
@@ -102,8 +109,11 @@ describe('Photo processor', () => {
     await storageService.removeFile(destination).catch()
   }, 30000)
 
+  it('result from sync should be same as from async', () => {
+    expect(resultFromSync.compare(resultFromAsync)).toBe(0)
+  })
+
   afterAll(() => {
-    expect(resultFromSync).toEqual(resultFromAsync)
-    app.close()
+    return app.close()
   })
 })
