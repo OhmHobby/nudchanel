@@ -117,8 +117,8 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3
       minio:
-        specifier: 8.0.1
-        version: 8.0.1
+        specifier: 8.0.3
+        version: 8.0.3
       nanoid:
         specifier: 3.3.7
         version: 3.3.7
@@ -4016,8 +4016,8 @@ packages:
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
-  minio@8.0.1:
-    resolution: {integrity: sha512-FzDO6yGnqLtm8sp3mXafWtiRUOslJSSg/aI0v9YbN5vjw5KLoODKAROCyi766NIvTSxcfHBrbhCSGk1A+MOzDg==}
+  minio@8.0.3:
+    resolution: {integrity: sha512-+FIYQ+HZ5GrBjEmIYienRgEikqaTWAflXIV5lJOtUzfYxn3NvjQx7BsJSORXExlqgzWxKTWsqkyk2wiyFjs9/w==}
     engines: {node: ^16 || ^18 || >=20}
 
   minipass@7.1.2:
@@ -10097,9 +10097,9 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  minio@8.0.1:
+  minio@8.0.3:
     dependencies:
-      async: 3.2.5
+      async: 3.2.6
       block-stream2: 2.1.0
       browser-or-node: 2.1.1
       buffer-crc32: 1.0.0
