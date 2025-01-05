@@ -1,6 +1,7 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test } from '@nestjs/testing'
 import { getModelForClass } from '@typegoose/typegoose'
+import { nanoid } from 'nanoid'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { TestData } from 'test/test-data'
 import { GalleryAlbumService } from './gallery-album.service'
@@ -34,6 +35,16 @@ describe(GalleryAlbumService.name, () => {
       albumModel.find = jest.fn().mockReturnValue(query)
       await service.findByActivity('', true)
       expect(query.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+    })
+  })
+
+  describe(GalleryAlbumService.prototype.create.name, () => {
+    it('should create with incremental rank', async () => {
+      const activityId = nanoid(7)
+      service.findByActivity = jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().build()])
+      albumModel.create = jest.fn()
+      await service.create(activityId, new GalleryAlbumModel())
+      expect(albumModel.create).toHaveBeenCalledWith(expect.objectContaining({ activity: activityId, rank: 1 }))
     })
   })
 
