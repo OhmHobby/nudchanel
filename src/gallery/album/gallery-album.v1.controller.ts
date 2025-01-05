@@ -23,6 +23,7 @@ import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { ActivityIdQueryDto } from '../dto/activity-id-query.dto'
 import { AlbumIdDto } from '../dto/album-id.dto'
+import { AlbumsActivityIdQueryDto } from '../dto/albums-activity-id-query.dto'
 import { GalleryAlbumRankDto } from '../dto/gallery-album-rank.dto'
 import { GalleryAlbumResponseModel } from '../dto/gallery-album-response.model'
 import { GalleryAlbumDto } from '../dto/gallery-album.dto'
@@ -36,7 +37,7 @@ export class GalleryAlbumV1Controller {
   @Get()
   @ApiOkResponse({ type: [GalleryAlbumResponseModel] })
   async getGalleryAlbumsByActivityId(
-    @Query() { activityId, all }: ActivityIdQueryDto,
+    @Query() { activityId, all }: AlbumsActivityIdQueryDto,
   ): Promise<GalleryAlbumResponseModel[]> {
     const albums = await this.galleryAlbumService.findByActivity(activityId, all)
     return albums.map(GalleryAlbumResponseModel.fromModel)
