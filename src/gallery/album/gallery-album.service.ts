@@ -25,7 +25,8 @@ export class GalleryAlbumService {
   }
 
   async create(activityId: string, model: Omit<GalleryAlbumModel, '_id' | 'deleted'>) {
-    const album = await this.albumModel.create({ ...model, activity: activityId })
+    const albums = await this.findByActivity(activityId, true)
+    const album = await this.albumModel.create({ ...model, activity: activityId, rank: albums.length })
     return album
   }
 
