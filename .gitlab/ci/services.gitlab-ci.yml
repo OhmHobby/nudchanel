@@ -3,7 +3,7 @@
     FF_NETWORK_PER_BUILD: 1
   services:
     - &rabbitmq
-      name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/rabbitmq:3.13
+      name: docker.io/rabbitmq:3.13
       alias: rabbitmq
     - &mongodb
       name: $NUDCH_IMAGE_REGISTRY/nudchannel/database/devdb
@@ -11,7 +11,7 @@
       variables:
         NODE_OPTIONS: ""
     - &redis
-      name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/redis:7-alpine
+      name: docker.io/redis:7-alpine
       alias: redis
     - &webdav
       name: $NUDCH_IMAGE_REGISTRY/nudchannel/ci/mock-webdav
