@@ -3,8 +3,6 @@ node_modules:
 
 build:
   needs: []
-  tags:
-    - medium
 
 build:openapi:
   extends:
