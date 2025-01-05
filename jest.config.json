@@ -5,7 +5,6 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "coverageDirectory": "../coverage",
   "testEnvironment": "node",
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/$1",
@@ -14,6 +13,9 @@
   "clearMocks": true,
   "resetMocks": true,
   "restoreMocks": true,
-  "collectCoverageFrom": ["**/*.ts", "!**/*.module.ts", "!**/*.model.ts", "!**/config/**", "!features/**/*.ts"],
-  "coverageReporters": ["text", "cobertura", "lcov"]
+  "collectCoverage": true,
+  "coverageDirectory": "<rootDir>/../coverage",
+  "collectCoverageFrom": ["**/*.ts", "!**/*.module.ts", "!**/*.model.ts", "!**/config/**"],
+  "coverageReporters": ["text", "cobertura", "lcov"],
+  "reporters": ["default", "jest-junit"]
 }

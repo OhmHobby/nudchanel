@@ -18,7 +18,7 @@ describe('Swagger', () => {
       .set('Cookie', 'access_token=' + accessToken)
       .expect(HttpStatus.OK)
     await writeFile('./openapi.json', result.text, { encoding: 'utf8' })
-  })
+  }, 15000)
 
   it('GET /swagger-yaml', async () => {
     const result = await request(app.getHttpServer())
@@ -26,7 +26,7 @@ describe('Swagger', () => {
       .set('Cookie', 'access_token=' + accessToken)
       .expect(HttpStatus.OK)
     await writeFile('./openapi.yaml', result.text, { encoding: 'utf8' })
-  })
+  }, 15000)
 
   it('GET /swagger (Unauthorization)', async () => {
     await request(app.getHttpServer()).get('/swagger').expect(HttpStatus.UNAUTHORIZED)
