@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsArray, IsBoolean, IsDate, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { IsArray, IsBoolean, IsDate, IsOptional, IsString } from 'class-validator'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 
 export class GalleryActivityDto {
@@ -43,7 +43,7 @@ export class GalleryActivityDto {
 
   @IsArray()
   @IsOptional()
-  @ValidateNested({ each: true })
+  @IsString({ each: true })
   @Type(() => String)
   @ApiPropertyOptional()
   tags: string[] = []

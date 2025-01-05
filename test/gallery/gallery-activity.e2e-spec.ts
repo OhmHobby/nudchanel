@@ -156,10 +156,14 @@ describe('Gallery activity', () => {
       .withAccessToken(await TestData.aValidAccessToken().withGroups('pr').build())
       .build()
     const exampleActivity = TestData.aValidGalleryActivity().build()
-    const result = await request(app.getHttpServer()).post('/api/v1/gallery/activities').set('Cookie', cookie).send({
-      title: exampleActivity.title,
-      time: date.toISOString(),
-    })
+    const result = await request(app.getHttpServer())
+      .post('/api/v1/gallery/activities')
+      .set('Cookie', cookie)
+      .send({
+        title: exampleActivity.title,
+        time: date.toISOString(),
+        tags: ['test', 'created'],
+      })
     expect(result.status).toBe(HttpStatus.CREATED)
     expect(result.body).toEqual(
       expect.objectContaining({
@@ -168,6 +172,7 @@ describe('Gallery activity', () => {
         publishedAt: expect.any(String),
         cardUrl: 'https://photos.nudchannel.com/photos/card/00000000-0000-0000-0000-000000000000.webp',
         coverUrl: 'https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg',
+        tags: ['test', 'created'],
       }),
     )
   })
@@ -187,6 +192,7 @@ describe('Gallery activity', () => {
         published: true,
         time: date.toISOString(),
         publishedAt: date.toISOString(),
+        tags: ['test', 'edited'],
       })
     expect(result.status).toBe(HttpStatus.OK)
     expect(result.body).toEqual(
@@ -197,6 +203,7 @@ describe('Gallery activity', () => {
         publishedAt: date.getTime().toString(),
         cardUrl: `https://photos.nudchannel.com/photos/card/${exampleActivity.cover}.webp`,
         coverUrl: `https://photos.nudchannel.com/photos/cover/${exampleActivity.cover}.jpg`,
+        tags: ['test', 'edited'],
       }),
     )
   })
