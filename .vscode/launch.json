@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "runtimeVersion": "20",
+      "runtimeVersion": "22",
       "name": "Debug Nest",
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
