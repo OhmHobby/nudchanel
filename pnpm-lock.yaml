@@ -22,7 +22,7 @@ importers:
         version: 5.5.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@m8a/nestjs-typegoose':
         specifier: 12.0.0
-        version: 12.0.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@typegoose/typegoose@12.10.1(mongoose@8.7.3(snappy@7.2.2)))(mongoose@8.7.3(snappy@7.2.2))
+        version: 12.0.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@typegoose/typegoose@12.10.1(mongoose@8.9.5(snappy@7.2.2)))(mongoose@8.9.5(snappy@7.2.2))
       '@nestjs/bull':
         specifier: 10.2.1
         version: 10.2.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(bull@4.16.5)
@@ -64,7 +64,7 @@ importers:
         version: 3.6.0
       '@typegoose/auto-increment':
         specifier: 4.7.0
-        version: 4.7.0(mongoose@8.7.3(snappy@7.2.2))
+        version: 4.7.0(mongoose@8.9.5(snappy@7.2.2))
       argon2:
         specifier: 0.41.1
         version: 0.41.1
@@ -119,6 +119,9 @@ importers:
       minio:
         specifier: 8.0.3
         version: 8.0.3
+      mongoose:
+        specifier: 8.9.5
+        version: 8.9.5(snappy@7.2.2)
       nanoid:
         specifier: 5.0.9
         version: 5.0.9
@@ -4049,12 +4052,12 @@ packages:
   mongodb-connection-string-url@3.0.1:
     resolution: {integrity: sha512-XqMGwRX0Lgn05TDB4PyG2h2kKO/FfWJyCzYQbIhXUxz7ETt0I/FqHjUeqj37irJ+Dl1ZtU82uYyj14u2XsZKfg==}
 
-  mongodb@6.9.0:
-    resolution: {integrity: sha512-UMopBVx1LmEUbW/QE0Hw18u583PEDVQmUmVzzBRH0o/xtE9DBRA5ZYLOjpLIa03i8FXjzvQECJcqoMvCXftTUA==}
+  mongodb@6.12.0:
+    resolution: {integrity: sha512-RM7AHlvYfS7jv7+BXund/kR64DryVI+cHbVAy9P61fnb1RcWZqOW1/Wj2YhqMCx+MuYhqTRGv7AwHBzmsCKBfA==}
     engines: {node: '>=16.20.1'}
     peerDependencies:
       '@aws-sdk/credential-providers': ^3.188.0
-      '@mongodb-js/zstd': ^1.1.0
+      '@mongodb-js/zstd': ^1.1.0 || ^2.0.0
       gcp-metadata: ^5.2.0
       kerberos: ^2.0.1
       mongodb-client-encryption: '>=6.0.0 <7'
@@ -4076,8 +4079,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@8.7.3:
-    resolution: {integrity: sha512-Xl6+dzU5ZpEcDoJ8/AyrIdAwTY099QwpolvV73PIytpK13XqwllLq/9XeVzzLEQgmyvwBVGVgjmMrKbuezxrIA==}
+  mongoose@8.9.5:
+    resolution: {integrity: sha512-SPhOrgBm0nKV3b+IIHGqpUTOmgVL5Z3OO9AwkFEmvOZznXTvplbomstCnPOGAyungtRXE5pJTgKpKcZTdjeESg==}
     engines: {node: '>=16.20.1'}
 
   mpath@0.9.0:
@@ -6386,13 +6389,13 @@ snapshots:
 
   '@lukeed/csprng@1.1.0': {}
 
-  '@m8a/nestjs-typegoose@12.0.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@typegoose/typegoose@12.10.1(mongoose@8.7.3(snappy@7.2.2)))(mongoose@8.7.3(snappy@7.2.2))':
+  '@m8a/nestjs-typegoose@12.0.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@typegoose/typegoose@12.10.1(mongoose@8.9.5(snappy@7.2.2)))(mongoose@8.9.5(snappy@7.2.2))':
     dependencies:
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@typegoose/typegoose': 12.10.1(mongoose@8.7.3(snappy@7.2.2))
+      '@typegoose/typegoose': 12.10.1(mongoose@8.9.5(snappy@7.2.2))
       is-class: 0.0.9
-      mongoose: 8.7.3(snappy@7.2.2)
+      mongoose: 8.9.5(snappy@7.2.2)
 
   '@microsoft/tsdoc@0.15.1': {}
 
@@ -7367,17 +7370,17 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@typegoose/auto-increment@4.7.0(mongoose@8.7.3(snappy@7.2.2))':
+  '@typegoose/auto-increment@4.7.0(mongoose@8.9.5(snappy@7.2.2))':
     dependencies:
       loglevel: 1.9.2
-      mongoose: 8.7.3(snappy@7.2.2)
+      mongoose: 8.9.5(snappy@7.2.2)
       tslib: 2.8.1
 
-  '@typegoose/typegoose@12.10.1(mongoose@8.7.3(snappy@7.2.2))':
+  '@typegoose/typegoose@12.10.1(mongoose@8.9.5(snappy@7.2.2))':
     dependencies:
       lodash: 4.17.21
       loglevel: 1.9.2
-      mongoose: 8.7.3(snappy@7.2.2)
+      mongoose: 8.9.5(snappy@7.2.2)
       reflect-metadata: 0.2.2
       semver: 7.6.3
       tslib: 2.8.1
@@ -10181,7 +10184,7 @@ snapshots:
       '@types/whatwg-url': 11.0.5
       whatwg-url: 13.0.0
 
-  mongodb@6.9.0(snappy@7.2.2):
+  mongodb@6.12.0(snappy@7.2.2):
     dependencies:
       '@mongodb-js/saslprep': 1.1.9
       bson: 6.10.1
@@ -10189,11 +10192,11 @@ snapshots:
     optionalDependencies:
       snappy: 7.2.2
 
-  mongoose@8.7.3(snappy@7.2.2):
+  mongoose@8.9.5(snappy@7.2.2):
     dependencies:
       bson: 6.10.1
       kareem: 2.6.3
-      mongodb: 6.9.0(snappy@7.2.2)
+      mongodb: 6.12.0(snappy@7.2.2)
       mpath: 0.9.0
       mquery: 5.0.0
       ms: 2.1.3
