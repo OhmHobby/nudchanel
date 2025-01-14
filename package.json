@@ -25,6 +25,7 @@
     "test:cucumber:report": "cat results.json | cucumber-junit > junit.xml"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.26.0",
     "@bull-board/api": "6.5.4",
     "@bull-board/express": "6.5.4",
     "@discordjs/core": "^2.0.0",
