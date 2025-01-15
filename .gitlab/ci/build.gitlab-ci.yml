@@ -1,8 +1,25 @@
 node_modules:
-  allow_failure: false
+  rules:
+    - when: never
 
 build:
   needs: []
+
+build:node:
+  variables:
+    VERSION_SUFFIX: -$CI_PIPELINE_ID
+  script:
+    - export APP_VERSION=$(node -p "require('./package.json').version")$VERSION_SUFFIX
+    - pnpm run build
+    - rm -rf node_modules/
+    - pnpm install --frozen-lockfile --prod
+    - npm version $APP_VERSION --allow-same-version --no-git-tag-version
+    - echo "APP_VERSION=$APP_VERSION" > .env
+  artifacts:
+    paths:
+      - dist
+      - node_modules/**
+      - .env
 
 build:openapi:
   extends:
