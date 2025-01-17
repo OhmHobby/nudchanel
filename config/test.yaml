@@ -16,6 +16,12 @@ otlp:
   enabled: true
 
 database:
+  postgres:
+    host: postgres
+    user: postgres
+    pass: postgres
+    port: 5432
+    db: nudchannel
   mongodb:
     default: mongodb://mongodb/main
     accounts: mongodb://mongodb/accounts

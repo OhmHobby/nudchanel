@@ -9,6 +9,10 @@ http:
 otlp:
   enabled: true
 
+database:
+  postgres:
+    db: nudchannel_prod
+
 auditLog:
   enabled: true
 

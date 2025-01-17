@@ -21,6 +21,7 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions'
 import config from 'config'
+import { TypeormInstrumentation } from 'opentelemetry-instrumentation-typeorm'
 import process from 'process'
 import { Config } from './enums/config.enum'
 
@@ -53,6 +54,7 @@ const otelSDK = new NodeSDK({
     }),
     new ExpressInstrumentation(),
     new NestInstrumentation(),
+    new TypeormInstrumentation(),
     new MongoDBInstrumentation(),
     new MongooseInstrumentation(),
     new IORedisInstrumentation(),

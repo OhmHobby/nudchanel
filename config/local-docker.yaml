@@ -1,4 +1,10 @@
 database:
+  postgres:
+    host: localhost
+    user: postgres
+    pass: postgres
+    port: 5432
+    db: nudchannel
   mongodb:
     default: mongodb://localhost/main
     accounts: mongodb://localhost/accounts

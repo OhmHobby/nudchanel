@@ -35,6 +35,13 @@ otlp:
     intervalMillis: 15000
 
 database:
+  migration: true
+  postgres:
+    host: ""
+    user: ""
+    pass: ""
+    port: 5432
+    db: nudchannel
   mongodb:
     default: ""
     accounts: ""

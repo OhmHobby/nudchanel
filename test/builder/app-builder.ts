@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bull'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
+import { getDataSourceToken } from '@nestjs/typeorm'
 import { getModelForClass } from '@typegoose/typegoose'
 import { useContainer } from 'class-validator'
 import cookieParser from 'cookie-parser'
@@ -117,6 +118,8 @@ export class AppBuilder {
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Audit))
       .useValue(mockTypegooseConnection)
+      .overrideProvider(getDataSourceToken())
+      .useValue(jest.fn())
     return this
   }
 
