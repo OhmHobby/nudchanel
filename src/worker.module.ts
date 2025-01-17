@@ -4,6 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { OpenTelemetryModule } from 'nestjs-otel'
@@ -21,6 +22,7 @@ import { configuration } from './configs/configuration'
 import { OpenTelemetryConfigService } from './configs/open-telemetry.config'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
+import { TypeormConfigService } from './configs/typeorm.config'
 import { WinstonConfig } from './configs/winston.config'
 import { DeliveryWorkerModule } from './delivery/delivery.worker.module'
 import { DiscordWorkerModule } from './discord/discord-worker.module'
@@ -32,6 +34,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
 import { PhotoWorkerModule } from './photo/photo.worker.module'
 import { SchedulerModule } from './scheduler/scheduler.module'
 import { StorageModule } from './storage/storage.module'
+import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
 
 @Module({
   imports: [
@@ -40,6 +43,7 @@ import { StorageModule } from './storage/storage.module'
     BullModule.forRootAsync({ imports: [ConfigModule], useClass: BullConfig, inject: [ConfigService] }),
     CacheModule.registerAsync({ isGlobal: true, useClass: CacheConfig }),
     OpenTelemetryModule.forRootAsync({ useClass: OpenTelemetryConfigService }),
+    TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
@@ -61,6 +65,7 @@ import { StorageModule } from './storage/storage.module'
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
     AuthMiddleware,
     CacheLifeCyclesService,
+    TypeormLifecyclesService,
     MongooseWorkerLifecyclesService,
     SwaggerConfigBuilder,
     OTELLifecyclesService,

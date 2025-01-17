@@ -4,6 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { OpenTelemetryModule } from 'nestjs-otel'
@@ -25,6 +26,7 @@ import { configuration } from './configs/configuration'
 import { OpenTelemetryConfigService } from './configs/open-telemetry.config'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
+import { TypeormConfigService } from './configs/typeorm.config'
 import { WinstonConfig } from './configs/winston.config'
 import { DeliveryModule } from './delivery/delivery.module'
 import { MongoConnection } from './enums/mongo-connection.enum'
@@ -34,6 +36,7 @@ import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { LdapServerModule } from './ldap-server/ldap-server.module'
 import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
 
 @Module({
   imports: [
@@ -42,6 +45,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     BullModule.forRootAsync({ imports: [ConfigModule], useClass: BullConfig, inject: [ConfigService] }),
     CacheModule.registerAsync({ isGlobal: true, useClass: CacheConfig }),
     OpenTelemetryModule.forRootAsync({ useClass: OpenTelemetryConfigService }),
+    TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
@@ -67,6 +71,7 @@ import { OTELLifecyclesService } from './otel.life-cycles.service'
     AuthMiddleware,
     SwaggerConfigBuilder,
     CacheLifeCyclesService,
+    TypeormLifecyclesService,
     MongooseServerLifecyclesService,
     OTELLifecyclesService,
   ],

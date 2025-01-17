@@ -16,6 +16,12 @@ otlp:
     url: http://prometheus-server.nudch-internal.svc/api/v1/otlp/v1/metrics
 
 database:
+  postgres:
+    host: postgres
+    user: postgres
+    pass: nudchDev!123
+    port: 5432
+    db: nudchannel
   mongodb:
     default: mongodb://root:nudchDev!123@mongodb/main?authSource=admin
     accounts: mongodb://root:nudchDev!123@mongodb/accounts?authSource=admin
