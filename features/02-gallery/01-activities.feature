@@ -2,43 +2,43 @@
 Feature: Gallery activities
 
   Scenario: Query activities
-    Given activities before 1635811204682
+    Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 2
     When GET /api/v1/gallery/activities
     Then HTTP response status should be OK
     And activities should be
-      | id      | title                                                                      | time          | cover                                | coverUrl                                                                            |
-      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563                                   | 1614751220675 | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
-      | -LScjqC | โครงการเข้าค่ายลูกเสือ-เนตรนารี ระดับชั้นมัธยมศึกษาปีที่ 3 ปีการศึกษา 2563 | 1614128445354 | 88771af0-3413-4cf0-a07f-d00ad1a9ddd3 | https://photos.nudchannel.com/photos/cover/88771af0-3413-4cf0-a07f-d00ad1a9ddd3.jpg |
+      | id      | title                                                                      | time                     | cover                                | coverUrl                                                                            |
+      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563                                   | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
+      | -LScjqC | โครงการเข้าค่ายลูกเสือ-เนตรนารี ระดับชั้นมัธยมศึกษาปีที่ 3 ปีการศึกษา 2563 | 2021-02-24T01:00:45.354Z | 88771af0-3413-4cf0-a07f-d00ad1a9ddd3 | https://photos.nudchannel.com/photos/cover/88771af0-3413-4cf0-a07f-d00ad1a9ddd3.jpg |
 
   Scenario: Search activities
-    Given activities before 1635811204682
+    Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 2
     And activities search "ปัจฉิม"
     When GET /api/v1/gallery/activities
     Then HTTP response status should be OK
     And activities should be
-      | id      | title                                    | time          | cover                                | coverUrl                                                                            |
-      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 1614751220675 | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
-      | a0iSxyq | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2562 | 1582117200000 | c04a84ce-9f33-467a-9f9f-f29fe5e76829 | https://photos.nudchannel.com/photos/cover/c04a84ce-9f33-467a-9f9f-f29fe5e76829.jpg |
+      | id      | title                                    | time                     | cover                                | coverUrl                                                                            |
+      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
+      | a0iSxyq | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2562 | 2020-02-19T13:00:00.000Z | c04a84ce-9f33-467a-9f9f-f29fe5e76829 | https://photos.nudchannel.com/photos/cover/c04a84ce-9f33-467a-9f9f-f29fe5e76829.jpg |
 
   Scenario: Search activities with academic year
-    Given activities before 1635811204682
+    Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 10
     And activities year 2020
     And activities search "ปัจฉิม"
     When GET /api/v1/gallery/activities
     Then HTTP response status should be OK
     And activities should be
-      | id      | title                                    | time          | cover                                | coverUrl                                                                            |
-      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 1614751220675 | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
+      | id      | title                                    | time                     | cover                                | coverUrl                                                                            |
+      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
 
   Scenario: Get activity
     When GET /api/v1/gallery/activities/AINfyH5
     Then HTTP response status should be OK
     And activities should be
-      | id      | title                                         | time          | cover                                | coverUrl                                                                            |
-      | AINfyH5 | Audition Christmas Night Art & Music Festival | 1607332201618 | dd9d66ec-52db-4479-9149-fb0c3883bbce | https://photos.nudchannel.com/photos/cover/dd9d66ec-52db-4479-9149-fb0c3883bbce.jpg |
+      | id      | title                                         | time                     | cover                                | coverUrl                                                                            |
+      | AINfyH5 | Audition Christmas Night Art & Music Festival | 2020-12-07T09:10:01.618Z | dd9d66ec-52db-4479-9149-fb0c3883bbce | https://photos.nudchannel.com/photos/cover/dd9d66ec-52db-4479-9149-fb0c3883bbce.jpg |
     And activity albums should be
       | id      | title                | cover                                | coverUrl                                                                            |
       | 0AZ7iw6 | Cover Dance Audition | 1e83a073-3709-4051-93fc-e92184739208 | https://photos.nudchannel.com/photos/cover/1e83a073-3709-4051-93fc-e92184739208.jpg |

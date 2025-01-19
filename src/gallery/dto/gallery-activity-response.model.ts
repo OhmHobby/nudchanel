@@ -36,13 +36,13 @@ export class GalleryActivityResponseModel {
   }
 
   @ApiProperty()
-  time: string
+  time: Date
 
   @ApiProperty()
   published: boolean
 
   @ApiProperty()
-  publishedAt: string
+  publishedAt: Date
 
   @ApiProperty({ type: [String] })
   tags: string[]
@@ -58,11 +58,11 @@ export class GalleryActivityResponseModel {
       id: model._id,
       title: model.title,
       description: model.description,
-      time: model.time.getTime()?.toString(),
+      time: model.time,
       cover: model.cover,
       tags: model.tags,
       published: model.published,
-      publishedAt: model.published_at?.getTime()?.toString(),
+      publishedAt: model.published_at,
     })
   }
 

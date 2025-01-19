@@ -16,8 +16,8 @@ export class GalleryActivitesDto extends GalleryQueryDto {
 
   @IsDate()
   @IsOptional()
-  @Transform(({ value }) => (value ? new Date(+value) : undefined))
-  @ApiPropertyOptional({ type: 'string', description: 'Before timestamp ms' })
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  @ApiPropertyOptional({ type: 'string', description: 'Before Date ISO' })
   before?: Date
 
   @IsOptional()

@@ -94,7 +94,7 @@ describe('Gallery activity', () => {
 
     expect(body.id).toBe(activity._id?.toString())
     expect(body.title).toBe(activity.title)
-    expect(body.time).toBe(activity.time.getTime().toString())
+    expect(body.time).toBe(activity.time.toISOString())
     expect(body.tags).toEqual(activity.tags)
     expect(body.cover).toBe(activity.cover)
     expect(body.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
@@ -168,7 +168,7 @@ describe('Gallery activity', () => {
     expect(result.body).toEqual(
       expect.objectContaining({
         published: false,
-        time: date.getTime().toString(),
+        time: date.toISOString(),
         publishedAt: expect.any(String),
         cardUrl: 'https://photos.nudchannel.com/photos/card/00000000-0000-0000-0000-000000000000.webp',
         coverUrl: 'https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg',
@@ -199,8 +199,8 @@ describe('Gallery activity', () => {
       expect.objectContaining({
         cover: exampleActivity.cover,
         published: true,
-        time: date.getTime().toString(),
-        publishedAt: date.getTime().toString(),
+        time: date.toISOString(),
+        publishedAt: date.toISOString(),
         cardUrl: `https://photos.nudchannel.com/photos/card/${exampleActivity.cover}.webp`,
         coverUrl: `https://photos.nudchannel.com/photos/cover/${exampleActivity.cover}.jpg`,
         tags: ['test', 'edited'],

@@ -17,5 +17,5 @@ Feature: Gallery albums
       | id      | title                | cover                                | coverUrl                                                                            |
       | 0AZ7iw6 | Cover Dance Audition | 1e83a073-3709-4051-93fc-e92184739208 | https://photos.nudchannel.com/photos/cover/1e83a073-3709-4051-93fc-e92184739208.jpg |
     And album activity should be
-      | id      | title                                         | time          | cover                                | coverUrl                                                                            |
-      | AINfyH5 | Audition Christmas Night Art & Music Festival | 1607332201618 | dd9d66ec-52db-4479-9149-fb0c3883bbce | https://photos.nudchannel.com/photos/cover/dd9d66ec-52db-4479-9149-fb0c3883bbce.jpg |
+      | id      | title                                         | time                     | cover                                | coverUrl                                                                            |
+      | AINfyH5 | Audition Christmas Night Art & Music Festival | 2020-12-07T09:10:01.618Z | dd9d66ec-52db-4479-9149-fb0c3883bbce | https://photos.nudchannel.com/photos/cover/dd9d66ec-52db-4479-9149-fb0c3883bbce.jpg |
