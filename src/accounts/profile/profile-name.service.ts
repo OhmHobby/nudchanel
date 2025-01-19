@@ -43,10 +43,7 @@ export class ProfileNameService {
   }
 
   async getProfilesName(profileIds: ProfileId[], language: ProfileNameLanguage = 'en'): Promise<ProfileNameModel[]> {
-    const profiles = await this.profileNameModel
-      .find({ profile: { $in: profileIds }, lang: language })
-      .lean()
-      .exec()
+    const profiles = await this.profileNameModel.find({ profile: { $in: profileIds }, lang: language }).exec()
     return profiles
   }
 

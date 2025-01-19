@@ -22,9 +22,6 @@ export class AuditLoggerTestController {
   }
 
   findByCorrelationId(id: string) {
-    return this.auditLogModel
-      .findOne({ correlation_id: MUUID.from(id) })
-      .lean()
-      .exec()
+    return this.auditLogModel.findOne({ correlation_id: MUUID.from(id) }).exec()
   }
 }
