@@ -10,9 +10,9 @@ export class ActivitySteps extends CommonSteps {
     super(workspace)
   }
 
-  @given('activities before {int}')
-  givenBefore(timestamp: number) {
-    this.workspace.requestQueries.before = String(timestamp)
+  @given('activities before {string}')
+  givenBefore(date: string) {
+    this.workspace.requestQueries.before = date
   }
 
   @given('activities limit to {int}')
