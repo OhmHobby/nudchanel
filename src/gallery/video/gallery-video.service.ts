@@ -1,6 +1,7 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Types } from 'mongoose'
 import { Span } from 'nestjs-otel'
 import { YouTubeService } from 'src/google/youtube.service'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
@@ -27,8 +28,8 @@ export class GalleryVideoService {
     return youtubeVideo
   }
 
-  async remove(id) {
-    return await this.youtubeVideoModel.deleteOne({ _id: id }).exec()
+  async remove(id: Types.ObjectId) {
+    await this.youtubeVideoModel.deleteOne({ _id: id }).exec()
   }
 
   @Span()
