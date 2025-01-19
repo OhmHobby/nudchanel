@@ -30,9 +30,6 @@ export class ProfileDetailResponseModel {
   }
 
   static fromProfile(profile?: ProfileModel, lang: ProfileNameLanguage = 'en') {
-    return ProfileDetailResponseModel.fromModel(
-      profile?._id,
-      profile?.populatedNames?.find((p) => p.lang === lang),
-    )
+    return ProfileDetailResponseModel.fromModel(profile?._id, profile?.populatedNames?.find((p) => p.lang === lang))
   }
 }
