@@ -40,7 +40,7 @@ export class GalleryAlbumPhotoService {
           width: photo.width,
           height: photo.height,
           color: photo.color,
-          timestamp: photo.taken_timestamp?.getTime() ?? 0,
+          timestamp: photo.taken_timestamp ?? null,
           takenBy: batchProfileNameMap.get(photo.batch.toString()),
         }),
     )

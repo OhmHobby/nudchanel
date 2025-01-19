@@ -132,7 +132,7 @@ describe('Gallery album', () => {
         title: exampleAlbum.title,
         cover: exampleAlbum.cover,
         published: true,
-        publishedAt: date.getTime().toString(),
+        publishedAt: date.toISOString(),
         cardUrl: `https://photos.nudchannel.com/photos/card/${exampleAlbum.cover}.webp`,
         coverUrl: `https://photos.nudchannel.com/photos/cover/${exampleAlbum.cover}.jpg`,
       }),
