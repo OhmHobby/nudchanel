@@ -37,8 +37,11 @@ export class GalleryAlbumResponseModel {
   @ApiProperty()
   published: boolean
 
-  @ApiProperty()
-  publishedAt: string
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+  })
+  publishedAt: Date
 
   @ApiPropertyOptional({ type: () => GalleryActivityResponseModel })
   activity?: GalleryActivityResponseModel
@@ -51,7 +54,7 @@ export class GalleryAlbumResponseModel {
       rank: model.rank,
       cover: model.cover,
       published: model.published,
-      publishedAt: model.published_at?.getTime()?.toString(),
+      publishedAt: model.published_at,
       activity: activity?._id ? GalleryActivityResponseModel.fromModel(activity) : undefined,
     })
   }

@@ -24,6 +24,9 @@ export class GalleryVideoResponseModel implements IGalleryYouTubeVideo {
   @ApiProperty()
   published: boolean
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+  })
   publishedAt: string
 }

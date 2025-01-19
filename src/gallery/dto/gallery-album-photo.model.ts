@@ -16,8 +16,12 @@ export class GalleryAlbumPhotoModel {
   @ApiProperty()
   height: number
 
-  @ApiProperty()
-  timestamp: number
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+  })
+  timestamp: Date | null
 
   @ApiProperty({ description: 'Color in hex' })
   color: string
