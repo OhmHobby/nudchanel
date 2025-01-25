@@ -1,13 +1,13 @@
 import { prop } from '@typegoose/typegoose'
 import { nanoid } from 'nanoid'
+import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 
-const ID_LENGTH = 7
 export abstract class GalleryBaseModel {
   constructor(model?: Partial<GalleryBaseModel>) {
     Object.assign(this, model)
   }
 
-  @prop({ default: () => nanoid(ID_LENGTH) })
+  @prop({ default: () => nanoid(GALLERY_ID_LENGTH) })
   _id?: string
 
   @prop({ required: true, text: true, trim: true })

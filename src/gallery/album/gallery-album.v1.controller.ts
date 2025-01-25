@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
+import { GalleryActivityService } from '../activity/gallery-activity.service'
 import { ActivityIdQueryDto } from '../dto/activity-id-query.dto'
 import { AlbumIdDto } from '../dto/album-id.dto'
 import { AlbumsActivityIdQueryDto } from '../dto/albums-activity-id-query.dto'
@@ -32,7 +33,10 @@ import { GalleryAlbumService } from './gallery-album.service'
 @Controller({ path: 'gallery/albums', version: '1' })
 @ApiTags('GalleryAlbumV1')
 export class GalleryAlbumV1Controller {
-  constructor(private readonly galleryAlbumService: GalleryAlbumService) {}
+  constructor(
+    private readonly galleryAlbumService: GalleryAlbumService,
+    private readonly galleryActivityService: GalleryActivityService,
+  ) {}
 
   @Get()
   @ApiOkResponse({ type: [GalleryAlbumResponseModel] })
@@ -40,7 +44,7 @@ export class GalleryAlbumV1Controller {
     @Query() { activityId, all }: AlbumsActivityIdQueryDto,
   ): Promise<GalleryAlbumResponseModel[]> {
     const albums = await this.galleryAlbumService.findByActivity(activityId, all)
-    return albums.map(GalleryAlbumResponseModel.fromModel)
+    return albums.map((album) => GalleryAlbumResponseModel.fromModel(album))
   }
 
   @Post()
@@ -70,7 +74,7 @@ export class GalleryAlbumV1Controller {
     @Body() { albumIds }: GalleryAlbumRankDto,
   ): Promise<GalleryAlbumResponseModel[]> {
     const albums = await this.galleryAlbumService.rankAlbums(activityId, albumIds)
-    return albums.map(GalleryAlbumResponseModel.fromModel)
+    return albums.map((album) => GalleryAlbumResponseModel.fromModel(album))
   }
 
   @Get(':albumId')
@@ -78,7 +82,9 @@ export class GalleryAlbumV1Controller {
   async getGalleryAlbumById(@Param() { albumId }: AlbumIdDto): Promise<GalleryAlbumResponseModel> {
     const album = await this.galleryAlbumService.findById(albumId)
     if (!album) throw new NotFoundException()
-    return GalleryAlbumResponseModel.fromModel(album)
+    // join when migrate album to pg
+    const activity = await this.galleryActivityService.findById(album.activity as string)
+    return GalleryAlbumResponseModel.fromModel(album, activity ?? undefined)
   }
 
   @Put(':albumId')

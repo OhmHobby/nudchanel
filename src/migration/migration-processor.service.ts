@@ -1,17 +1,21 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { InjectQueue, Process, Processor } from '@nestjs/bull'
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
+import { Process, Processor } from '@nestjs/bull'
+import { Injectable, Logger } from '@nestjs/common'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Job, Queue } from 'bull'
+import { Job } from 'bull'
 import { join } from 'path'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
-import { BullPriority } from 'src/enums/bull-priority.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { DataMigration } from 'src/enums/data-migration.enum'
 import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
-import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
+import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -19,19 +23,22 @@ import { PhotoMetadataService } from 'src/photo/processor/photo-metadata.service
 import { PhotoProcessorService } from 'src/photo/processor/photo-processor.service'
 import { UploadTaskRuleWatermark } from 'src/photo/upload-rules/upload-task-rule-watermark'
 import { StorageService } from 'src/storage/storage.service'
+import { DataSource } from 'typeorm'
 
 @Injectable()
 @Processor(BullQueueName.Migration)
-export class MigrationProcessorService implements OnModuleDestroy {
+export class MigrationProcessorService {
   private readonly logger = new Logger(MigrationProcessorService.name)
 
   constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     @InjectModel(ProfileModel)
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
-    @InjectQueue(BullQueueName.Migration)
-    private readonly migrationQueue: Queue,
+    @InjectModel(GalleryActivityModel)
+    private readonly galleryActivityModel: ReturnModelType<typeof GalleryActivityModel>,
     private readonly profilePhotoService: ProfilePhotoService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
@@ -88,43 +95,50 @@ export class MigrationProcessorService implements OnModuleDestroy {
     this.logger.log(`Re-processed ${profileId}: ${photo.directory}/${photo.filename}`)
   }
 
-  async triggerReprocessAll() {
-    const photosCursor = this.batchFileModel
-      .find({ deleted: false, state: UploadTaskBatchFileState.processed })
-      .lean()
-      .cursor()
-
-    for await (const photo of photosCursor) {
-      this.migrationQueue
-        .add(BullJobName.MigratePhoto, photo.uuid, {
-          attempts: 4,
-          backoff: 5000,
-          priority: BullPriority.Low,
-          removeOnComplete: true,
-          removeOnFail: false,
-        })
-        .then((job) => this.logger.debug(`Queued ${photo.uuid} for migration`, job))
+  @Process({ name: BullJobName.MigrateData, concurrency: 0 })
+  migrateData({ data: name }: Job<DataMigration>) {
+    try {
+      if (name === DataMigration.GalleryActivity) {
+        return this.migrateDataGalleryActivities()
+      }
+    } catch (err) {
+      this.logger.error(err)
+      throw err
     }
   }
 
-  async triggerProcessAllProfilePhotos() {
-    const profiles = await this.profileModel
-      .find({ photo: { $ne: null } })
-      .lean()
-      .exec()
-    const promises = profiles.map((profile) =>
-      this.migrationQueue.add(BullJobName.MigrateProfilePhoto, profile._id.toString(), {
-        attempts: 4,
-        backoff: 5000,
-        removeOnComplete: true,
-        removeOnFail: false,
-      }),
-    )
-    return await Promise.all(promises)
-  }
-
-  async onModuleDestroy() {
-    await this.migrationQueue.close()
-    this.logger.log('Successfully closed bull queues')
+  private migrateDataGalleryActivities() {
+    return this.dataSource.transaction(async (manager) => {
+      const tagMaxLength = 63
+      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryActivity }))
+      const activities = await this.galleryActivityModel.find().exec()
+      for (const activity of activities) {
+        this.logger.log(`Migrating gallery activity id: ${activity._id} (${activity.tags?.length} tags)`)
+        const tags = await Promise.all(
+          activity.tags
+            ?.filter((tag) => tag.length < tagMaxLength)
+            .map(async (tag) => {
+              const existingTag = await manager.getRepository(GalleryTagEntity).findOneBy({ title: tag })
+              return existingTag ?? (await manager.save(new GalleryTagEntity({ title: tag })))
+            }) ?? [],
+        )
+        await manager.save(
+          new GalleryActivityEntity({
+            id: activity._id.toString(),
+            title: activity.title,
+            description: activity.description,
+            cover: activity.cover || null,
+            time: activity.time,
+            published: activity.published,
+            publishedAt: activity.published ? activity.published_at : undefined,
+            tags,
+            createdAt: activity.createdAt,
+            updatedAt: activity.updatedAt,
+            deletedAt: activity.deleted ? activity.updated_at : undefined,
+          }),
+        )
+      }
+      this.logger.log(`Committing transactions`)
+    })
   }
 }

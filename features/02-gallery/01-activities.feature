@@ -1,16 +1,39 @@
 @gallery_activities
 Feature: Gallery activities
 
+  @query
   Scenario: Query activities
-    Given activities before "2021-11-02T00:00:04.682Z"
-    And activities limit to 2
+    Given activities before "2020-07-01T08:00:00.000Z"
+    And activities limit to 1
     When GET /api/v1/gallery/activities
     Then HTTP response status should be OK
     And activities should be
-      | id      | title                                                                      | time                     | cover                                | coverUrl                                                                            |
-      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563                                   | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
-      | -LScjqC | โครงการเข้าค่ายลูกเสือ-เนตรนารี ระดับชั้นมัธยมศึกษาปีที่ 3 ปีการศึกษา 2563 | 2021-02-24T01:00:45.354Z | 88771af0-3413-4cf0-a07f-d00ad1a9ddd3 | https://photos.nudchannel.com/photos/cover/88771af0-3413-4cf0-a07f-d00ad1a9ddd3.jpg |
+      | id      | title                                               | time                     | cover                                | coverUrl                                                                            |
+      | xir-try | บรรยากาศ​วันเปิดหอพักนักเรียน​ ปีการศึกษาที่ 1/2563 | 2020-06-28T01:00:21.133Z | 779d2ab1-96e2-4a1b-81f3-1833440fee26 | https://photos.nudchannel.com/photos/cover/779d2ab1-96e2-4a1b-81f3-1833440fee26.jpg |
 
+  @query
+  Scenario: Query all activities
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And user groups nudch, pr
+    And activities before "2020-07-01T08:00:00.000Z"
+    And activities limit to 2
+    And activities include unpublished
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | published | title                                               | time                     | cover                                | coverUrl                                                                            |
+      | Ap1BSmg | false     | เปิดเรียนวันแรก                                     | 2020-07-01T00:00:54.817Z | c3d40b23-339a-4213-9cbd-c23dc8f8c08a | https://photos.nudchannel.com/photos/cover/c3d40b23-339a-4213-9cbd-c23dc8f8c08a.jpg |
+      | xir-try | true      | บรรยากาศ​วันเปิดหอพักนักเรียน​ ปีการศึกษาที่ 1/2563 | 2020-06-28T01:00:21.133Z | 779d2ab1-96e2-4a1b-81f3-1833440fee26 | https://photos.nudchannel.com/photos/cover/779d2ab1-96e2-4a1b-81f3-1833440fee26.jpg |
+
+  @query
+  Scenario: Search all activities (unauthorized)
+    Given activities before "2020-07-01T08:00:00.000Z"
+    And activities limit to 2
+    And activities include unpublished
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be BAD_REQUEST
+
+  @query
   Scenario: Search activities
     Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 2
@@ -22,6 +45,7 @@ Feature: Gallery activities
       | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
       | a0iSxyq | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2562 | 2020-02-19T13:00:00.000Z | c04a84ce-9f33-467a-9f9f-f29fe5e76829 | https://photos.nudchannel.com/photos/cover/c04a84ce-9f33-467a-9f9f-f29fe5e76829.jpg |
 
+  @query
   Scenario: Search activities with academic year
     Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 10
@@ -33,6 +57,25 @@ Feature: Gallery activities
       | id      | title                                    | time                     | cover                                | coverUrl                                                                            |
       | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
 
+  @query
+  Scenario: Search activities with short keyword
+    Given activities before "2021-11-02T00:00:04.682Z"
+    And activities limit to 1
+    And activities search "xy"
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                                    | time                     | cover                                | coverUrl                                                                            |
+      | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
+
+  @query
+  Scenario: Search activities large limit size
+    Given activities before "2021-11-02T00:00:04.682Z"
+    And activities limit to 1000
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be BAD_REQUEST
+
+  @query
   Scenario: Get activity
     When GET /api/v1/gallery/activities/AINfyH5
     Then HTTP response status should be OK
@@ -49,3 +92,49 @@ Feature: Gallery activities
       | Music Band Audition 2020 (1/3) | https://youtu.be/7vW7wHDfAis | https://i.ytimg.com/vi/7vW7wHDfAis/maxresdefault.jpg |
       | Music Band Audition 2020 (2/3) | https://youtu.be/zVuMxpJPMFw | https://i.ytimg.com/vi/zVuMxpJPMFw/maxresdefault.jpg |
       | Music Band Audition 2020 (3/3) | https://youtu.be/Lm4iOuDAubs | https://i.ytimg.com/vi/Lm4iOuDAubs/maxresdefault.jpg |
+
+  @create
+  Scenario: Create activity
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And user groups nudch, pr
+    And activity title "Test E2E"
+    And activity time "2025-01-15T17:00:00.000Z"
+    And activity tags ["test", "created"]
+    When POST /api/v1/gallery/activities
+    Then HTTP response status should be CREATED
+    And activities should be
+      | title    | time                     | cover     | coverUrl                                                                            | published | publishedAt |
+      | Test E2E | 2025-01-15T17:00:00.000Z | undefined | https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg | false     | undefined   |
+
+  @edit
+  Scenario: Edit album - remove tags
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And user groups nudch, pr
+    And activity title "February Februalove <3"
+    And activity time "2020-02-11T19:00:00.000Z"
+    And activity cover "e76d44e6-425e-4c2a-b817-eca25c54df6c"
+    And activity published true
+    When PUT /api/v1/gallery/activities/eriEKsP
+    Then HTTP response status should be NO_CONTENT
+    When GET /api/v1/gallery/activities/eriEKsP
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                  | time                     | cover                                | coverUrl                                                                            | published | tags |
+      | eriEKsP | February Februalove <3 | 2020-02-11T19:00:00.000Z | e76d44e6-425e-4c2a-b817-eca25c54df6c | https://photos.nudchannel.com/photos/cover/e76d44e6-425e-4c2a-b817-eca25c54df6c.jpg | true      |      |
+
+  @edit
+  Scenario: Edit album - unpublished
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And user groups nudch, pr
+    And activity title "February Februalove <3"
+    And activity time "2020-02-11T19:00:00.000Z"
+    And activity cover "e76d44e6-425e-4c2a-b817-eca25c54df6c"
+    And activity tags ["วาเลนไทน์", "valentine"]
+    And activity published false
+    When PUT /api/v1/gallery/activities/eriEKsP
+    Then HTTP response status should be NO_CONTENT
+    When GET /api/v1/gallery/activities/eriEKsP
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                  | time                     | cover                                | coverUrl                                                                            | published | tags                |
+      | eriEKsP | February Februalove <3 | 2020-02-11T19:00:00.000Z | e76d44e6-425e-4c2a-b817-eca25c54df6c | https://photos.nudchannel.com/photos/cover/e76d44e6-425e-4c2a-b817-eca25c54df6c.jpg | false     | วาเลนไทน์,valentine |

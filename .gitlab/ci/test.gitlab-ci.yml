@@ -12,7 +12,8 @@ test:unit:
 
 test:it:
   stage: test
-  needs: []
+  needs:
+    - build:node
   extends:
     - .node-test-coverage
     - .use-dependencies

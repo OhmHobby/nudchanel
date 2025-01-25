@@ -14,7 +14,7 @@ export class Workspace {
 
   requestHeaders: Record<string, string>
 
-  requestBody: Record<string, string>
+  requestBody: Record<string, any>
 
   responseType?: string
 

@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: nudchannel
     volumes:
-      - ${PGDATA_VOLUME-pgdata}:/var/lib/postgresql/data
+      - ${PGDATA_VOLUME-nudch_pg}:/var/lib/postgresql/data
   mongodb:
     image: ${NUDCH_IMAGE_REGISTRY-registry.nas.nudchannel.com:7171}/nudchannel/database/devdb
     ports:
@@ -35,4 +35,4 @@ services:
       - 9001:9001 # root:password
 
 volumes:
-  pgdata:
+  nudch_pg:

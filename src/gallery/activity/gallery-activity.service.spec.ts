@@ -1,18 +1,17 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test } from '@nestjs/testing'
-import { getModelForClass } from '@typegoose/typegoose'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
+import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryActivityService } from './gallery-activity.service'
 
 describe(GalleryActivityService.name, () => {
   let service: GalleryActivityService
-  const activityModel = getModelForClass(GalleryActivityModel)
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         GalleryActivityService,
-        { provide: getModelToken(GalleryActivityModel.name), useValue: activityModel },
+        { provide: getDataSourceToken(), useValue: jest.fn() },
+        { provide: getRepositoryToken(GalleryActivityEntity), useValue: jest.fn() },
       ],
     }).compile()
 
@@ -21,58 +20,6 @@ describe(GalleryActivityService.name, () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined()
-  })
-
-  describe(GalleryActivityService.prototype.findActivities.name, () => {
-    let mockModel
-
-    beforeEach(() => {
-      mockModel = {
-        sort: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        exec: jest.fn(),
-      }
-      activityModel.find = jest.fn().mockReturnValue(mockModel)
-    })
-
-    it('should build default correctly', async () => {
-      await service.findActivities(10)
-      expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).toHaveBeenCalledWith(expect.objectContaining({ published: true }))
-      expect(mockModel.limit).toHaveBeenCalledWith(10)
-    })
-
-    it('should build with before correctly', async () => {
-      const before = new Date(2023, 4, 24)
-      await service.findActivities(10, before)
-      expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).toHaveBeenCalledWith({ time: { $lt: before } })
-    })
-
-    it('should build with year correctly', async () => {
-      await service.findActivities(10, undefined, 2024)
-      expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).toHaveBeenCalledWith({
-        time: { $lt: service.academicYearStartDate(2025), $gt: service.academicYearStartDate(2024) },
-      })
-    })
-
-    it('should build with year and before correctly', async () => {
-      const before = new Date(2023, 9, 28)
-      await service.findActivities(10, before, 2024)
-      expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).toHaveBeenCalledWith({
-        time: { $lt: before, $gt: service.academicYearStartDate(2024) },
-      })
-    })
-
-    it('should build with includes unpublished correctly', async () => {
-      await service.findActivities(10, undefined, undefined, undefined, true)
-      expect(mockModel.sort).toHaveBeenCalled()
-      expect(mockModel.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
-      expect(mockModel.limit).toHaveBeenCalledWith(10)
-    })
   })
 
   describe(GalleryActivityService.prototype.selectEailerDate.name, () => {

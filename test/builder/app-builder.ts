@@ -3,7 +3,7 @@ import { BullModule } from '@nestjs/bull'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
-import { getDataSourceToken } from '@nestjs/typeorm'
+import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { getModelForClass } from '@typegoose/typegoose'
 import { useContainer } from 'class-validator'
 import cookieParser from 'cookie-parser'
@@ -12,6 +12,7 @@ import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -119,6 +120,8 @@ export class AppBuilder {
       .overrideProvider(getConnectionToken(MongoConnection.Audit))
       .useValue(mockTypegooseConnection)
       .overrideProvider(getDataSourceToken())
+      .useValue(jest.fn())
+      .overrideProvider(getRepositoryToken(GalleryActivityEntity))
       .useValue(jest.fn())
     return this
   }

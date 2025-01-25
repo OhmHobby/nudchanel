@@ -1,6 +1,8 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryAlbumResponseModel } from 'src/gallery/dto/gallery-album-response.model'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
@@ -8,12 +10,14 @@ import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import request from 'supertest'
 import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
+import { Repository } from 'typeorm'
 
 describe('Gallery album', () => {
   let app: INestApplication
   let mockGalleryActivityModel: MockModelType<typeof GalleryActivityModel>
   let mockGalleryAlbumModel: MockModelType<typeof GalleryAlbumModel>
   let mockYouTubeVideoModel: MockModelType<typeof YouTubeVideoModel>
+  let mockGalleryActivityRepository: Repository<GalleryActivityEntity>
   let prCookie: string[]
 
   beforeAll(async () => {
@@ -27,6 +31,7 @@ describe('Gallery album', () => {
     mockGalleryActivityModel = await app.get(getModelToken(GalleryActivityModel.name))
     mockGalleryAlbumModel = await app.get(getModelToken(GalleryAlbumModel.name))
     mockYouTubeVideoModel = await app.get(getModelToken(YouTubeVideoModel.name))
+    mockGalleryActivityRepository = await app.get(getRepositoryToken(GalleryActivityEntity))
     resetMockModel(mockGalleryActivityModel)
     resetMockModel(mockGalleryAlbumModel)
     resetMockModel(mockYouTubeVideoModel)
@@ -54,10 +59,10 @@ describe('Gallery album', () => {
   })
 
   test('GET /api/v1/gallery/albums/:id', async () => {
-    const activity = TestData.aValidGalleryActivity().build()
-    const album = TestData.aValidGalleryAlbum().withActivity(activity).build()
+    const activity = TestData.aValidGalleryActivity().buildEntity()
+    const album = TestData.aValidGalleryAlbum().build()
+    mockGalleryActivityRepository.findOneBy = jest.fn().mockResolvedValue(activity)
     mockGalleryAlbumModel.findById = jest.fn().mockReturnValue({
-      populate: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue(album),
     })
 
@@ -73,7 +78,7 @@ describe('Gallery album', () => {
     expect(body?.cover).toBe(album.cover)
     expect(body?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${album.cover}.jpg`)
     expect(body?.cardUrl).toBe(`https://photos.nudchannel.com/photos/card/${album.cover}.webp`)
-    expect(body?.activity?.id).toBe(activity._id)
+    expect(body?.activity?.id).toBe(activity.id)
     expect(body?.activity?.title).toBe(activity.title)
     expect(body?.activity?.coverUrl).toBe(`https://photos.nudchannel.com/photos/cover/${activity.cover}.jpg`)
   })
@@ -168,9 +173,7 @@ describe('Gallery album', () => {
   })
 
   test('DELETE /api/v1/gallery/albums/PNBwEli', async () => {
-    const result = await request(app.getHttpServer())
-      .delete('/api/v1/gallery/activities/PNBwEli')
-      .set('Cookie', prCookie)
+    const result = await request(app.getHttpServer()).delete('/api/v1/gallery/albums/PNBwEli').set('Cookie', prCookie)
     expect(result.status).toBe(HttpStatus.NO_CONTENT)
   })
 

@@ -14,6 +14,6 @@
   "collectCoverage": true,
   "coverageDirectory": "<rootDir>/coverage",
   "collectCoverageFrom": ["<rootDir>/src/**/*.ts", "!**/*.module.ts", "!**/*.model.ts", "!**/config/**"],
-  "coverageReporters": ["text", "cobertura", "lcov"],
+  "coverageReporters": ["cobertura", "lcov"],
   "reporters": ["default", "jest-junit"]
 }
