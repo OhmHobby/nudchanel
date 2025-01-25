@@ -2,12 +2,15 @@ import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { WinstonModule, WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
+import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GalleryActivityService } from 'src/gallery/activity/gallery-activity.service'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
@@ -15,7 +18,7 @@ import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 describe('Gallery activity', () => {
   let app: INestApplication
   let galleryActivityService: GalleryActivityService
-  let testActivity: GalleryActivityModel
+  let testActivity: GalleryActivityEntity
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +31,8 @@ describe('Gallery activity', () => {
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
         TypegooseModule.forFeature([GalleryActivityModel], MongoConnection.Gallery),
+        TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
+        TypeOrmModule.forFeature([GalleryActivityEntity]),
       ],
       providers: [GalleryActivityService],
     }).compile()
@@ -44,12 +49,14 @@ describe('Gallery activity', () => {
   })
 
   it('should create with random nanoid correctly', async () => {
-    testActivity = await galleryActivityService.create({ title: 'test - integration', time: new Date() })
-    expect(testActivity).toEqual(expect.objectContaining({ _id: expect.any(String) }))
+    testActivity = await galleryActivityService.create(
+      new GalleryActivityEntity({ title: 'test - integration', time: new Date(), tags: [] }),
+    )
+    expect(testActivity).toEqual(expect.objectContaining({ id: expect.any(String) }))
   })
 
   it('should find created activity correctly', async () => {
-    const result = await galleryActivityService.findById(testActivity._id!)
+    const result = await galleryActivityService.findById(testActivity.id!)
     expect(result).toEqual(expect.objectContaining({ title: 'test - integration' }))
   })
 

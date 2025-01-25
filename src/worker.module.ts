@@ -47,6 +47,7 @@ import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     AmqpModule,

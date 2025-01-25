@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
@@ -66,8 +67,21 @@ export class GalleryActivityResponseModel {
     })
   }
 
+  static fromEntity(entity: GalleryActivityEntity) {
+    return new GalleryActivityResponseModel({
+      id: entity.id,
+      title: entity.title,
+      description: entity.description ?? undefined,
+      time: entity.time,
+      cover: entity.cover ?? undefined,
+      tags: entity.tags.map((el) => el.title),
+      published: entity.published,
+      publishedAt: entity.publishedAt ?? undefined,
+    })
+  }
+
   withAlbums(albums: GalleryAlbumModel[]) {
-    this.albums = albums.map(GalleryAlbumResponseModel.fromModel)
+    this.albums = albums.map((album) => GalleryAlbumResponseModel.fromModel(album))
     return this
   }
 

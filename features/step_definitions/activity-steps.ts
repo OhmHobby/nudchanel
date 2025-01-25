@@ -30,9 +30,39 @@ export class ActivitySteps extends CommonSteps {
     this.workspace.requestQueries.search = String(search)
   }
 
+  @given('activities include unpublished')
+  givenIncludeUnpublished() {
+    this.workspace.requestQueries.all = 'true'
+  }
+
   @given('activity id {string}')
   givenId(id: string) {
     this.workspace.requestQueries.activityId = id
+  }
+
+  @given('activity title {string}')
+  givenTitle(title: string) {
+    this.workspace.requestBody.title = title
+  }
+
+  @given('activity cover {string}')
+  givenCover(cover: string) {
+    this.workspace.requestBody.cover = cover
+  }
+
+  @given('activity time {string}')
+  givenTime(time: string) {
+    this.workspace.requestBody.time = time
+  }
+
+  @given(/activity tags (\[.+\])/)
+  givenTags(tags: string) {
+    this.workspace.requestBody.tags = JSON.parse(tags)
+  }
+
+  @given(/activity published (true|false)/)
+  givenPublished(published: 'true' | 'false') {
+    this.workspace.requestBody.published = published === 'true'
   }
 
   @then('activities should be')

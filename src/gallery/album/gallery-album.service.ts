@@ -21,7 +21,7 @@ export class GalleryAlbumService {
 
   @Span()
   async findById(id: string): Promise<GalleryAlbumModel | null> {
-    return await this.albumModel.findById(id).populate('activity').exec()
+    return await this.albumModel.findById(id).exec()
   }
 
   async create(activityId: string, model: Omit<GalleryAlbumModel, '_id' | 'deleted'>) {

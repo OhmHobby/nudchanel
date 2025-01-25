@@ -42,6 +42,7 @@ export class HttpSteps extends CommonSteps {
 
   @then(/^HTTP response status should be (.+)$/)
   thenStatusCode(status: string) {
+    if (this.workspace.response?.status !== HttpStatus[status]) console.error(this.workspace.response?.body)
     expect(this.workspace.response?.status).toBe(HttpStatus[status])
   }
 

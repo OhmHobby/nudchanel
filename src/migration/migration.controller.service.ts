@@ -1,12 +1,12 @@
-import { Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
-import { MigrationProcessorService } from './migration-processor.service'
+import { MigrationService } from './migration.service'
 
 @Controller({ path: 'migrate' })
 @ApiTags('Migration')
 export class MigrationController {
-  constructor(private readonly service: MigrationProcessorService) {}
+  constructor(private readonly service: MigrationService) {}
 
   @Post('reprocess-photos')
   @HttpCode(HttpStatus.OK)
@@ -26,5 +26,22 @@ export class MigrationController {
   @AuthGroups('it')
   async triggerReprocessProfilesAll() {
     return await this.service.triggerProcessAllProfilePhotos()
+  }
+
+  @Get('data')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  async getDataMigrations() {
+    return await this.service.getDataMigrations()
+  }
+
+  @Post('data/:name')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups('it')
+  async triggerDataMigration(@Param('name') name: string) {
+    await this.service.triggerDataMigration(name)
   }
 }

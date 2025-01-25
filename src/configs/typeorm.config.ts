@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
+import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
 import { Config } from 'src/enums/config.enum'
 
 @Injectable()
 export class TypeormConfigService implements TypeOrmOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
-  static readonly entities = []
+  static readonly entities = [GalleryActivityEntity, GalleryTagEntity, DataMigrationEntity]
 
   static readonly migrations = ['dist/migrations/*.js']
 
@@ -23,6 +26,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
       migrations: TypeormConfigService.migrations,
       migrationsRun: this.configService.get(Config.DB_MIGRATION),
       synchronize: false,
+      logging: this.configService.get(Config.LOG_LEVEL) === 'debug',
     }
   }
 }
