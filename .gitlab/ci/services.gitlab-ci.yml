@@ -11,8 +11,12 @@
       variables:
         NODE_OPTIONS: ""
     - &postgres
-      name: $NUDCH_IMAGE_REGISTRY/nudchannel/database/devdb/pg
+      name: postgres:17
       alias: postgres
+      variables:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: nudchannel
     - &redis
       name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/redis:7-alpine
       alias: redis

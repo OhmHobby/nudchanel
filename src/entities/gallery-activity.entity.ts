@@ -32,7 +32,7 @@ export class GalleryActivityEntity extends BaseEntity {
   @Column({ type: 'uuid', nullable: true, comment: 'Soft relation to photo' })
   cover: string | null
 
-  @Column({ type: 'timestamptz', name: 'time' })
+  @Column({ type: 'timestamp', name: 'time' })
   time: Date
 
   @Column({ type: 'boolean', default: false })
@@ -49,12 +49,12 @@ export class GalleryActivityEntity extends BaseEntity {
   })
   tags: GalleryTagEntity[]
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'created_at', select: false })
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at', select: false })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at', select: false })
   updatedAt: Date
 
-  @DeleteDateColumn({ type: 'timestamptz', name: 'deleted_at', select: false })
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', select: false })
   deletedAt?: Date
 }
