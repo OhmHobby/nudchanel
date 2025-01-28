@@ -2,13 +2,9 @@ version: '3.5'
 
 services:
   postgres:
-    image: postgres:17
+    image: ${NUDCH_IMAGE_REGISTRY-registry.nas.nudchannel.com:7171}/nudchannel/database/devdb/pg
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: nudchannel
     volumes:
       - ${PGDATA_VOLUME-nudch_pg}:/var/lib/postgresql/data
   mongodb:
