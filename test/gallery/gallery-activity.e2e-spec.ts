@@ -1,19 +1,13 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
+import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import request from 'supertest'
-import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
 import { Repository } from 'typeorm'
 
 describe('Gallery activity', () => {
   let app: INestApplication
-  let mockGalleryAlbumModel: MockModelType<typeof GalleryAlbumModel>
-  let mockYouTubeVideoModel: MockModelType<typeof YouTubeVideoModel>
   let mockGalleryActivityRepository: Repository<GalleryActivityEntity>
 
   beforeAll(async () => {
@@ -21,15 +15,11 @@ describe('Gallery activity', () => {
   })
 
   beforeEach(async () => {
-    mockGalleryAlbumModel = await app.get(getModelToken(GalleryAlbumModel.name))
-    mockYouTubeVideoModel = await app.get(getModelToken(YouTubeVideoModel.name))
     mockGalleryActivityRepository = await app.get(getRepositoryToken(GalleryActivityEntity))
-    resetMockModel(mockGalleryAlbumModel)
-    resetMockModel(mockYouTubeVideoModel)
   })
 
   test('GET /api/v1/gallery/activities', async () => {
-    const activity = TestData.aValidGalleryActivity().buildEntity()
+    const activity = TestData.aValidGalleryActivity().build()
     mockGalleryActivityRepository.find = jest.fn().mockResolvedValue([activity])
     const result = await request(app.getHttpServer()).get('/api/v1/gallery/activities').send()
     expect(result.status).toBe(HttpStatus.OK)

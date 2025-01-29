@@ -12,8 +12,6 @@ export class MongooseServerLifecyclesService implements OnApplicationShutdown {
     private readonly connection: Connection,
     @Inject(getConnectionToken(MongoConnection.Accounts))
     private readonly accountsConnection: Connection,
-    @Inject(getConnectionToken(MongoConnection.Gallery))
-    private readonly galleryConnection: Connection,
     @Inject(getConnectionToken(MongoConnection.Photo))
     private readonly photoConnection: Connection,
     @Inject(getConnectionToken(MongoConnection.Mailer))
@@ -28,7 +26,6 @@ export class MongooseServerLifecyclesService implements OnApplicationShutdown {
       await Promise.all([
         this.connection.close(),
         this.accountsConnection.close(),
-        this.galleryConnection.close(),
         this.photoConnection.close(),
         this.mailerConnection.close(),
         this.auditConnection.close(),

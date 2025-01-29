@@ -12,9 +12,9 @@ import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
-import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
+import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -31,9 +31,6 @@ import { ApiKeyModel } from 'src/models/api-key.model'
 import { AuditLogModel } from 'src/models/audit/audit-log.model'
 import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import { GoogleCredentialModel } from 'src/models/google-credential.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
@@ -69,10 +66,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
       .overrideProvider(getModelToken(AuditLogModel.name))
       .useValue(resetMockModel(getModelForClass(AuditLogModel)))
-      .overrideProvider(getModelToken(GalleryActivityModel.name))
-      .useValue(resetMockModel(getModelForClass(GalleryActivityModel)))
-      .overrideProvider(getModelToken(GalleryAlbumModel.name))
-      .useValue(resetMockModel(getModelForClass(GalleryAlbumModel)))
       .overrideProvider(getModelToken(GoogleCredentialModel.name))
       .useValue(resetMockModel(getModelForClass(GoogleCredentialModel)))
       .overrideProvider(getModelToken(GroupModel.name))
@@ -107,13 +100,9 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(UserGroupModel)))
       .overrideProvider(getModelToken(UserLocalModel.name))
       .useValue(resetMockModel(getModelForClass(UserLocalModel)))
-      .overrideProvider(getModelToken(YouTubeVideoModel.name))
-      .useValue(resetMockModel(getModelForClass(YouTubeVideoModel)))
       .overrideProvider(getConnectionToken())
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Accounts))
-      .useValue(mockTypegooseConnection)
-      .overrideProvider(getConnectionToken(MongoConnection.Gallery))
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Photo))
       .useValue(mockTypegooseConnection)

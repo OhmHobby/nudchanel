@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
-import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 import { IYouTubeVideo } from 'src/google/interfaces/youtube-video.interface'
 import { YouTubeService } from 'src/google/youtube.service'
 import { DataSource, Repository } from 'typeorm'

@@ -1,21 +1,17 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Process, Processor } from '@nestjs/bull'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bull'
 import { join } from 'path'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
-import { DataMigrationEntity } from 'src/entities/data-migration.entity'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -37,8 +33,6 @@ export class MigrationProcessorService {
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
-    @InjectModel(YouTubeVideoModel)
-    private readonly youTubeVideoModel: ReturnModelType<typeof YouTubeVideoModel>,
     private readonly profilePhotoService: ProfilePhotoService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
@@ -96,37 +90,12 @@ export class MigrationProcessorService {
   }
 
   @Process({ name: BullJobName.MigrateData, concurrency: 0 })
-  async migrateData({ data: name }: Job<DataMigration>) {
+  migrateData({ data: name }: Job<DataMigration>) {
     try {
-      if (name === DataMigration.GalleryYouTube) {
-        return await this.migrateDataGalleryYouTube()
-      }
+      throw new NotFoundException(`${name}`)
     } catch (err) {
       this.logger.error(err)
       throw err
     }
-  }
-
-  private migrateDataGalleryYouTube() {
-    return this.dataSource.transaction(async (manager) => {
-      const videos = await this.youTubeVideoModel.find().exec()
-      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryYouTube }))
-      for (const video of videos) {
-        this.logger.log(`Migrating gallery youtube id: ${video.youtube}`)
-        let activityId: string | null = video.activity?.toString() ?? null
-        const activityCount = await manager.getRepository(GalleryActivityEntity).countBy({ id: activityId })
-        if (activityId && activityCount !== 1) {
-          activityId = null
-        }
-        await manager.save(
-          new GalleryYouTubeVideoEntity({
-            id: video.youtube,
-            activityId: activityId,
-            createdAt: video._id.getTimestamp(),
-          }),
-        )
-      }
-      this.logger.log(`Committing transactions`)
-    })
   }
 }

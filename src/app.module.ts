@@ -48,7 +48,6 @@ import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
     TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
-    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),

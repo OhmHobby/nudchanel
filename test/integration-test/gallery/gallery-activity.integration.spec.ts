@@ -1,4 +1,3 @@
-import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -7,13 +6,10 @@ import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
-import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { MongoConnection } from 'src/enums/mongo-connection.enum'
+import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryActivityService } from 'src/gallery/activity/gallery-activity.service'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 
 describe('Gallery activity', () => {
   let app: INestApplication
@@ -29,8 +25,6 @@ describe('Gallery activity', () => {
         }),
         ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
-        TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Gallery)),
-        TypegooseModule.forFeature([GalleryActivityModel], MongoConnection.Gallery),
         TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
         TypeOrmModule.forFeature([GalleryActivityEntity]),
       ],

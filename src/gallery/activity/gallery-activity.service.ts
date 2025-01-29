@@ -3,8 +3,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
+import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
+import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import {
   Between,
   DataSource,

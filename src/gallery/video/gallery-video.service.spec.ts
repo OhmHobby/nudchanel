@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
-import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 import { YouTubeService } from 'src/google/youtube.service'
 import { TestData } from 'test/test-data'
 import { GalleryVideoService } from './gallery-video.service'

@@ -1,13 +1,10 @@
-import { Types } from 'mongoose'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
-
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 export class YouTubeVideoBuilder {
-  private readonly youtubeVideo: YouTubeVideoModel
+  private readonly youtubeVideo: GalleryYouTubeVideoEntity
 
   constructor() {
-    this.youtubeVideo = new YouTubeVideoModel()
-    this.youtubeVideo._id = new Types.ObjectId('5fd2dcef2122ed92e8f1913a')
-    this.youtubeVideo.youtube = 'Lm4iOuDAubs'
+    this.youtubeVideo = new GalleryYouTubeVideoEntity()
+    this.youtubeVideo.id = 'Lm4iOuDAubs'
   }
 
   build() {
