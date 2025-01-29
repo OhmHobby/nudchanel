@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsBoolean, IsDate, IsOptional, IsString } from 'class-validator'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 
 export class GalleryAlbumDto {
   constructor(dto?: Partial<GalleryAlbumDto>) {
@@ -28,14 +28,15 @@ export class GalleryAlbumDto {
   @IsDate()
   @Type(() => Date)
   @ApiPropertyOptional()
-  publishedAt: Date = new Date()
+  @IsOptional()
+  publishedAt: Date
 
-  toModel(): GalleryAlbumModel {
-    return new GalleryAlbumModel({
+  toEntity(): GalleryAlbumEntity {
+    return new GalleryAlbumEntity({
       title: this.title,
       cover: this.cover,
       published: this.published,
-      published_at: this.publishedAt,
+      publishedAt: this.publishedAt,
     })
   }
 }

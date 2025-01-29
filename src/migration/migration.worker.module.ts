@@ -7,7 +7,7 @@ import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
+import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoWorkerModule } from 'src/photo/photo.worker.module'
 import { StorageModule } from 'src/storage/storage.module'
@@ -19,7 +19,7 @@ import { MigrationService } from './migration.service'
   imports: [
     TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
     TypegooseModule.forFeature([UploadBatchFileModel], MongoConnection.Photo),
-    TypegooseModule.forFeature([GalleryActivityModel], MongoConnection.Gallery),
+    TypegooseModule.forFeature([GalleryAlbumModel], MongoConnection.Gallery),
     TypeOrmModule.forFeature([DataMigrationEntity]),
     BullModule.registerQueue({ name: BullQueueName.Migration }),
     AccountsWorkerModule,

@@ -1,5 +1,5 @@
 import { DataTable } from '@cucumber/cucumber'
-import { binding, then } from 'cucumber-tsflow'
+import { binding, given, then } from 'cucumber-tsflow'
 import expect from 'expect'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
@@ -8,6 +8,11 @@ import { Workspace } from './workspace'
 export class AlbumSteps extends CommonSteps {
   constructor(private readonly workspace: Workspace) {
     super(workspace)
+  }
+
+  @given('album title {string}')
+  givenTitle(title: string) {
+    this.workspace.requestBody.title = title
   }
 
   @then('albums should be')

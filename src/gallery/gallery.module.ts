@@ -18,11 +18,12 @@ import { GalleryAlbumPhotoService } from './photo/gallery-album-photo.service'
 import { GalleryAlbumPhotoV1Controller } from './photo/gallery-album-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 
 @Module({
   imports: [
     TypegooseModule.forFeature([GalleryActivityModel, GalleryAlbumModel, YouTubeVideoModel], MongoConnection.Gallery),
-    TypeOrmModule.forFeature([GalleryActivityEntity]),
+    TypeOrmModule.forFeature([GalleryActivityEntity, GalleryAlbumEntity]),
     AccountsModule,
     GoogleModule,
     PhotoModule,

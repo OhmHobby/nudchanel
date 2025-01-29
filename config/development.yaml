@@ -18,7 +18,7 @@ otlp:
 database:
   postgres:
     host: postgres
-    user: postgres
+    user: nudchannel
     pass: nudchDev!123
     port: 5432
     db: nudchannel

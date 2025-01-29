@@ -1,9 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { GalleryAlbumResponseModel } from './gallery-album-response.model'
 import { GalleryVideoResponseModel } from './gallery-video-response.model'
 
@@ -42,7 +41,7 @@ export class GalleryActivityResponseModel {
   @ApiProperty()
   published: boolean
 
-  @ApiProperty()
+  @ApiProperty({ type: String, format: 'date-time' })
   publishedAt: Date
 
   @ApiProperty({ type: [String] })
@@ -53,19 +52,6 @@ export class GalleryActivityResponseModel {
 
   @ApiPropertyOptional({ type: () => [GalleryVideoResponseModel] })
   videos?: GalleryVideoResponseModel[]
-
-  static fromModel(model: GalleryActivityModel) {
-    return new GalleryActivityResponseModel({
-      id: model._id,
-      title: model.title,
-      description: model.description,
-      time: model.time,
-      cover: model.cover,
-      tags: model.tags,
-      published: model.published,
-      publishedAt: model.published_at,
-    })
-  }
 
   static fromEntity(entity: GalleryActivityEntity) {
     return new GalleryActivityResponseModel({
@@ -80,8 +66,8 @@ export class GalleryActivityResponseModel {
     })
   }
 
-  withAlbums(albums: GalleryAlbumModel[]) {
-    this.albums = albums.map((album) => GalleryAlbumResponseModel.fromModel(album))
+  withAlbums(albums: GalleryAlbumEntity[]) {
+    this.albums = albums.map((album) => GalleryAlbumResponseModel.fromEntity(album))
     return this
   }
 

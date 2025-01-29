@@ -3,7 +3,6 @@ import { Type } from 'class-transformer'
 import { IsArray, IsBoolean, IsDate, IsOptional, IsString } from 'class-validator'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 
 export class GalleryActivityDto {
   constructor(dto?: Partial<GalleryActivityDto>) {
@@ -50,18 +49,6 @@ export class GalleryActivityDto {
   @Type(() => String)
   @ApiPropertyOptional()
   tags: string[] = []
-
-  toModel(): GalleryActivityModel {
-    return new GalleryActivityModel({
-      title: this.title,
-      time: this.time,
-      description: this.description,
-      cover: this.cover,
-      published: this.published,
-      published_at: this.publishedAt ?? new Date(),
-      tags: this.tags,
-    })
-  }
 
   toEntity(): GalleryActivityEntity {
     return new GalleryActivityEntity({

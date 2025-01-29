@@ -3,7 +3,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
 import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import request from 'supertest'
@@ -13,7 +12,6 @@ import { Repository } from 'typeorm'
 
 describe('Gallery activity', () => {
   let app: INestApplication
-  let mockGalleryActivityModel: MockModelType<typeof GalleryActivityModel>
   let mockGalleryAlbumModel: MockModelType<typeof GalleryAlbumModel>
   let mockYouTubeVideoModel: MockModelType<typeof YouTubeVideoModel>
   let mockGalleryActivityRepository: Repository<GalleryActivityEntity>
@@ -23,11 +21,9 @@ describe('Gallery activity', () => {
   })
 
   beforeEach(async () => {
-    mockGalleryActivityModel = await app.get(getModelToken(GalleryActivityModel.name))
     mockGalleryAlbumModel = await app.get(getModelToken(GalleryAlbumModel.name))
     mockYouTubeVideoModel = await app.get(getModelToken(YouTubeVideoModel.name))
     mockGalleryActivityRepository = await app.get(getRepositoryToken(GalleryActivityEntity))
-    resetMockModel(mockGalleryActivityModel)
     resetMockModel(mockGalleryAlbumModel)
     resetMockModel(mockYouTubeVideoModel)
   })
