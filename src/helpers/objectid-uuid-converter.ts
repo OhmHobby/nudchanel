@@ -7,7 +7,7 @@ export class ObjectIdUuidConverter {
     const bytes = objectId.id
     const paddedBytes = new Uint8Array(16)
     paddedBytes.set(bytes.slice(0, 6), 0)
-    paddedBytes.set([0x40, 0, 0x80], 6) // Set version (4) and variant (RFC4122) bits.
+    paddedBytes.set([0x80, 0, 0x80], 6) // Set version (8) and variant (RFC4122) bits.
     paddedBytes.set(bytes.slice(6, 12), 9)
     return uuidStringify(paddedBytes)
   }
