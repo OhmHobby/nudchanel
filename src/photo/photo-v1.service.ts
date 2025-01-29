@@ -40,7 +40,6 @@ export class PhotoV1Service {
       .find({ batch: { $in: batchIds }, state: UploadTaskBatchFileState.processed, deleted: false })
       .sort({ taken_timestamp: 'asc', md5: 'asc' })
       .select(['_id', 'uuid', 'width', 'height', 'color', 'batch', 'md5', 'taken_timestamp'])
-      .lean()
       .exec()
     return this.deduplicateSortedByTimestampFollowByMd5Photos(photos)
   }

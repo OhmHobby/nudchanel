@@ -70,8 +70,8 @@ export class ActivitySteps extends CommonSteps {
     const columns = dataTable.raw().at(0)
     const normalizedResponse = [this.workspace.response?.body]
       .flat()
-      .map((activity) =>
-        columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(activity[column]) }), {}),
+      .map(
+        (activity) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(activity[column]) }), {}),
       )
     expect(normalizedResponse).toStrictEqual(dataTable.hashes())
   }

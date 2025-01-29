@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 RUN apk add --no-cache jemalloc
 ENV LD_PRELOAD=libjemalloc.so.2
 WORKDIR /usr/src/app

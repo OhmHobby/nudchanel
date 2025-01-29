@@ -65,7 +65,10 @@ export class TeamService {
 
   async getPrimaryTeamYears(): Promise<number[]> {
     const primaryGroup = await this.teamGroupModel.findOne({ rank: 0 }).exec()
-    const years = await this.teamMemberModel.find({ group: primaryGroup?._id }).distinct('year').exec()
+    const years = await this.teamMemberModel
+      .find({ group: primaryGroup?._id })
+      .distinct('year')
+      .exec()
     return years
   }
 
