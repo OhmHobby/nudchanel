@@ -4,7 +4,7 @@ import { ObjectIdUuidConverter } from './objectid-uuid-converter'
 
 describe(ObjectIdUuidConverter.name, () => {
   const testObjectId = '5b794c41fd533e3b2f61cf05'
-  const testUuid = '5b794c41-fd53-4000-803e-3b2f61cf0500'
+  const testUuid = '5b794c41-fd53-8000-803e-3b2f61cf0500'
 
   test(ObjectIdUuidConverter.toUuid.name, () => {
     const result = ObjectIdUuidConverter.toUuid(new Types.ObjectId(testObjectId))
