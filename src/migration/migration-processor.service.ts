@@ -117,12 +117,12 @@ export class MigrationProcessorService {
         const dummyActivity = new GalleryActivityEntity({
           id: activityId,
           title: `[Dummy] ${album.title}`,
-          time: album.created_at,
-          cover: album.cover,
+          time: album.created_at || new Date(),
+          cover: album.cover || null,
           published: false,
-          createdAt: album.created_at,
-          updatedAt: album.updated_at,
-          deletedAt: album.updated_at,
+          createdAt: album.created_at || new Date(),
+          updatedAt: album.updated_at || new Date(),
+          deletedAt: album.updated_at || new Date(),
         })
         if (!activityCount) {
           await manager.save(dummyActivity)
