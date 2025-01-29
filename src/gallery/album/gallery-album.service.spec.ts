@@ -1,18 +1,27 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test } from '@nestjs/testing'
-import { getModelForClass } from '@typegoose/typegoose'
+import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { nanoid } from 'nanoid'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 import { TestData } from 'test/test-data'
 import { GalleryAlbumService } from './gallery-album.service'
 
 describe(GalleryAlbumService.name, () => {
   let service: GalleryAlbumService
-  const albumModel = getModelForClass(GalleryAlbumModel)
+  const dataSource = {
+    transaction: jest.fn(),
+  }
+  const albumRepository = {
+    find: jest.fn(),
+  }
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [GalleryAlbumService, { provide: getModelToken(GalleryAlbumModel.name), useValue: albumModel }],
+      providers: [
+        GalleryAlbumService,
+        { provide: getDataSourceToken(), useValue: dataSource },
+        { provide: getRepositoryToken(GalleryAlbumEntity), useValue: albumRepository },
+      ],
     }).compile()
 
     service = module.get(GalleryAlbumService)
@@ -24,27 +33,28 @@ describe(GalleryAlbumService.name, () => {
 
   describe(GalleryAlbumService.prototype.findByActivity.name, () => {
     it('should find only published correctly', async () => {
-      const query = { where: jest.fn().mockReturnThis(), sort: jest.fn().mockReturnThis(), exec: jest.fn() }
-      albumModel.find = jest.fn().mockReturnValue(query)
       await service.findByActivity('')
-      expect(query.where).toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+      expect(albumRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ published: true }) }),
+      )
     })
 
     it('should find all published correctly', async () => {
-      const query = { where: jest.fn().mockReturnThis(), sort: jest.fn().mockReturnThis(), exec: jest.fn() }
-      albumModel.find = jest.fn().mockReturnValue(query)
       await service.findByActivity('', true)
-      expect(query.where).not.toHaveBeenCalledWith(expect.objectContaining({ published: true }))
+      expect(albumRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ published: undefined }) }),
+      )
     })
   })
 
   describe(GalleryAlbumService.prototype.create.name, () => {
     it('should create with incremental rank', async () => {
-      const activityId = nanoid(7)
-      service.findByActivity = jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().build()])
-      albumModel.create = jest.fn()
-      await service.create(activityId, new GalleryAlbumModel())
-      expect(albumModel.create).toHaveBeenCalledWith(expect.objectContaining({ activity: activityId, rank: 1 }))
+      const activityId = nanoid(GALLERY_ID_LENGTH)
+      service.findByActivity = jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().buildEntity()])
+      const save = jest.fn()
+      dataSource.transaction.mockImplementation((cb) => cb({ save }))
+      await service.create(activityId, new GalleryAlbumEntity())
+      expect(save).toHaveBeenCalledWith(expect.objectContaining({ activityId, rank: 1 }))
     })
   })
 
@@ -53,14 +63,16 @@ describe(GalleryAlbumService.name, () => {
       service.findByActivity = jest
         .fn()
         .mockResolvedValue([
-          TestData.aValidGalleryAlbum().withId('album-1').build(),
-          TestData.aValidGalleryAlbum().withId('album-2').build(),
-          TestData.aValidGalleryAlbum().withId('album-3').build(),
-          TestData.aValidGalleryAlbum().withId('album-4').build(),
-          TestData.aValidGalleryAlbum().withId('album-5').build(),
+          TestData.aValidGalleryAlbum().withId('album-1').buildEntity(),
+          TestData.aValidGalleryAlbum().withId('album-2').buildEntity(),
+          TestData.aValidGalleryAlbum().withId('album-3').buildEntity(),
+          TestData.aValidGalleryAlbum().withId('album-4').buildEntity(),
+          TestData.aValidGalleryAlbum().withId('album-5').buildEntity(),
         ])
+      const save = jest.fn()
+      dataSource.transaction.mockImplementation((cb) => cb({ save }))
       const result = await service.rankAlbums('activity-id', ['album-4', 'album-2', 'album-3'])
-      expect(result.map((el) => el._id)).toEqual(['album-4', 'album-2', 'album-3', 'album-1', 'album-5'])
+      expect(result.map((el) => el.id)).toEqual(['album-4', 'album-2', 'album-3', 'album-1', 'album-5'])
       expect(result.map((el) => el.rank)).toEqual([0, 1, 2, 3, 3])
     })
   })

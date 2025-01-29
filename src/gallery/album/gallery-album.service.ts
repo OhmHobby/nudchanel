@@ -1,50 +1,76 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose'
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
+import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { DataSource, LessThanOrEqual, Repository } from 'typeorm'
 
 @Injectable()
 export class GalleryAlbumService {
   constructor(
-    @InjectModel(GalleryAlbumModel)
-    private readonly albumModel: ReturnModelType<typeof GalleryAlbumModel>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+    @InjectRepository(GalleryAlbumEntity)
+    private readonly albumRepository: Repository<GalleryAlbumEntity>,
   ) {}
 
   @Span()
-  async findByActivity(activityId: string, includesUnpublished = false): Promise<DocumentType<GalleryAlbumModel>[]> {
-    const query = this.albumModel.find({ activity: activityId, deleted: false })
-    if (!includesUnpublished) query.where({ published: true, published_at: { $lte: new Date() } })
-    const albums = await query.sort({ rank: 1 }).exec()
+  async findByActivity(activityId: string, includesUnpublished = false): Promise<GalleryAlbumEntity[]> {
+    const albums = await this.albumRepository.find({
+      where: {
+        activityId,
+        published: includesUnpublished ? undefined : true,
+        // Will use cron and ignore publishedAt in the future
+        publishedAt: includesUnpublished ? undefined : LessThanOrEqual(new Date()),
+      },
+      order: { rank: 'ASC' },
+    })
     return albums
   }
 
   @Span()
-  async findById(id: string): Promise<GalleryAlbumModel | null> {
-    return await this.albumModel.findById(id).exec()
+  async findById(id: string): Promise<GalleryAlbumEntity | null> {
+    return await this.albumRepository.findOne({
+      where: { id },
+      relations: { activity: true },
+    })
   }
 
-  async create(activityId: string, model: Omit<GalleryAlbumModel, '_id' | 'deleted'>) {
-    const albums = await this.findByActivity(activityId, true)
-    const album = await this.albumModel.create({ ...model, activity: activityId, rank: albums.length })
-    return album
+  create(activityId: string, entity: GalleryAlbumEntity): Promise<GalleryAlbumEntity> {
+    return this.dataSource.transaction(async (manager) => {
+      const albums = await this.findByActivity(activityId, true)
+      entity.id = nanoid(GALLERY_ID_LENGTH)
+      entity.activityId = activityId
+      entity.rank = albums.length
+      const album = await manager.save(entity)
+      return album
+    })
   }
 
-  async update(id: string, model: Omit<GalleryAlbumModel, '_id' | 'deleted'>) {
-    const activity = await this.albumModel.findByIdAndUpdate(id, model, { new: true }).exec()
-    return activity
+  update(id: string, entity: GalleryAlbumEntity) {
+    return this.dataSource.transaction(async (manager) => {
+      const album = await manager.getRepository(GalleryAlbumEntity).findOneBy({ id })
+      if (!album) return false
+      Object.assign(album, entity)
+      await manager.save(album)
+      return true
+    })
   }
 
-  async rankAlbums(activityId: string, albumIds: string[]): Promise<GalleryAlbumModel[]> {
-    const rankMapper = Object.fromEntries(albumIds.map((id, i) => [id, i]))
-    const albums = await this.findByActivity(activityId, true)
-    albums.forEach((album) => (album.rank = rankMapper[album._id] ?? albumIds.length))
-    await Promise.all(albums.map((album) => album.save()))
-    albums.sort((a, b) => a.rank! - b.rank!)
-    return albums
+  rankAlbums(activityId: string, albumIds: string[]): Promise<GalleryAlbumEntity[]> {
+    return this.dataSource.transaction(async (manager) => {
+      const rankMapper = Object.fromEntries(albumIds.map((id, i) => [id, i]))
+      const albums = await this.findByActivity(activityId, true)
+      albums.forEach((album) => (album.rank = rankMapper[album.id] ?? albumIds.length))
+      await Promise.all(albums.map((album) => manager.save(album)))
+      albums.sort((a, b) => a.rank! - b.rank!)
+      return albums
+    })
   }
 
   async remove(id: string) {
-    return await this.albumModel.updateOne({ _id: id }, { deleted: true }).exec()
+    const result = await this.albumRepository.softDelete({ id })
+    return !!result.affected
   }
 }

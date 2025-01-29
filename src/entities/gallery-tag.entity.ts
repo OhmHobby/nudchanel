@@ -1,3 +1,4 @@
+import { GALLERY_TAG_LENGTH } from 'src/constants/gallery.constant'
 import { BaseEntity, Column, DeepPartial, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm'
 
 @Entity('gallery_tags')
@@ -11,6 +12,6 @@ export class GalleryTagEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number
 
-  @Column({ length: 63 })
+  @Column({ length: GALLERY_TAG_LENGTH })
   title: string
 }

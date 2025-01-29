@@ -6,18 +6,15 @@ import {
   DeepPartial,
   DeleteDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { GalleryAlbumEntity } from './gallery-album.entity'
-import { GalleryTagEntity } from './gallery-tag.entity'
-
-@Entity('gallery_activities')
-export class GalleryActivityEntity extends BaseEntity {
-  constructor(entity?: DeepPartial<GalleryActivityEntity>) {
+import { GalleryActivityEntity } from './gallery-activity.entity'
+@Entity('gallery_albums')
+export class GalleryAlbumEntity extends BaseEntity {
+  constructor(entity?: DeepPartial<GalleryAlbumEntity>) {
     super()
     Object.assign(this, entity)
   }
@@ -28,31 +25,24 @@ export class GalleryActivityEntity extends BaseEntity {
   @Column({ length: GALLERY_TITLE_LENGTH })
   title: string
 
-  @Column({ type: 'varchar', length: GALLERY_TITLE_LENGTH, nullable: true })
-  description: string | null
-
   @Column({ type: 'uuid', nullable: true, comment: 'Soft relation to photo' })
   cover: string | null
 
-  @Column({ type: 'timestamptz', name: 'time' })
-  time: Date
+  @Column({ type: 'smallint', default: 0 })
+  rank: number
+
+  @ManyToOne(() => GalleryActivityEntity, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'activity_id' })
+  activity?: GalleryActivityEntity
+
+  @Column({ name: 'activity_id', type: 'varchar', length: GALLERY_ID_LENGTH, nullable: true })
+  activityId: string | null
 
   @Column({ type: 'boolean', default: false })
   published: boolean
 
   @Column({ type: 'timestamptz', name: 'published_at', nullable: true })
   publishedAt: Date | null
-
-  @OneToMany(() => GalleryAlbumEntity, (album: GalleryAlbumEntity) => album.activity)
-  albums?: GalleryAlbumEntity[]
-
-  @ManyToMany(() => GalleryTagEntity, { eager: true, cascade: true })
-  @JoinTable({
-    name: 'gallery_activity_tags',
-    joinColumn: { name: 'activity_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
-  })
-  tags: GalleryTagEntity[]
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at', select: false })
   createdAt: Date

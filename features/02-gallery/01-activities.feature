@@ -106,6 +106,15 @@ Feature: Gallery activities
       | title    | time                     | cover     | coverUrl                                                                            | published | publishedAt |
       | Test E2E | 2025-01-15T17:00:00.000Z | undefined | https://photos.nudchannel.com/photos/cover/00000000-0000-0000-0000-000000000000.jpg | false     | undefined   |
 
+  @create
+  @error
+  Scenario: Create activity - Unauthorized
+    Given activity title "Test E2E"
+    And activity time "2025-01-15T17:00:00.000Z"
+    And activity tags ["test", "created"]
+    When POST /api/v1/gallery/activities
+    Then HTTP response status should be UNAUTHORIZED
+
   @edit
   Scenario: Edit album - remove tags
     Given user profileId 5b794c41fd533e3b2f61cf05

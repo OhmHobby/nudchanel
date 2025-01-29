@@ -13,6 +13,7 @@ import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -122,6 +123,8 @@ export class AppBuilder {
       .overrideProvider(getDataSourceToken())
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryActivityEntity))
+      .useValue(jest.fn())
+      .overrideProvider(getRepositoryToken(GalleryAlbumEntity))
       .useValue(jest.fn())
     return this
   }

@@ -8,14 +8,14 @@ import { join } from 'path'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { GalleryActivityModel } from 'src/models/gallery/activity.model'
+import { GalleryAlbumModel } from 'src/models/gallery/album.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -37,8 +37,8 @@ export class MigrationProcessorService {
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
-    @InjectModel(GalleryActivityModel)
-    private readonly galleryActivityModel: ReturnModelType<typeof GalleryActivityModel>,
+    @InjectModel(GalleryAlbumModel)
+    private readonly galleryAlbumModel: ReturnModelType<typeof GalleryAlbumModel>,
     private readonly profilePhotoService: ProfilePhotoService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
@@ -98,8 +98,8 @@ export class MigrationProcessorService {
   @Process({ name: BullJobName.MigrateData, concurrency: 0 })
   migrateData({ data: name }: Job<DataMigration>) {
     try {
-      if (name === DataMigration.GalleryActivity) {
-        return this.migrateDataGalleryActivities()
+      if (name === DataMigration.GalleryAlbum) {
+        return this.migrateDataGalleryAlbum()
       }
     } catch (err) {
       this.logger.error(err)
@@ -107,37 +107,42 @@ export class MigrationProcessorService {
     }
   }
 
-  private migrateDataGalleryActivities() {
+  private migrateDataGalleryAlbum() {
     return this.dataSource.transaction(async (manager) => {
-      const tagMaxLength = 63
-      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryActivity }))
-      const activities = await this.galleryActivityModel.find().exec()
-      for (const activity of activities) {
-        this.logger.log(`Migrating gallery activity id: ${activity._id} (${activity.tags?.length} tags)`)
-        const tags = await Promise.all(
-          activity.tags
-            ?.filter((tag) => tag.length < tagMaxLength)
-            .map(async (tag) => {
-              const existingTag = await manager.getRepository(GalleryTagEntity).findOneBy({ title: tag })
-              return existingTag ?? (await manager.save(new GalleryTagEntity({ title: tag })))
-            }) ?? [],
-        )
+      const albums = await this.galleryAlbumModel.find().exec()
+      for (const album of albums) {
+        this.logger.log(`Migrating gallery album id: ${album._id}`)
+        const activityId = album.activity.toString()
+        const activityCount = await manager.getRepository(GalleryActivityEntity).countBy({ id: activityId })
+        const dummyActivity = new GalleryActivityEntity({
+          id: activityId,
+          title: `[Dummy] ${album.title}`,
+          time: album.created_at,
+          cover: album.cover,
+          published: false,
+          createdAt: album.created_at,
+          updatedAt: album.updated_at,
+          deletedAt: album.updated_at,
+        })
+        if (!activityCount) {
+          await manager.save(dummyActivity)
+        }
         await manager.save(
-          new GalleryActivityEntity({
-            id: activity._id.toString(),
-            title: activity.title,
-            description: activity.description,
-            cover: activity.cover || null,
-            time: activity.time,
-            published: activity.published,
-            publishedAt: activity.published ? activity.published_at : undefined,
-            tags,
-            createdAt: activity.createdAt,
-            updatedAt: activity.updatedAt,
-            deletedAt: activity.deleted ? activity.updated_at : undefined,
+          new GalleryAlbumEntity({
+            id: album._id.toString(),
+            title: album.title,
+            cover: album.cover || null,
+            rank: album.rank,
+            activityId: activityId,
+            published: album.published,
+            publishedAt: album.published ? album.published_at : null,
+            createdAt: album.created_at,
+            updatedAt: album.updated_at,
+            deletedAt: album.deleted || !activityCount ? album.updated_at : undefined,
           }),
         )
       }
+      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryAlbum }))
       this.logger.log(`Committing transactions`)
     })
   }
