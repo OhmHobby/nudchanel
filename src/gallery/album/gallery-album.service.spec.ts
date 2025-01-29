@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { nanoid } from 'nanoid'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { TestData } from 'test/test-data'
 import { GalleryAlbumService } from './gallery-album.service'
 
@@ -50,7 +50,7 @@ describe(GalleryAlbumService.name, () => {
   describe(GalleryAlbumService.prototype.create.name, () => {
     it('should create with incremental rank', async () => {
       const activityId = nanoid(GALLERY_ID_LENGTH)
-      service.findByActivity = jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().buildEntity()])
+      service.findByActivity = jest.fn().mockResolvedValue([TestData.aValidGalleryAlbum().build()])
       const save = jest.fn()
       dataSource.transaction.mockImplementation((cb) => cb({ save }))
       await service.create(activityId, new GalleryAlbumEntity())
@@ -63,11 +63,11 @@ describe(GalleryAlbumService.name, () => {
       service.findByActivity = jest
         .fn()
         .mockResolvedValue([
-          TestData.aValidGalleryAlbum().withId('album-1').buildEntity(),
-          TestData.aValidGalleryAlbum().withId('album-2').buildEntity(),
-          TestData.aValidGalleryAlbum().withId('album-3').buildEntity(),
-          TestData.aValidGalleryAlbum().withId('album-4').buildEntity(),
-          TestData.aValidGalleryAlbum().withId('album-5').buildEntity(),
+          TestData.aValidGalleryAlbum().withId('album-1').build(),
+          TestData.aValidGalleryAlbum().withId('album-2').build(),
+          TestData.aValidGalleryAlbum().withId('album-3').build(),
+          TestData.aValidGalleryAlbum().withId('album-4').build(),
+          TestData.aValidGalleryAlbum().withId('album-5').build(),
         ])
       const save = jest.fn()
       dataSource.transaction.mockImplementation((cb) => cb({ save }))

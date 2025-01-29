@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
-import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryActivityService } from './gallery-activity.service'
 
 describe(GalleryActivityService.name, () => {

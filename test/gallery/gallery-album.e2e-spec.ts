@@ -1,18 +1,14 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryAlbumResponseModel } from 'src/gallery/dto/gallery-album-response.model'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import request from 'supertest'
-import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
 import { DataSource, Repository } from 'typeorm'
 
 describe('Gallery album', () => {
   let app: INestApplication
-  let mockYouTubeVideoModel: MockModelType<typeof YouTubeVideoModel>
   let dataSource: DataSource
   let mockGalleryAlbumRepository: Repository<GalleryAlbumEntity>
   let prCookie: string[]
@@ -25,14 +21,12 @@ describe('Gallery album', () => {
   })
 
   beforeEach(async () => {
-    mockYouTubeVideoModel = await app.get(getModelToken(YouTubeVideoModel.name))
     dataSource = await app.get(getDataSourceToken())
     mockGalleryAlbumRepository = await app.get(getRepositoryToken(GalleryAlbumEntity))
-    resetMockModel(mockYouTubeVideoModel)
   })
 
   test('GET /api/v1/gallery/albums', async () => {
-    const album = TestData.aValidGalleryAlbum().buildEntity()
+    const album = TestData.aValidGalleryAlbum().build()
     mockGalleryAlbumRepository.find = jest.fn().mockResolvedValue([album])
     const result = await request(app.getHttpServer()).get('/api/v1/gallery/albums?activityId=AINfyH5').send()
 
@@ -47,8 +41,8 @@ describe('Gallery album', () => {
   })
 
   test('GET /api/v1/gallery/albums/:id', async () => {
-    const activity = TestData.aValidGalleryActivity().buildEntity()
-    const album = TestData.aValidGalleryAlbum().withActivity(activity).buildEntity()
+    const activity = TestData.aValidGalleryActivity().build()
+    const album = TestData.aValidGalleryAlbum().withActivity(activity).build()
     mockGalleryAlbumRepository.findOne = jest.fn().mockResolvedValue(album)
 
     const result = await request(app.getHttpServer())
@@ -73,11 +67,11 @@ describe('Gallery album', () => {
     mockGalleryAlbumRepository.find = jest
       .fn()
       .mockResolvedValue([
-        TestData.aValidGalleryAlbum().withId('album-1').buildEntity(),
-        TestData.aValidGalleryAlbum().withId('album-2').buildEntity(),
-        TestData.aValidGalleryAlbum().withId('album-3').buildEntity(),
-        TestData.aValidGalleryAlbum().withId('album-4').buildEntity(),
-        TestData.aValidGalleryAlbum().withId('album-5').buildEntity(),
+        TestData.aValidGalleryAlbum().withId('album-1').build(),
+        TestData.aValidGalleryAlbum().withId('album-2').build(),
+        TestData.aValidGalleryAlbum().withId('album-3').build(),
+        TestData.aValidGalleryAlbum().withId('album-4').build(),
+        TestData.aValidGalleryAlbum().withId('album-5').build(),
       ])
     const result = await request(app.getHttpServer())
       .put('/api/v1/gallery/albums/rank?activityId=AINfyH5')

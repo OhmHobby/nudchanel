@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsBoolean, IsDate, IsOptional, IsString } from 'class-validator'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 
 export class GalleryAlbumDto {
   constructor(dto?: Partial<GalleryAlbumDto>) {

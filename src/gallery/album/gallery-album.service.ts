@@ -3,7 +3,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { DataSource, LessThanOrEqual, Repository } from 'typeorm'
 
 @Injectable()
