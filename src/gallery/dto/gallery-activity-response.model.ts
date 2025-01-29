@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { IYouTubeVideo } from 'src/google/interfaces/youtube-video.interface'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { GalleryAlbumResponseModel } from './gallery-album-response.model'
 import { GalleryVideoResponseModel } from './gallery-video-response.model'
@@ -71,8 +72,8 @@ export class GalleryActivityResponseModel {
     return this
   }
 
-  withVideos(videos: GalleryVideoResponseModel[]) {
-    this.videos = videos
+  withVideos(videos: IYouTubeVideo[]) {
+    this.videos = videos.map((video) => new GalleryVideoResponseModel(video))
     return this
   }
 }

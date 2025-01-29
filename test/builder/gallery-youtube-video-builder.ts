@@ -1,17 +1,16 @@
-import { IGalleryYouTubeVideo } from 'src/gallery/interfaces/gallery-youtube-video.interface'
+import { IYouTubeVideo } from 'src/google/interfaces/youtube-video.interface'
 
 export class GalleryYouTubeVideoBuilder {
-  private readonly youtubeVideo: IGalleryYouTubeVideo
+  private readonly youtubeVideo: IYouTubeVideo
 
   constructor() {
     this.youtubeVideo = {
-      id: '5fd2dcef2122ed92e8f1913a',
+      id: 'Lm4iOuDAubs',
       title: 'Title',
       cover: '',
       url: '',
       published: false,
-      publishedAt: '',
-      youtubeId: 'Lm4iOuDAubs',
+      publishedAt: new Date(),
     }
   }
 

@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from 'src/accounts/accounts.module'
 import { IsForbiddenField } from 'src/auth/is-forbidden-field.validator'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GoogleModule } from 'src/google/google.module'
 import { GalleryActivityModel } from 'src/models/gallery/activity.model'
@@ -18,12 +20,11 @@ import { GalleryAlbumPhotoService } from './photo/gallery-album-photo.service'
 import { GalleryAlbumPhotoV1Controller } from './photo/gallery-album-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 
 @Module({
   imports: [
     TypegooseModule.forFeature([GalleryActivityModel, GalleryAlbumModel, YouTubeVideoModel], MongoConnection.Gallery),
-    TypeOrmModule.forFeature([GalleryActivityEntity, GalleryAlbumEntity]),
+    TypeOrmModule.forFeature([GalleryActivityEntity, GalleryAlbumEntity, GalleryYouTubeVideoEntity]),
     AccountsModule,
     GoogleModule,
     PhotoModule,

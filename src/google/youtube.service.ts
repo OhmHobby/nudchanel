@@ -37,7 +37,7 @@ export class YouTubeService {
       cover: video?.snippet?.thumbnails?.maxres?.url ?? `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
       url: `https://youtu.be/${id}`,
       published: video?.status?.privacyStatus === 'public',
-      publishedAt: video?.snippet?.publishedAt ?? new Date().toISOString(),
+      publishedAt: new Date(video?.snippet?.publishedAt ?? new Date()),
     }
   }
 

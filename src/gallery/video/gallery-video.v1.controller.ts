@@ -41,7 +41,7 @@ export class GalleryVideoV1Controller {
     @Query() { activityId }: ActivityIdQueryDto,
     @Body() body: GalleryVideoDto,
   ): Promise<GalleryVideoResponseModel> {
-    const video = await this.galleryVideoService.create(activityId, body.toModel())
+    const video = await this.galleryVideoService.create(activityId, body.youtubeId)
     return new GalleryVideoResponseModel(video)
   }
 

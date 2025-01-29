@@ -5,13 +5,20 @@ import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
 import { GalleryTagEntity } from 'src/entities/gallery-tag.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
 import { Config } from 'src/enums/config.enum'
 
 @Injectable()
 export class TypeormConfigService implements TypeOrmOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
-  static readonly entities = [GalleryActivityEntity, GalleryAlbumEntity, GalleryTagEntity, DataMigrationEntity]
+  static readonly entities = [
+    GalleryActivityEntity,
+    GalleryAlbumEntity,
+    GalleryTagEntity,
+    GalleryYouTubeVideoEntity,
+    DataMigrationEntity,
+  ]
 
   static readonly migrations = ['dist/migrations/*.js']
 

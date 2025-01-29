@@ -1,48 +1,47 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
-import { ReturnModelType } from '@typegoose/typegoose'
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
+import { IYouTubeVideo } from 'src/google/interfaces/youtube-video.interface'
 import { YouTubeService } from 'src/google/youtube.service'
-import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
-import { IGalleryYouTubeVideo } from '../interfaces/gallery-youtube-video.interface'
+import { DataSource, Repository } from 'typeorm'
 
 @Injectable()
 export class GalleryVideoService {
   constructor(
     private readonly youTubeService: YouTubeService,
-    @InjectModel(YouTubeVideoModel)
-    private readonly youtubeVideoModel: ReturnModelType<typeof YouTubeVideoModel>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+    @InjectRepository(GalleryYouTubeVideoEntity)
+    private readonly youtubeVideoRepository: Repository<GalleryYouTubeVideoEntity>,
   ) {}
 
   @Span()
-  async findByActivity(activityId: string, includesUnpublished = false): Promise<IGalleryYouTubeVideo[]> {
-    const videos = await this.youtubeVideoModel.find({ activity: activityId }).exec()
-    const youtubeVideos = await Promise.all(videos.map((el) => this.getGalleryYoutubeVideo(el)))
+  async findByActivity(activityId: string, includesUnpublished = false): Promise<IYouTubeVideo[]> {
+    const videos = await this.youtubeVideoRepository.findBy({ activityId })
+    const youtubeVideos = await Promise.all(videos.map((el) => this.youTubeService.getVideo(el.id)))
     return youtubeVideos.filter(({ published }) => includesUnpublished || published).sort(this.sortByPublishedAt)
   }
 
-  async create(activityId: string, model: Omit<YouTubeVideoModel, '_id'>): Promise<IGalleryYouTubeVideo> {
-    const doc = await this.youtubeVideoModel.create({ ...model, activity: activityId })
-    const youtubeVideo = await this.getGalleryYoutubeVideo(doc)
-    return youtubeVideo
+  create(activityId: string, youtubeId: string): Promise<IYouTubeVideo> {
+    return this.dataSource.transaction(async (manager) => {
+      const row = await manager.save(
+        new GalleryYouTubeVideoEntity({
+          id: youtubeId,
+          activityId,
+        }),
+      )
+      const youtubeVideo = await this.youTubeService.getVideo(row.id)
+      return youtubeVideo
+    })
   }
 
-  async remove(id) {
-    return await this.youtubeVideoModel.deleteOne({ _id: id }).exec()
-  }
-
-  @Span()
-  async getGalleryYoutubeVideo(doc: Pick<YouTubeVideoModel, '_id' | 'youtube'>): Promise<IGalleryYouTubeVideo> {
-    const youtube = await this.youTubeService.getVideo(doc.youtube)
-    return {
-      ...youtube,
-      id: doc._id.toHexString(),
-      youtubeId: youtube.id,
-    }
+  async remove(id: string) {
+    return await this.youtubeVideoRepository.delete({ id })
   }
 
   @Span()
-  sortByPublishedAt(a: Pick<IGalleryYouTubeVideo, 'publishedAt'>, b: Pick<IGalleryYouTubeVideo, 'publishedAt'>) {
-    return new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
+  sortByPublishedAt(a: Pick<IYouTubeVideo, 'publishedAt'>, b: Pick<IYouTubeVideo, 'publishedAt'>) {
+    return a.publishedAt.getTime() - b.publishedAt.getTime()
   }
 }
