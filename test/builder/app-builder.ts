@@ -14,6 +14,7 @@ import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -125,6 +126,8 @@ export class AppBuilder {
       .overrideProvider(getRepositoryToken(GalleryActivityEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryAlbumEntity))
+      .useValue(jest.fn())
+      .overrideProvider(getRepositoryToken(GalleryYouTubeVideoEntity))
       .useValue(jest.fn())
     return this
   }

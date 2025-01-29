@@ -8,14 +8,14 @@ import { join } from 'path'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery-activity.entity'
-import { GalleryAlbumEntity } from 'src/entities/gallery-album.entity'
+import { GalleryYouTubeVideoEntity } from 'src/entities/gallery-youtube-video.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { GalleryAlbumModel } from 'src/models/gallery/album.model'
+import { YouTubeVideoModel } from 'src/models/gallery/youtube-video.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -37,8 +37,8 @@ export class MigrationProcessorService {
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
-    @InjectModel(GalleryAlbumModel)
-    private readonly galleryAlbumModel: ReturnModelType<typeof GalleryAlbumModel>,
+    @InjectModel(YouTubeVideoModel)
+    private readonly youTubeVideoModel: ReturnModelType<typeof YouTubeVideoModel>,
     private readonly profilePhotoService: ProfilePhotoService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
@@ -96,10 +96,10 @@ export class MigrationProcessorService {
   }
 
   @Process({ name: BullJobName.MigrateData, concurrency: 0 })
-  migrateData({ data: name }: Job<DataMigration>) {
+  async migrateData({ data: name }: Job<DataMigration>) {
     try {
-      if (name === DataMigration.GalleryAlbum) {
-        return this.migrateDataGalleryAlbum()
+      if (name === DataMigration.GalleryYouTube) {
+        return await this.migrateDataGalleryYouTube()
       }
     } catch (err) {
       this.logger.error(err)
@@ -107,42 +107,25 @@ export class MigrationProcessorService {
     }
   }
 
-  private migrateDataGalleryAlbum() {
+  private migrateDataGalleryYouTube() {
     return this.dataSource.transaction(async (manager) => {
-      const albums = await this.galleryAlbumModel.find().exec()
-      for (const album of albums) {
-        this.logger.log(`Migrating gallery album id: ${album._id}`)
-        const activityId = album.activity.toString()
+      const videos = await this.youTubeVideoModel.find().exec()
+      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryYouTube }))
+      for (const video of videos) {
+        this.logger.log(`Migrating gallery youtube id: ${video.youtube}`)
+        let activityId: string | null = video.activity?.toString() ?? null
         const activityCount = await manager.getRepository(GalleryActivityEntity).countBy({ id: activityId })
-        const dummyActivity = new GalleryActivityEntity({
-          id: activityId,
-          title: `[Dummy] ${album.title}`,
-          time: album.created_at || new Date(),
-          cover: album.cover || null,
-          published: false,
-          createdAt: album.created_at || new Date(),
-          updatedAt: album.updated_at || new Date(),
-          deletedAt: album.updated_at || new Date(),
-        })
-        if (!activityCount) {
-          await manager.save(dummyActivity)
+        if (activityId && activityCount !== 1) {
+          activityId = null
         }
         await manager.save(
-          new GalleryAlbumEntity({
-            id: album._id.toString(),
-            title: album.title,
-            cover: album.cover || null,
-            rank: album.rank,
+          new GalleryYouTubeVideoEntity({
+            id: video.youtube,
             activityId: activityId,
-            published: album.published,
-            publishedAt: album.published ? album.published_at : null,
-            createdAt: album.created_at,
-            updatedAt: album.updated_at,
-            deletedAt: album.deleted || !activityCount ? album.updated_at : undefined,
+            createdAt: video._id.getTimestamp(),
           }),
         )
       }
-      await manager.save(new DataMigrationEntity({ id: DataMigration.GalleryAlbum }))
       this.logger.log(`Committing transactions`)
     })
   }

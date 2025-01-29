@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IGalleryYouTubeVideo } from '../interfaces/gallery-youtube-video.interface'
+import { Expose } from 'class-transformer'
+import { IYouTubeVideo } from 'src/google/interfaces/youtube-video.interface'
 
-export class GalleryVideoResponseModel implements IGalleryYouTubeVideo {
+export class GalleryVideoResponseModel implements IYouTubeVideo {
   constructor(model: Partial<GalleryVideoResponseModel>) {
     Object.assign(this, model)
   }
@@ -9,8 +10,11 @@ export class GalleryVideoResponseModel implements IGalleryYouTubeVideo {
   @ApiProperty()
   id: string
 
-  @ApiProperty()
-  youtubeId: string
+  @ApiProperty({ type: String })
+  @Expose()
+  get youtubeId() {
+    return this.id
+  }
 
   @ApiProperty()
   title: string
@@ -24,9 +28,6 @@ export class GalleryVideoResponseModel implements IGalleryYouTubeVideo {
   @ApiProperty()
   published: boolean
 
-  @ApiProperty({
-    type: String,
-    format: 'date-time',
-  })
-  publishedAt: string
+  @ApiProperty({ type: String, format: 'date-time' })
+  publishedAt: Date
 }

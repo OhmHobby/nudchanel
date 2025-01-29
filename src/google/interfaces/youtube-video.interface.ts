@@ -9,5 +9,5 @@ export interface IYouTubeVideo {
 
   published: boolean
 
-  publishedAt: string
+  publishedAt: Date
 }
