@@ -1,8 +1,11 @@
+import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
+import { getModelForClass } from '@typegoose/typegoose'
 import { nanoid } from 'nanoid'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { TestData } from 'test/test-data'
 import { GalleryAlbumService } from './gallery-album.service'
 
@@ -21,6 +24,7 @@ describe(GalleryAlbumService.name, () => {
         GalleryAlbumService,
         { provide: getDataSourceToken(), useValue: dataSource },
         { provide: getRepositoryToken(GalleryAlbumEntity), useValue: albumRepository },
+        { provide: getModelToken(UploadTaskModel.name), useValue: getModelForClass(UploadTaskModel) },
       ],
     }).compile()
 

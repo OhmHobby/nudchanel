@@ -19,8 +19,10 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger'
+import { User } from '@nudchannel/auth'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
+import { UserCtx } from 'src/auth/user.decorator'
 import { ActivityIdQueryDto } from '../dto/activity-id-query.dto'
 import { AlbumIdDto } from '../dto/album-id.dto'
 import { AlbumsActivityIdQueryDto } from '../dto/albums-activity-id-query.dto'
@@ -74,11 +76,21 @@ export class GalleryAlbumV1Controller {
   }
 
   @Get(':albumId')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: GalleryAlbumResponseModel })
-  async getGalleryAlbumById(@Param() { albumId }: AlbumIdDto): Promise<GalleryAlbumResponseModel> {
+  async getGalleryAlbumById(
+    @Param() { albumId }: AlbumIdDto,
+    @UserCtx() user: User,
+  ): Promise<GalleryAlbumResponseModel> {
     const album = await this.galleryAlbumService.findById(albumId)
     if (!album) throw new NotFoundException()
-    return GalleryAlbumResponseModel.fromEntity(album)
+    const response = GalleryAlbumResponseModel.fromEntity(album)
+    if (user.isSignedIn()) {
+      const uploadInfo = await this.galleryAlbumService.findUploadTaskInfo(albumId)
+      response.withUploadInfo(uploadInfo)
+    }
+    return response
   }
 
   @Put(':albumId')
