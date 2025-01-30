@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   postgres:
     image: ${NUDCH_IMAGE_REGISTRY-registry.nas.nudchannel.com:7171}/nudchannel/database/devdb/pg

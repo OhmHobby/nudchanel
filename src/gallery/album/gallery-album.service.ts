@@ -1,10 +1,14 @@
+import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
+import { ReturnModelType } from '@typegoose/typegoose'
 import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataSource, LessThanOrEqual, Repository } from 'typeorm'
+import { AlbumPhotoUploadRule } from '../photo/rules/album-photo-upload-rule'
 
 @Injectable()
 export class GalleryAlbumService {
@@ -13,6 +17,8 @@ export class GalleryAlbumService {
     private readonly dataSource: DataSource,
     @InjectRepository(GalleryAlbumEntity)
     private readonly albumRepository: Repository<GalleryAlbumEntity>,
+    @InjectModel(UploadTaskModel)
+    private readonly photoUploadTaskModel: ReturnModelType<typeof UploadTaskModel>,
   ) {}
 
   @Span()
@@ -44,6 +50,7 @@ export class GalleryAlbumService {
       entity.activityId = activityId
       entity.rank = albums.length
       const album = await manager.save(entity)
+      await this.upsertUploadTaskInfo(entity)
       return album
     })
   }
@@ -54,6 +61,7 @@ export class GalleryAlbumService {
       if (!album) return false
       Object.assign(album, entity)
       await manager.save(album)
+      await this.upsertUploadTaskInfo(entity)
       return true
     })
   }
@@ -72,5 +80,30 @@ export class GalleryAlbumService {
   async remove(id: string) {
     const result = await this.albumRepository.softDelete({ id })
     return !!result.affected
+  }
+
+  findUploadTaskInfo(albumId: string): Promise<UploadTaskModel | null> {
+    return this.photoUploadTaskModel.findOne({ album: albumId }).exec()
+  }
+
+  async upsertUploadTaskInfo(entity: GalleryAlbumEntity): Promise<UploadTaskModel | undefined> {
+    if (this.isUploadable(entity)) {
+      const doc = await this.photoUploadTaskModel
+        .findOneAndUpdate(
+          { album: entity.id },
+          {
+            album: entity.id,
+            src_directory: entity.uploadDirectory,
+            rules: AlbumPhotoUploadRule.fromEntity(entity).toPattern(),
+          },
+          { upsert: true, new: true },
+        )
+        .exec()
+      return doc
+    }
+  }
+
+  isUploadable(entity: GalleryAlbumEntity) {
+    return !!entity.uploadDirectory && !!entity.minimumResolutionMp && !!entity.takenAfter && !!entity.takenBefore
   }
 }

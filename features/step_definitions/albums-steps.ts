@@ -15,6 +15,21 @@ export class AlbumSteps extends CommonSteps {
     this.workspace.requestBody.title = title
   }
 
+  @given('album upload directory {string}')
+  givenUploadDirectory(value: string) {
+    this.workspace.requestBody.uploadDirectory = value
+  }
+
+  @given('album takenAfter {string}')
+  givenTakenAfter(value: string) {
+    this.workspace.requestBody.takenAfter = value
+  }
+
+  @given('album takenBefore {string}')
+  givenTakenBefore(value: string) {
+    this.workspace.requestBody.takenBefore = value
+  }
+
   @then('albums should be')
   thenAlbumsShouldBe(dataTable: DataTable) {
     const columns = dataTable.raw().at(0)
