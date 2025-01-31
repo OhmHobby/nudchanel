@@ -26,6 +26,8 @@ test:functional:
   extends:
     - .node-test-coverage
     - .default-test-rules
+  variables:
+    RUN_MODE: server
   script: npm run test:functional
 
 test:e2e:
