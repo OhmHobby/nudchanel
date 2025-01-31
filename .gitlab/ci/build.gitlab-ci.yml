@@ -7,6 +7,8 @@ build:
 build:openapi:
   extends:
     - build:node
+  variables:
+    RUN_MODE: server
   script: npm run generate:openapi
   artifacts:
     paths:

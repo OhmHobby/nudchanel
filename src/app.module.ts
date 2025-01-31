@@ -2,13 +2,15 @@ import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { BullModule } from '@nestjs/bull'
 import { CacheModule } from '@nestjs/cache-manager'
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConditionalModule, ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import config from 'config'
 import { WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { AccountsModule } from './accounts/accounts.module'
+import { AccountsWorkerModule } from './accounts/accounts.worker.module'
 import { AmqpModule } from './amqp/amqp.module'
 import { ApiKeyModule } from './api-key/api-key.module'
 import { AppController } from './app.controller'
@@ -29,14 +31,27 @@ import { TypegooseConfigBuilderService } from './configs/typegoose.config'
 import { TypeormConfigService } from './configs/typeorm.config'
 import { WinstonConfig } from './configs/winston.config'
 import { DeliveryModule } from './delivery/delivery.module'
+import { DeliveryWorkerModule } from './delivery/delivery.worker.module'
+import { DiscordWorkerModule } from './discord/discord-worker.module'
+import { AppRunMode } from './enums/app-run-mode.enum'
+import { Config } from './enums/config.enum'
 import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { LdapServerModule } from './ldap-server/ldap-server.module'
+import { MigrationWorkerModule } from './migration/migration.worker.module'
 import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
+import { PhotoWorkerModule } from './photo/photo.worker.module'
+import { SchedulerModule } from './scheduler/scheduler.module'
+import { StorageModule } from './storage/storage.module'
 import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
+
+const runMode = config.get<AppRunMode>(Config.RUN_MODE)
+const isRegisterWebServer = () => [AppRunMode.AllInOne, AppRunMode.Server].includes(runMode)
+const isRegisterWorker = () => [AppRunMode.AllInOne, AppRunMode.Worker].includes(runMode)
+const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
 
 @Module({
   imports: [
@@ -52,15 +67,22 @@ import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
-    AccountsModule,
     AmqpModule,
-    ApiKeyModule,
-    AuditLogModule,
     BullBoardModule,
-    DeliveryModule,
-    GalleryModule,
-    GoogleModule,
-    LdapServerModule,
+    ConditionalModule.registerWhen(AccountsModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(GalleryModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(ApiKeyModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(AuditLogModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(DeliveryModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(GoogleModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(LdapServerModule, isRegisterLdapServer),
+    ConditionalModule.registerWhen(AccountsWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(PhotoWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(DeliveryWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(MigrationWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(SchedulerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(StorageModule, isRegisterWorker),
+    ConditionalModule.registerWhen(DiscordWorkerModule, isRegisterWorker),
   ],
   controllers: [AppController, BaseV1Controller],
   providers: [
