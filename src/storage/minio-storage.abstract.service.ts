@@ -26,6 +26,18 @@ export abstract class MinioStorageAbstractService implements StorageServiceInter
     return this.getStream(file).then(StreamBufferConverter.streamToBuffer.bind(this))
   }
 
+  listFiles(path: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const files: string[] = []
+      const stream = this.client.listObjectsV2(this.bucketName, path)
+      stream.on('data', (object) => object.name && files.push(object.name))
+      stream.on('error', reject)
+      stream.on('end', () => {
+        resolve(files)
+      })
+    })
+  }
+
   async isExist(file: string): Promise<boolean> {
     try {
       await this.getSize(file)

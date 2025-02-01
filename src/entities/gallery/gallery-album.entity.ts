@@ -8,10 +8,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { GalleryActivityEntity } from './gallery-activity.entity'
+import { GalleryPhotoEntity } from './gallery-photo.entity'
 
 @Entity('gallery_albums')
 export class GalleryAlbumEntity extends BaseEntity {
@@ -59,6 +61,9 @@ export class GalleryAlbumEntity extends BaseEntity {
 
   @Column({ name: 'taken_before', type: 'timestamptz', nullable: true })
   takenBefore: Date | null
+
+  @OneToMany(() => GalleryPhotoEntity, (photo: GalleryPhotoEntity) => photo.album)
+  photos?: GalleryPhotoEntity[]
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at', select: false })
   createdAt: Date

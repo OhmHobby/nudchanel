@@ -43,6 +43,7 @@ test:e2e:
     WORKER_URL: http://webservice-worker:4000
     LDAP_SERVER_URL: ldap://webservice:1389
     LOG_DIR: $CI_BUILDS_DIR/logs
+    NODE_ENV: test
   script: npm run test:e2e
   after_script:
     - npm run test:cucumber:report

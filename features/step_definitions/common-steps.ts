@@ -29,7 +29,11 @@ export class CommonSteps {
         if (this._workspace.responseType) getTest.responseType(this._workspace.responseType)
         this._workspace.response = await getTest.send()
       } else if (method === 'POST') {
-        this._workspace.response = await test.post(requestEndpoint).send(body)
+        const request = test.post(requestEndpoint)
+        const attach = this._workspace.requestAttach
+        this._workspace.response = attach
+          ? await request.attach(attach.name, attach.file, attach.filename)
+          : await request.send(body)
       } else if (method === 'PUT') {
         this._workspace.response = await test.put(requestEndpoint).send(body)
       } else {
