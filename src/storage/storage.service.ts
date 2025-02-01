@@ -48,6 +48,10 @@ export class StorageService implements StorageServiceInterface {
     return this.getStorage(file).getBuffer(this.getFilepath(file))
   }
 
+  listFiles(path: string): Promise<string[]> {
+    return this.getStorage(path).listFiles(this.getFilepath(path))
+  }
+
   isExist(file: string): Promise<boolean> {
     return this.getStorage(file).isExist(this.getFilepath(file))
   }

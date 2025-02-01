@@ -5,6 +5,8 @@ export interface StorageServiceInterface {
 
   getBuffer(file: string): Promise<Buffer>
 
+  listFiles(path: string): Promise<string[]>
+
   isExist(file: string): Promise<boolean>
 
   getSize(file: string): Promise<number>

@@ -33,6 +33,11 @@ export class WebdavStorageService implements StorageServiceInterface {
     return <Promise<Buffer>>this.client.getFileContents(file)
   }
 
+  async listFiles(path: string): Promise<string[]> {
+    const files = <FileStat[]>await this.client.getDirectoryContents(path)
+    return files.map((el) => el.filename)
+  }
+
   isExist(file: string): Promise<boolean> {
     return this.client.exists(file)
   }

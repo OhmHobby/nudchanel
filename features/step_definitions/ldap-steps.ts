@@ -4,7 +4,7 @@ import { Client, createClient, SearchEntry, SearchOptions } from 'ldapjs'
 
 @binding()
 export class LdapSteps {
-  private client: Client
+  private _client: Client
 
   private bindDn: string
 
@@ -18,11 +18,14 @@ export class LdapSteps {
 
   private responseError: Error | null
 
-  constructor() {
-    this.client = createClient({
-      url: [process.env.LDAP_SERVER_URL ?? `ldap://127.0.0.1:1389`],
-      connectTimeout: 10000,
-    })
+  get client() {
+    if (!this._client) {
+      this._client = createClient({
+        url: [process.env.LDAP_SERVER_URL ?? `ldap://127.0.0.1:1389`],
+        connectTimeout: 10000,
+      })
+    }
+    return this._client
   }
 
   @before()
@@ -145,6 +148,8 @@ export class LdapSteps {
 
   @after()
   after() {
-    this.client.unbind()
+    if (this._client) {
+      this.client.unbind()
+    }
   }
 }

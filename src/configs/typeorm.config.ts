@@ -5,6 +5,7 @@ import { ApplicationSettingEntity } from 'src/entities/application-setting.entit
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 import { Config } from 'src/enums/config.enum'
@@ -16,6 +17,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
   static readonly entities = [
     GalleryActivityEntity,
     GalleryAlbumEntity,
+    GalleryPhotoEntity,
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
     ApplicationSettingEntity,
