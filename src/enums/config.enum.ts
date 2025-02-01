@@ -26,6 +26,7 @@ export enum Config {
   PG_USER = 'database.postgres.user',
   PG_PASS = 'database.postgres.pass',
   PG_DB = 'database.postgres.db',
+  ENCRYPTION_KEY = 'encryption.key',
   DATABASE_MONGODB_PREFIX = 'database.mongodb.',
   REDIS_DEFAULT_HOST = 'database.redis.default.host',
   REDIS_DEFAULT_PORT = 'database.redis.default.port',

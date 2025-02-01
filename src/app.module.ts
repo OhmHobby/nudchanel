@@ -14,6 +14,7 @@ import { AccountsWorkerModule } from './accounts/accounts.worker.module'
 import { AmqpModule } from './amqp/amqp.module'
 import { ApiKeyModule } from './api-key/api-key.module'
 import { AppController } from './app.controller'
+import { ApplicationSettingModule } from './application-setting/application-setting.module'
 import { AuditLogModule } from './audit-log/audit-log.module'
 import { AuditLogger } from './audit-log/audit-logger.interceptor'
 import { AuthGroupGuard } from './auth/auth-group.guard'
@@ -67,6 +68,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Audit)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
+    ApplicationSettingModule,
     AmqpModule,
     BullBoardModule,
     ConditionalModule.registerWhen(AccountsModule, isRegisterWebServer),

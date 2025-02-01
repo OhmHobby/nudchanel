@@ -12,6 +12,7 @@ import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
@@ -117,6 +118,8 @@ export class AppBuilder {
       .overrideProvider(getRepositoryToken(GalleryAlbumEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryYouTubeVideoEntity))
+      .useValue(jest.fn())
+      .overrideProvider(getRepositoryToken(ApplicationSettingEntity))
       .useValue(jest.fn())
     return this
   }

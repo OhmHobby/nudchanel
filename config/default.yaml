@@ -71,6 +71,9 @@ storage:
     username: ""
     password: ""
 
+encryption:
+  key: "0000000000000000000000000000000000000000000000000000000000000000"
+
 googleapis:
   clientId: ""
   clientSecret: ""

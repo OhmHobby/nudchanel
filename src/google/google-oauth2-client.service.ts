@@ -1,24 +1,17 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ReturnModelType } from '@typegoose/typegoose'
 import { Auth, google } from 'googleapis'
+import { ApplicationSettingService } from 'src/application-setting/application-setting.service'
 import { Config } from 'src/enums/config.enum'
-import { GoogleCredentialModel } from 'src/models/google-credential.model'
 
 @Injectable()
 export class GoogleOauth2ClientService {
   private readonly logger = new Logger(GoogleOauth2ClientService.name)
 
-  protected readonly email: string
-
   constructor(
-    @InjectModel(GoogleCredentialModel)
-    protected readonly googleCredentialModel: ReturnModelType<typeof GoogleCredentialModel>,
     protected readonly configService: ConfigService,
-  ) {
-    this.email = configService.get(Config.GAPIS_EMAIL, '')
-  }
+    private readonly applicationSettingService: ApplicationSettingService,
+  ) {}
 
   createClient(): Auth.OAuth2Client {
     const clientId = this.configService.get(Config.GAPIS_CLIENT_ID)
@@ -32,31 +25,18 @@ export class GoogleOauth2ClientService {
   }
 
   async getClientWithCredential(): Promise<Auth.OAuth2Client> {
-    const { token } = await this.googleCredentialModel.findById(this.email).orFail().exec()
+    const tokenString = await this.applicationSettingService.getGoogleCredential()
+    const token = JSON.parse(tokenString) as Auth.Credentials
     const client = this.createClient()
     client.setCredentials(token)
     await this.updateCredential(client)
     return client
   }
 
-  async setCredential(code: string): Promise<boolean> {
-    const { tokens } = await this.createClient().getToken(code)
-    const { _id } = await this.googleCredentialModel
-      .findOneAndUpdate(
-        { _id: this.email },
-        { _id: this.email, token: tokens },
-        { new: true, upsert: true, setDefaultsOnInsert: true },
-      )
-      .exec()
-    return _id === this.email
-  }
-
   async updateCredential(client: Pick<Auth.OAuth2Client, 'getAccessToken'>): Promise<void> {
     const { res } = await client.getAccessToken()
-    if (!res) {
-      return
-    }
-    await this.googleCredentialModel.updateOne({ _id: this.email }, { token: res.data })
-    this.logger.log(`Updated credential for ${this.email}`)
+    if (!res) return
+    await this.applicationSettingService.setGoogleCredential(JSON.stringify(res.data))
+    this.logger.log(`Updated service account credential`)
   }
 }
