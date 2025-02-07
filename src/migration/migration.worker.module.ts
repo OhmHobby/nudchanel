@@ -19,7 +19,7 @@ import { MigrationService } from './migration.service'
   imports: [
     TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
     TypegooseModule.forFeature([UploadBatchFileModel], MongoConnection.Photo),
-    TypegooseModule.forFeature([GoogleCredentialModel], MongoConnection.Photo),
+    TypegooseModule.forFeature([GoogleCredentialModel], MongoConnection.Mailer),
     TypeOrmModule.forFeature([DataMigrationEntity]),
     BullModule.registerQueue({ name: BullQueueName.Migration }),
     AccountsWorkerModule,
