@@ -28,7 +28,6 @@ database:
     gallery: mongodb://root:nudchDev!123@mongodb/gallery?authSource=admin
     photo: mongodb://root:nudchDev!123@mongodb/photo?authSource=admin
     mailer: mongodb://root:nudchDev!123@mongodb/mailer?authSource=admin
-    audit: mongodb://root:nudchDev!123@mongodb/audit?authSource=admin
   redis:
     default:
       host: redis-master

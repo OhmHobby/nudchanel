@@ -13,6 +13,7 @@ import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
+import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
@@ -30,7 +31,6 @@ import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ApiKeyModel } from 'src/models/api-key.model'
-import { AuditLogModel } from 'src/models/audit/audit-log.model'
 import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
@@ -65,8 +65,6 @@ export class AppBuilder {
       .useValue(() => mockDiscordRestClient)
       .overrideProvider(getModelToken(ApiKeyModel.name))
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
-      .overrideProvider(getModelToken(AuditLogModel.name))
-      .useValue(resetMockModel(getModelForClass(AuditLogModel)))
       .overrideProvider(getModelToken(GroupModel.name))
       .useValue(resetMockModel(getModelForClass(GroupModel)))
       .overrideProvider(getModelToken(MailSenderAddressModel.name))
@@ -107,10 +105,8 @@ export class AppBuilder {
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Mailer))
       .useValue(mockTypegooseConnection)
-      .overrideProvider(getConnectionToken(MongoConnection.Audit))
-      .useValue(mockTypegooseConnection)
       .overrideProvider(getDataSourceToken())
-      .useValue(jest.fn())
+      .useValue({ getRepository: jest.fn() })
       .overrideProvider(getRepositoryToken(GalleryActivityEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryAlbumEntity))
@@ -118,6 +114,8 @@ export class AppBuilder {
       .overrideProvider(getRepositoryToken(GalleryPhotoEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryYouTubeVideoEntity))
+      .useValue(jest.fn())
+      .overrideProvider(getRepositoryToken(AuditLogEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(ApplicationSettingEntity))
       .useValue(jest.fn())

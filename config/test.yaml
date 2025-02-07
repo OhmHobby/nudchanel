@@ -28,7 +28,6 @@ database:
     gallery: mongodb://mongodb/gallery
     photo: mongodb://mongodb/photo
     mailer: mongodb://mongodb/mailer
-    audit: mongodb://mongodb/audit
   redis:
     default:
       host: redis

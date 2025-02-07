@@ -1,33 +1,32 @@
-import { InjectConnection } from '@m8a/nestjs-typegoose'
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
-import { Collection, Connection, Types } from 'mongoose'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { ClsService } from 'nestjs-cls'
 import { TraceService } from 'nestjs-otel'
 import { Observable } from 'rxjs'
 import { Request } from 'src/auth/request.interface'
+import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { Config } from 'src/enums/config.enum'
-import { MongoConnection } from 'src/enums/mongo-connection.enum'
-import { AUDIT_LOG_COLLECTION_NAME, AuditLogModel } from 'src/models/audit/audit-log.model'
-import MUUID from 'uuid-mongodb'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { DataSource, Repository } from 'typeorm'
 import { AUDIT_LOG_METADATA_KEY } from './audit-log.decorator'
 
 @Injectable()
 export class AuditLogger implements NestInterceptor {
   private readonly logger = new Logger(AuditLogger.name)
 
-  private readonly auditLogModel: Collection<AuditLogModel>
+  private readonly auditLogRepository: Repository<AuditLogEntity>
 
   constructor(
     private readonly reflector: Reflector,
     private readonly cls: ClsService,
     private readonly configService: ConfigService,
     private readonly traceService: TraceService,
-    @InjectConnection(MongoConnection.Audit)
-    private readonly connection: Connection,
+    @InjectDataSource()
+    dataSource: DataSource,
   ) {
-    this.auditLogModel = this.connection.collection<AuditLogModel>(AUDIT_LOG_COLLECTION_NAME)
+    this.auditLogRepository = dataSource.getRepository(AuditLogEntity)
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> | Promise<Observable<any>> {
@@ -44,20 +43,20 @@ export class AuditLogger implements NestInterceptor {
 
   async insert(action: string, request: Request) {
     const span = this.traceService.startSpan('AuditLogger.insert')
-    const model = new AuditLogModel({
+    const model = new AuditLogEntity({
       action,
-      actor: request.user?.id ? new Types.ObjectId(request.user.id) : undefined,
+      actor: request.user?.id ? ObjectIdUuidConverter.toUuid(request.user.id) : null,
       path: request.path,
       params: request.params,
       queries: request.query,
       body: request.body,
-      correlation_id: MUUID.from(this.cls.getId()),
+      correlationId: this.cls.getId(),
     })
     if (!this.configService.get(Config.AUDIT_LOG_ENABLED)) {
       this.logger.log({ message: `Skipped inserting audit`, ...model })
     }
     try {
-      await this.auditLogModel.insertOne(model)
+      await this.auditLogRepository.insert(model)
     } catch (err) {
       this.logger.error({ message: `Failed to insert audit log: ${err.message}`, ...model }, err)
     } finally {

@@ -48,7 +48,6 @@ database:
     gallery: ""
     photo: ""
     mailer: ""
-    audit: ""
   redis:
     default:
       host: ""
