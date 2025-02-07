@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
+import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
@@ -20,6 +21,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     GalleryPhotoEntity,
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
+    AuditLogEntity,
     ApplicationSettingEntity,
     DataMigrationEntity,
   ]

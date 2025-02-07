@@ -11,7 +11,6 @@ database:
     gallery: mongodb://localhost/gallery
     photo: mongodb://localhost/photo
     mailer: mongodb://localhost/mailer
-    audit: mongodb://localhost/audit
   redis:
     default:
       host: localhost
