@@ -1,4 +1,4 @@
-import { BaseEntity, Column, DeepPartial, Entity, PrimaryColumn } from 'typeorm'
+import { BaseEntity, Column, DeepPartial, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity('application_settings')
 export class ApplicationSettingEntity extends BaseEntity {
@@ -12,4 +12,7 @@ export class ApplicationSettingEntity extends BaseEntity {
 
   @Column({ type: 'text' })
   value: string
+
+  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
+  updatedAt: Date
 }
