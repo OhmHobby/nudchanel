@@ -33,7 +33,6 @@ import { ApiKeyModel } from 'src/models/api-key.model'
 import { AuditLogModel } from 'src/models/audit/audit-log.model'
 import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
-import { GoogleCredentialModel } from 'src/models/google-credential.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
@@ -68,8 +67,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
       .overrideProvider(getModelToken(AuditLogModel.name))
       .useValue(resetMockModel(getModelForClass(AuditLogModel)))
-      .overrideProvider(getModelToken(GoogleCredentialModel.name))
-      .useValue(resetMockModel(getModelForClass(GoogleCredentialModel)))
       .overrideProvider(getModelToken(GroupModel.name))
       .useValue(resetMockModel(getModelForClass(GroupModel)))
       .overrideProvider(getModelToken(MailSenderAddressModel.name))
