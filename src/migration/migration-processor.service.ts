@@ -102,7 +102,7 @@ export class MigrationProcessorService {
   async migrateData({ data: name }: Job<DataMigration>) {
     try {
       if (name === DataMigration.GoogleCredential) {
-        const email = this.configService.getOrThrow(Config.GAPIS_SERVICE_EMAIL)
+        const email = this.configService.getOrThrow(Config.GAPIS_EMAIL)
         const { token } = await this.googleCredentialModel.findById(email).orFail().exec()
         await this.applicationSettingService.setGoogleCredential(JSON.stringify(token))
         await this.dataSource
