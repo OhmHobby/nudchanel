@@ -1,5 +1,5 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
-import { BullModule } from '@nestjs/bull'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'

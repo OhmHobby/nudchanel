@@ -1,6 +1,6 @@
 import { OAuth2API } from '@discordjs/core'
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
-import { BullModule } from '@nestjs/bull'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { REST } from 'discord.js'

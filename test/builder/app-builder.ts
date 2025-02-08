@@ -1,5 +1,5 @@
 import { getConnectionToken, getModelToken } from '@m8a/nestjs-typegoose'
-import { BullModule } from '@nestjs/bull'
+import { BullModule } from '@nestjs/bullmq'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
@@ -11,6 +11,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
+import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
 import { AuditLogEntity } from 'src/entities/audit-log.entity'
@@ -63,6 +64,8 @@ export class AppBuilder {
       .useModule(MockBullModule)
       .overrideProvider(ServiceProvider.DISCORD_REST)
       .useValue(() => mockDiscordRestClient)
+      .overrideProvider(BullConfig)
+      .useValue({ createSharedConfiguration: jest.fn() })
       .overrideProvider(getModelToken(ApiKeyModel.name))
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
       .overrideProvider(getModelToken(GroupModel.name))

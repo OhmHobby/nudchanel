@@ -1,5 +1,5 @@
 import { QueueOptions, RabbitRPC, defaultNackErrorHandler } from '@golevelup/nestjs-rabbitmq'
-import { Process, Processor } from '@nestjs/bull'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Injectable, Logger } from '@nestjs/common'
 import { FilePath } from '@nudchannel/protobuf/dist/file_path'
 import { Timestamp } from '@nudchannel/protobuf/dist/google/protobuf/timestamp'
@@ -8,10 +8,9 @@ import { PhotoMetadata } from '@nudchannel/protobuf/dist/photo_metadata'
 import { ProcessPhoto } from '@nudchannel/protobuf/dist/process_photo'
 import { ResizeFit } from '@nudchannel/protobuf/dist/sharp_resize_fit'
 import { ConsumeMessage } from 'amqplib'
-import { Job } from 'bull'
+import { Job } from 'bullmq'
 import dayjs from 'dayjs'
 import { AmqpService } from 'src/amqp/amqp.service'
-import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { ImageFit } from 'src/enums/image-fit.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
@@ -34,7 +33,7 @@ const defaultQueueOptions: QueueOptions = {
 
 @Injectable()
 @Processor(BullQueueName.Photo)
-export class PhotoConsumerService {
+export class PhotoConsumerService extends WorkerHost {
   private readonly logger = new Logger(PhotoConsumerService.name)
 
   constructor(
@@ -42,9 +41,10 @@ export class PhotoConsumerService {
     private readonly photoMetadataService: PhotoMetadataService,
     private readonly photoProcessorService: PhotoProcessorService,
     private readonly amqpService: AmqpService,
-  ) {}
+  ) {
+    super()
+  }
 
-  @Process(BullJobName.PhotoProcess)
   async process({ data }: Job<AsyncProcessPhotoParams>) {
     this.logger.log({ message: `Process photo`, ...data })
     const rawBuffer = await this.storageService.getBuffer(data.source)

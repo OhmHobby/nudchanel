@@ -1,5 +1,5 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
-import { BullModule } from '@nestjs/bull'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsWorkerModule } from 'src/accounts/accounts.worker.module'

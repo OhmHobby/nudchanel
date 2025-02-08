@@ -1,21 +1,21 @@
-import { Process, Processor } from '@nestjs/bull'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Job } from 'bull'
+import { Job } from 'bullmq'
 import { createTransport } from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
-import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Config } from 'src/enums/config.enum'
 
 @Injectable()
 @Processor(BullQueueName.Email)
-export class MailProcessorService {
+export class MailProcessorService extends WorkerHost {
   private readonly logger = new Logger(MailProcessorService.name)
 
   private readonly smtpTransporter: Mail
 
   constructor(configService: ConfigService) {
+    super()
     this.smtpTransporter = createTransport({
       host: configService.get(Config.DELIVERY_SMTP_HOST),
       port: +configService.get(Config.DELIVERY_SMTP_PORT),
@@ -31,7 +31,6 @@ export class MailProcessorService {
     return this.smtpTransporter.sendMail(mailOptions)
   }
 
-  @Process(BullJobName.Email)
   async process({ data }: Job<Mail.Options>) {
     try {
       const info = await this.sendMail(data)

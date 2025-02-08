@@ -1,10 +1,10 @@
 import { createBullBoard } from '@bull-board/api'
-import { BullAdapter } from '@bull-board/api/dist/src/queueAdapters/bull'
+import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ'
 import { ExpressAdapter } from '@bull-board/express'
-import { InjectQueue } from '@nestjs/bull'
+import { InjectQueue } from '@nestjs/bullmq'
 import { All, Controller, Logger, Next, OnModuleDestroy, Request, Response } from '@nestjs/common'
 import { ApiExcludeController } from '@nestjs/swagger'
-import { Queue } from 'bull'
+import { Queue } from 'bullmq'
 import config from 'config'
 import { NextFunction } from 'express'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
@@ -46,10 +46,10 @@ export class BullBoardController implements OnModuleDestroy {
 
   get queues() {
     return [
-      new BullAdapter(this.emailQueue),
-      new BullAdapter(this.discordQueue),
-      new BullAdapter(this.migrationQueue),
-      new BullAdapter(this.photoQueue),
+      new BullMQAdapter(this.emailQueue),
+      new BullMQAdapter(this.discordQueue),
+      new BullMQAdapter(this.migrationQueue),
+      new BullMQAdapter(this.photoQueue),
     ]
   }
 
