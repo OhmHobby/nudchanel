@@ -139,6 +139,7 @@ export class MigrationProcessorService {
         const model = applicantModels.find((el) => el._id.equals(ObjectIdUuidConverter.toObjectId(applicant.oid!)))
         if (!model) throw new Error(`Applicant model is not found for ${applicant.id} (${applicant.oid})`)
         applicant.profileId = ObjectIdUuidConverter.toUuid(model.profile)
+        applicant.updatedAt = ObjectIdUuidConverter.toObjectId(applicant.oid!).getTimestamp()
       })
       await manager.save(applicants)
       this.logger.log(`Saved ${applicants.length} applicants`)
