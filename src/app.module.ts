@@ -66,6 +66,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Photo)),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Mailer)),
+    TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Recruit)),
     WinstonModule.forRootAsync({ useClass: WinstonConfig }),
     ApplicationSettingModule,
     AmqpModule,

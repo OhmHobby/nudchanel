@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Types } from 'mongoose'
 import { parse as uuidParse, stringify as uuidStringify } from 'uuid'
+import { V7Generator } from 'uuidv7'
 
 export class ObjectIdUuidConverter {
   static toUuid<T extends Types.ObjectId | string | undefined | null>(
@@ -17,6 +18,12 @@ export class ObjectIdUuidConverter {
     paddedBytes.set([0x80, 0, 0x80], 6) // Set version (8) and variant (RFC4122) bits.
     paddedBytes.set(bytes.slice(6, 12), 9)
     return uuidStringify(paddedBytes)
+  }
+
+  static toUuidV7(objectId: Types.ObjectId): string {
+    const uuid = new V7Generator().generateOrAbortCore(objectId.getTimestamp().getTime(), 0)
+    if (!uuid) throw new Error('Failed to generate UUIDv7 from ObjectId ' + objectId.toString())
+    return uuid.toString()
   }
 
   static toObjectId(uuid: string): Types.ObjectId {

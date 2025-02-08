@@ -16,6 +16,8 @@ export class MongooseServerLifecyclesService implements OnApplicationShutdown {
     private readonly photoConnection: Connection,
     @Inject(getConnectionToken(MongoConnection.Mailer))
     private readonly mailerConnection: Connection,
+    @Inject(getConnectionToken(MongoConnection.Recruit))
+    private readonly recruitConnection: Connection,
   ) {}
 
   async onApplicationShutdown(signal?: string) {
@@ -26,6 +28,7 @@ export class MongooseServerLifecyclesService implements OnApplicationShutdown {
         this.accountsConnection.close(),
         this.photoConnection.close(),
         this.mailerConnection.close(),
+        this.recruitConnection.close(),
       ])
       this.logger.log('Successfully closed mongoose connections')
     } catch (err) {
