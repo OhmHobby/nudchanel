@@ -4,4 +4,5 @@ export enum DataMigration {
   GalleryYouTube = 'GalleryYouTube',
   GalleryPhoto = 'GalleryPhoto',
   Recruit = 'Recruit',
+  RecruitApplicantProfileFix = 'RecruitApplicantProfileFix',
 }
