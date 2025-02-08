@@ -1,8 +1,8 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { InjectQueue } from '@nestjs/bull'
+import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Queue } from 'bull'
+import { Queue } from 'bullmq'
 import { createHash } from 'crypto'
 import { join } from 'path'
 import { DEFAULT_UUID, NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
@@ -87,8 +87,7 @@ export class ProfilePhotoService implements OnModuleDestroy {
   }
 
   async processPhoto(data: AsyncProcessPhotoParams) {
-    const job = await this.processPhotoQueue.add(BullJobName.PhotoProcess, data)
-    await job.finished()
+    await this.processPhotoQueue.add(BullJobName.PhotoProcess, data)
   }
 
   async processGravatar(path: string, email?: string) {

@@ -1,6 +1,6 @@
-jest.mock('@bull-board/api/dist/src/queueAdapters/bull')
+jest.mock('@bull-board/api/dist/src/queueAdapters/bullMQ')
 
-import { getQueueToken } from '@nestjs/bull'
+import { getQueueToken } from '@nestjs/bullmq'
 import { Test, TestingModule } from '@nestjs/testing'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { BullBoardController } from './bull-board.controller'

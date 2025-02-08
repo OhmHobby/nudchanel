@@ -1,4 +1,4 @@
-import { BullModule } from '@nestjs/bull'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { AccountsWorkerModule } from 'src/accounts/accounts.worker.module'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'

@@ -1,5 +1,5 @@
 import { APIRole } from '@discordjs/core'
-import { getQueueToken } from '@nestjs/bull'
+import { getQueueToken } from '@nestjs/bullmq'
 import { Test, TestingModule } from '@nestjs/testing'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { ProfileService } from 'src/accounts/profile/profile.service'

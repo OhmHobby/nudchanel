@@ -1,9 +1,9 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Process, Processor } from '@nestjs/bull'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
-import { Job } from 'bull'
+import { Job } from 'bullmq'
 import { join } from 'path'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
@@ -22,8 +22,8 @@ import { StorageService } from 'src/storage/storage.service'
 import { DataSource } from 'typeorm'
 
 @Injectable()
-@Processor(BullQueueName.Migration)
-export class MigrationProcessorService {
+@Processor(BullQueueName.Migration, { concurrency: 1 })
+export class MigrationProcessorService extends WorkerHost {
   private readonly logger = new Logger(MigrationProcessorService.name)
 
   constructor(
@@ -38,9 +38,25 @@ export class MigrationProcessorService {
     private readonly photoV1Service: PhotoV1Service,
     private readonly photoProcessor: PhotoProcessorService,
     private readonly photoMetadata: PhotoMetadataService,
-  ) {}
+  ) {
+    super()
+  }
 
-  @Process({ name: BullJobName.MigratePhoto, concurrency: 1 })
+  async process(job: Job): Promise<any> {
+    try {
+      switch (job.name) {
+        case BullJobName.MigratePhoto:
+          return await this.migratePhoto(job)
+        case BullJobName.MigrateProfilePhoto:
+          return await this.migrateProfilePhoto(job)
+        case BullJobName.MigrateData:
+          return await this.migrateData(job)
+      }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
   async migratePhoto({ data: uuid }: Job<string>) {
     const { file, batch, task } = await this.photoV1Service.getFileInfo(uuid)
     const originalPath = `webdav://${join(file.directory, file.filename)}`
@@ -78,7 +94,6 @@ export class MigrationProcessorService {
     this.logger.log(`Re-processed thumbnail ${originalPath} => ${thumbnailPath.sourcePath}`)
   }
 
-  @Process({ name: BullJobName.MigrateProfilePhoto, concurrency: 1 })
   async migrateProfilePhoto({ data: profileId }: Job<string>) {
     this.logger.debug(`Processing ${profileId}`)
     const profile = await this.profileModel.findById(profileId).exec()
@@ -89,7 +104,6 @@ export class MigrationProcessorService {
     this.logger.log(`Re-processed ${profileId}: ${photo.directory}/${photo.filename}`)
   }
 
-  @Process({ name: BullJobName.MigrateData, concurrency: 0 })
   migrateData({ data: name }: Job<DataMigration>) {
     try {
       throw new Error(`${name} not found`)
