@@ -48,7 +48,6 @@ database:
     gallery: ""
     photo: ""
     mailer: ""
-    recruit: ""
   redis:
     default:
       host: ""
