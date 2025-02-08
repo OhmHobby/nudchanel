@@ -9,6 +9,16 @@ import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
+import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
+import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answer.entity'
+import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
+import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
+import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
+import { RecruitNoteEntity } from 'src/entities/recruit/recruit-note.entity'
+import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-moderator.entity'
+import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
+import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
 import { Config } from 'src/enums/config.enum'
 
 @Injectable()
@@ -22,6 +32,16 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
     AuditLogEntity,
+    RecruitApplicantEntity,
+    RecruitApplicantRoleEntity,
+    RecruitFormAnswerEntity,
+    RecruitFormCollectionEntity,
+    RecruitFormQuestionEntity,
+    RecruitInterviewSlotEntity,
+    RecruitNoteEntity,
+    RecruitRoleEntity,
+    RecruitRoleModeratorEntity,
+    RecruitSettingEntity,
     ApplicationSettingEntity,
     DataMigrationEntity,
   ]

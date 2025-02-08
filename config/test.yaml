@@ -28,6 +28,7 @@ database:
     gallery: mongodb://mongodb/gallery
     photo: mongodb://mongodb/photo
     mailer: mongodb://mongodb/mailer
+    recruit: mongodb://mongodb/recruit
   redis:
     default:
       host: redis

@@ -3,5 +3,5 @@ export enum DataMigration {
   GalleryAlbum = 'GalleryAlbum',
   GalleryYouTube = 'GalleryYouTube',
   GalleryPhoto = 'GalleryPhoto',
-  GoogleCredential = 'GoogleCredential',
+  Recruit = 'Recruit',
 }

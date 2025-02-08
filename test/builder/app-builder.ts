@@ -105,6 +105,8 @@ export class AppBuilder {
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Mailer))
       .useValue(mockTypegooseConnection)
+      .overrideProvider(getConnectionToken(MongoConnection.Recruit))
+      .useValue(mockTypegooseConnection)
       .overrideProvider(getDataSourceToken())
       .useValue({ getRepository: jest.fn() })
       .overrideProvider(getRepositoryToken(GalleryActivityEntity))
