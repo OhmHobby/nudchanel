@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer'
 import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryPhotoNextState } from 'src/enums/gallery-photo-pending-state.enum'
+import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
@@ -61,6 +62,15 @@ export class GalleryAlbumPhotoModel {
   @ApiPropertyOptional({ enum: GalleryPhotoNextState })
   nextState?: GalleryPhotoNextState | null
 
+  @ApiPropertyOptional({ enum: GalleryPhotoRejectReason })
+  rejectReason?: GalleryPhotoRejectReason
+
+  @ApiPropertyOptional()
+  rejectMessage?: string
+
+  @ApiPropertyOptional()
+  errorMessage?: string
+
   static fromEntity(entity: GalleryPhotoEntity): GalleryAlbumPhotoModel {
     return new GalleryAlbumPhotoModel({
       id: entity.id,
@@ -75,6 +85,9 @@ export class GalleryAlbumPhotoModel {
       nextState: entity.nextState,
       directory: entity.directory ?? undefined,
       filename: entity.filename ?? undefined,
+      rejectReason: entity.rejectReason ?? undefined,
+      rejectMessage: entity.rejectMessage ?? undefined,
+      errorMessage: entity.errorMessage ?? undefined,
     })
   }
 

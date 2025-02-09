@@ -36,15 +36,14 @@ export class GalleryAlbumPhotoV1Controller {
 
   @Get('uploads')
   @AuthGroups('nudch')
-  @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiOkResponse({ type: [GalleryAlbumPhotoModel] })
   getUploadedGalleryAlbumPhotos(
     @Param() { albumId }: AlbumIdDto,
-    @Query() { profileId }: GalleryUploadPhotosQueryDto,
+    @Query() { takenBy, state }: GalleryUploadPhotosQueryDto,
   ): Promise<GalleryAlbumPhotoModel[]> {
-    return this.galleryAlbumPhotoService.getUploadPhotos(albumId, ObjectIdUuidConverter.toUuid(profileId))
+    return this.galleryAlbumPhotoService.getUploadPhotos(albumId, ObjectIdUuidConverter.toUuid(takenBy), state)
   }
 
   @Post('uploads')

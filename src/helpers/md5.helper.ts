@@ -28,7 +28,7 @@ export class MD5 {
     return new MD5(createHash('md5').update(buffer))
   }
 
-  static fromStream(stream: Readable) {
+  static fromStream(stream: Readable): Promise<MD5> {
     return new Promise((resolve, reject) => {
       const hash = createHash('md5')
       try {

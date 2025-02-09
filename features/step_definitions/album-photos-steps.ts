@@ -1,7 +1,8 @@
 import { DataTable } from '@cucumber/cucumber'
-import { binding, given, then } from 'cucumber-tsflow'
+import { binding, given, then, when } from 'cucumber-tsflow'
 import expect from 'expect'
 import { basename } from 'path'
+import { GalleryAlbumPhotoModel } from 'src/gallery/dto/gallery-album-photo.model'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
@@ -31,6 +32,20 @@ export class AlbumPhotosSteps extends CommonSteps {
     this.workspace.requestBody.takenBy = takenBy
   }
 
+  @when('wait for gallery album {string} upload photo file {string} to be {string} state', undefined, 30000)
+  async whenWaitForFileToBeState(album: string, filename: string, state: string) {
+    for (let attempt = 0; attempt++ < 10; await this.whenDelay(1000, '.')) {
+      await this.httpRequest('GET', `/api/v1/gallery/albums/${album}/photos/uploads`, {
+        takenBy: this.workspace.user.id,
+        state,
+      }).catch((err) => console.error(err))
+      const photos = this.workspace.response?.body as GalleryAlbumPhotoModel[]
+      if (photos.some((el) => el.filename === filename)) return
+    }
+    console.error(`Time out`, this.workspace.response?.body)
+    expect(this.workspace.response?.body).toContainEqual({ filename, state })
+  }
+
   @then('gallery album photos should contain')
   photosShouldContain(dataTable: DataTable) {
     const normalizedResponse = [this.workspace.response?.body?.photos ?? this.workspace.response?.body]
@@ -52,6 +67,7 @@ export class AlbumPhotosSteps extends CommonSteps {
         directory: String(photo.directory),
         filename: String(photo.filename),
         md5: String(photo.md5),
+        rejectReason: String(photo.rejectReason),
       }))
     const normalizedTable = dataTable.hashes().map((row) => ({
       id: row.id ?? expect.anything(),
@@ -69,6 +85,7 @@ export class AlbumPhotosSteps extends CommonSteps {
       directory: row.directory ?? expect.anything(),
       filename: row.filename ?? expect.anything(),
       md5: row.md5 ?? expect.anything(),
+      rejectReason: row.rejectReason ?? expect.anything(),
     }))
     normalizedTable.map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }

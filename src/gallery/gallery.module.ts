@@ -1,4 +1,5 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from 'src/accounts/accounts.module'
@@ -7,6 +8,7 @@ import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.ent
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GoogleModule } from 'src/google/google.module'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
@@ -30,6 +32,15 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
       GalleryYouTubeVideoEntity,
     ]),
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),
+    BullModule.registerQueue({
+      name: BullQueueName.GalleryPhotoValidation,
+      defaultJobOptions: {
+        attempts: 2,
+        removeOnComplete: true,
+        removeOnFail: true,
+        backoff: { type: 'exponential', delay: 5000 },
+      },
+    }),
     AccountsModule,
     GoogleModule,
     PhotoModule,

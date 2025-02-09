@@ -1,7 +1,11 @@
+import { BadRequestException } from '@nestjs/common'
+import { join } from 'path'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryPhotoNextState } from 'src/enums/gallery-photo-pending-state.enum'
+import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { Orientation } from 'src/enums/orientation.enum'
+import { HexDecConverter } from 'src/helpers/hex-dec-converter'
 import {
   BaseEntity,
   Check,
@@ -10,14 +14,16 @@ import {
   DeepPartial,
   DeleteDateColumn,
   Entity,
+  FindOptionsWhere,
+  IsNull,
   JoinColumn,
   ManyToOne,
+  Not,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { uuidv4 } from 'uuidv7'
 import { GalleryAlbumEntity } from './gallery-album.entity'
-import { join } from 'path'
 
 @Entity('gallery_photos')
 export class GalleryPhotoEntity extends BaseEntity {
@@ -72,8 +78,17 @@ export class GalleryPhotoEntity extends BaseEntity {
   @Column({ name: 'reviewed_by', type: 'uuid', nullable: true })
   reviewedBy: string | null
 
-  @Column({ name: 'reject_reason', type: 'text', nullable: true })
-  rejectReason: string | null
+  @Column({
+    name: 'reject_reason',
+    type: 'enum',
+    enum: GalleryPhotoRejectReason,
+    enumName: 'gallery_photo_reject_reason',
+    nullable: true,
+  })
+  rejectReason: GalleryPhotoRejectReason | null
+
+  @Column({ name: 'reject_message', type: 'text', nullable: true })
+  rejectMessage: string | null
 
   @Column({ name: 'error_message', type: 'text', nullable: true })
   errorMessage: string | null
@@ -103,9 +118,7 @@ export class GalleryPhotoEntity extends BaseEntity {
   deletedAt?: Date
 
   get colorHex(): string | undefined {
-    const hex = 16
-    const fixLength = 6
-    return typeof this.color === 'number' ? `#${this.color.toString(hex).padStart(fixLength, '0')}` : undefined
+    return typeof this.color === 'number' ? HexDecConverter.decToHex(this.color) : undefined
   }
 
   get state(): GalleryPhotoState {
@@ -136,5 +149,36 @@ export class GalleryPhotoEntity extends BaseEntity {
 
   get fullpath(): string {
     return join(this.directory, this.filename)
+  }
+
+  static findByStateOptionsWhere(state?: GalleryPhotoState): FindOptionsWhere<GalleryPhotoEntity> {
+    const optionsWhere: FindOptionsWhere<GalleryPhotoEntity> = {
+      errorMessage: IsNull(),
+      rejectReason: IsNull(),
+      reviewedBy: IsNull(),
+      processedAt: IsNull(),
+      validatedAt: IsNull(),
+    }
+    switch (state) {
+      case undefined:
+        return {}
+      case GalleryPhotoState.failed:
+        return { errorMessage: Not(IsNull()) }
+      case GalleryPhotoState.rejected:
+        return { rejectReason: Not(IsNull()) }
+      // @ts-expect-error Shared the below criteria
+      case GalleryPhotoState.approved:
+        optionsWhere.reviewedBy = Not(IsNull())
+      // @ts-expect-error Shared the below criteria
+      case GalleryPhotoState.processed:
+        optionsWhere.processedAt = Not(IsNull())
+      // @ts-expect-error Shared the below criteria
+      case GalleryPhotoState.accepted:
+        optionsWhere.validatedAt = Not(IsNull())
+      case GalleryPhotoState.created:
+        return optionsWhere
+      default:
+        throw new BadRequestException(`${state} is not supported`)
+    }
   }
 }

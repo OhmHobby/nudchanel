@@ -10,6 +10,7 @@ import { UserLocalBuilder } from './builder/user-local-builder'
 import { ConsumeMessageBuilder } from './builder/consume-message.builder'
 import { GalleryYouTubeVideoBuilder } from './builder/gallery-youtube-video-builder'
 import { ProfileBuilder } from './builder/profile-builder'
+import { GalleryPhotoBuilder } from './builder/gallery-photo-builder'
 
 export class TestData {
   static anExpiredAccessToken =
@@ -28,6 +29,8 @@ export class TestData {
   static aValidGalleryActivity = () => new GalleryActivityBuilder()
 
   static aValidGalleryAlbum = () => new GalleryAlbumBuilder()
+
+  static aValidGalleryPhoto = () => new GalleryPhotoBuilder()
 
   static aValidYouTubeVideo = () => new YouTubeVideoBuilder()
 

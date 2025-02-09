@@ -204,6 +204,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      '@types/get-image-colors':
+        specifier: ^4.0.5
+        version: 4.0.5
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.14
@@ -1735,6 +1738,9 @@ packages:
   '@types/bunyan@1.8.9':
     resolution: {integrity: sha512-ZqS9JGpBxVOvsawzmVt30sP++gSQMTejCkIAQ3VdadOcRE8izTyW66hufvwLeH+YEGP6Js2AW7Gz+RMyvrEbmw==}
 
+  '@types/chroma-js@3.1.1':
+    resolution: {integrity: sha512-SFCr4edNkZ1bGaLzGz7rgR1bRzVX4MmMxwsIa3/Bh6ose8v+hRpneoizHv0KChdjxaXyjRtaMq7sCuZSzPomQA==}
+
   '@types/config@3.3.5':
     resolution: {integrity: sha512-itq2HtXQBrNUKwMNZnb9mBRE3T99VYCdl1gjST9rq+9kFaB1iMMGuDeZnP88qid73DnpAMKH9ZolqDpS1Lz7+w==}
 
@@ -1763,6 +1769,9 @@ packages:
 
   '@types/express@5.0.0':
     resolution: {integrity: sha512-DvZriSMehGHL1ZNLzi6MidnsDhUZM/x2pRdDIKdwbUNqqwHxMlRdkxtn6/EPKyqKpHqTl/4nRZsRNLpZxZRpPQ==}
+
+  '@types/get-image-colors@4.0.5':
+    resolution: {integrity: sha512-4d3eLaB8Hz+KpGwkqZx/AO2Omvp5lFbAV5z6MqLV3bUQR1tHLsIbbLgESOS+/APrtad8oDg7BzQbE/hAzrOUHA==}
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
@@ -7512,6 +7521,8 @@ snapshots:
     dependencies:
       '@types/node': 20.16.10
 
+  '@types/chroma-js@3.1.1': {}
+
   '@types/config@3.3.5': {}
 
   '@types/connect@3.4.36':
@@ -7547,6 +7558,11 @@ snapshots:
       '@types/express-serve-static-core': 5.0.2
       '@types/qs': 6.9.11
       '@types/serve-static': 1.15.5
+
+  '@types/get-image-colors@4.0.5':
+    dependencies:
+      '@types/chroma-js': 3.1.1
+      '@types/node': 20.16.10
 
   '@types/graceful-fs@4.1.9':
     dependencies:
