@@ -5,9 +5,9 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common'
-import { createHash } from 'crypto'
 import { Span } from 'nestjs-otel'
 import { StorageBackend } from 'src/enums/storage-backend.enum'
+import { MD5 } from 'src/helpers/md5.helper'
 import { Readable } from 'stream'
 import { PhotoMinioStorageService } from './photo-minio-storage.service'
 import { StorageServiceInterface } from './storage-service.interface'
@@ -99,15 +99,7 @@ export class StorageService implements StorageServiceInterface {
   @Span()
   async getFileMd5(file: string): Promise<string> {
     const stream = await this.getStream(file)
-    return new Promise((resolve, reject) => {
-      const hash = createHash('md5')
-      try {
-        stream.on('data', (data) => hash.update(data))
-        stream.on('end', () => resolve(hash.digest('hex')))
-        stream.on('error', (err) => reject(err))
-      } catch (err) {
-        return reject(err)
-      }
-    })
+    const md5 = await MD5.fromStream(stream)
+    return md5.hex
   }
 }

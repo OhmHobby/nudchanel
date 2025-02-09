@@ -46,7 +46,12 @@ export class CommonSteps {
   }
 
   @when('delay {int}ms')
-  whenDelay(delay: number) {
-    return new Promise<void>((r) => setTimeout(() => r(), delay))
+  whenDelay(delay: number, stdout?: string) {
+    return new Promise<void>((r) =>
+      setTimeout(() => {
+        if (stdout) process.stdout.write(stdout)
+        r()
+      }, delay),
+    )
   }
 }

@@ -4,8 +4,8 @@ import { Connection } from 'mongoose'
 import { MongoConnection } from './enums/mongo-connection.enum'
 
 @Injectable()
-export class MongooseWorkerLifecyclesService implements OnApplicationShutdown {
-  private readonly logger = new Logger(MongooseWorkerLifecyclesService.name)
+export class MongooseLifecyclesService implements OnApplicationShutdown {
+  private readonly logger = new Logger(MongooseLifecyclesService.name)
 
   constructor(
     @Inject(getConnectionToken())

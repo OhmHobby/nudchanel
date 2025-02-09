@@ -38,11 +38,12 @@ import { AppRunMode } from './enums/app-run-mode.enum'
 import { Config } from './enums/config.enum'
 import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
+import { GalleryWorkerModule } from './gallery/gallery.worker.module'
 import { GoogleModule } from './google/google.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { LdapServerModule } from './ldap-server/ldap-server.module'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
-import { MongooseServerLifecyclesService } from './mongoose.server.life-cycles.service'
+import { MongooseLifecyclesService } from './mongoose.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
 import { PhotoWorkerModule } from './photo/photo.worker.module'
 import { SchedulerModule } from './scheduler/scheduler.module'
@@ -79,6 +80,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     ConditionalModule.registerWhen(GoogleModule, isRegisterWebServer),
     ConditionalModule.registerWhen(LdapServerModule, isRegisterLdapServer),
     ConditionalModule.registerWhen(AccountsWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(GalleryWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(PhotoWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(DeliveryWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(MigrationWorkerModule, isRegisterWorker),
@@ -94,7 +96,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     SwaggerConfigBuilder,
     CacheLifeCyclesService,
     TypeormLifecyclesService,
-    MongooseServerLifecyclesService,
+    MongooseLifecyclesService,
     OTELLifecyclesService,
   ],
 })

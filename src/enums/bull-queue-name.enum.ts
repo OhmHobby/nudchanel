@@ -3,4 +3,5 @@ export enum BullQueueName {
   Discord = 'discord',
   Migration = 'migration',
   Photo = 'photo',
+  GalleryPhotoValidation = 'gallery_photo_validation',
 }

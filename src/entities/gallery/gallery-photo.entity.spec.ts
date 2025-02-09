@@ -1,4 +1,5 @@
 import { GalleryPhotoNextState } from 'src/enums/gallery-photo-pending-state.enum'
+import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { uuidv4 } from 'uuidv7'
 import { GalleryPhotoEntity } from './gallery-photo.entity'
@@ -42,7 +43,10 @@ describe(GalleryPhotoEntity.name, () => {
       })
 
       test('rejected', () => {
-        const entity = new GalleryPhotoEntity({ validatedAt: new Date(), rejectReason: 'Missing taken timestamp' })
+        const entity = new GalleryPhotoEntity({
+          validatedAt: new Date(),
+          rejectReason: GalleryPhotoRejectReason.timestamp,
+        })
         expect(entity.state).toBe(GalleryPhotoState.rejected)
         expect(entity.nextState).toBe(undefined)
       })
@@ -70,7 +74,8 @@ describe(GalleryPhotoEntity.name, () => {
           validatedAt: new Date(),
           processedAt: new Date(),
           reviewedBy: uuidv4(),
-          rejectReason: 'Inappropriate',
+          rejectReason: GalleryPhotoRejectReason.other,
+          rejectMessage: 'Inappropriate',
         })
         expect(entity.state).toBe(GalleryPhotoState.rejected)
         expect(entity.nextState).toBe(undefined)

@@ -117,7 +117,10 @@ export class PhotoConsumerService extends WorkerHost {
       this.storageService
         .getBuffer(path)
         .then((buffer) =>
-          Promise.all([this.photoMetadataService.getFileExif(buffer), this.photoMetadataService.getPhotoColor(buffer)]),
+          Promise.all([
+            this.photoMetadataService.getFileExif(buffer),
+            this.photoMetadataService.getPhotoColorHex(buffer),
+          ]),
         ),
     ])
     return PhotoMetadata.create({

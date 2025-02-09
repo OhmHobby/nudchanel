@@ -31,7 +31,7 @@ export class PhotoProcessorController {
   @ApiOkResponse()
   async getColor(@Query() { path }: FileDto) {
     const buffer = await this.storageService.getBuffer(path)
-    return await this.metadataService.getPhotoColor(buffer)
+    return await this.metadataService.getPhotoColorHex(buffer)
   }
 
   @Get('exif')

@@ -1,5 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { InjectQueue } from '@nestjs/bullmq'
+import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Queue } from 'bullmq'
 import { Span } from 'nestjs-otel'
 import { basename, join } from 'path'
 import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
@@ -7,6 +9,8 @@ import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
@@ -16,7 +20,7 @@ import { uuidv7 } from 'uuidv7'
 import { GalleryAlbumPhotoModel } from '../dto/gallery-album-photo.model'
 
 @Injectable()
-export class GalleryAlbumPhotoService {
+export class GalleryAlbumPhotoService implements OnModuleDestroy {
   private readonly logger = new Logger(GalleryAlbumPhotoService.name)
 
   constructor(
@@ -24,6 +28,8 @@ export class GalleryAlbumPhotoService {
     private readonly albumRepository: Repository<GalleryAlbumEntity>,
     @InjectRepository(GalleryPhotoEntity)
     private readonly photoRepository: Repository<GalleryPhotoEntity>,
+    @InjectQueue(BullQueueName.GalleryPhotoValidation)
+    private readonly galleryPhotoValidationQueue: Queue<GalleryPhotoEntity>,
     private readonly photoV1Service: PhotoV1Service,
     private readonly profileNameService: ProfileNameService,
     private readonly storageService: StorageService,
@@ -61,8 +67,14 @@ export class GalleryAlbumPhotoService {
     )
   }
 
-  async getUploadPhotos(albumId: string, uploadByProfileUid?: string): Promise<GalleryAlbumPhotoModel[]> {
-    const photos = await this.photoRepository.find({ where: { albumId, createdBy: uploadByProfileUid } })
+  async getUploadPhotos(
+    albumId: string,
+    uploadByProfileUid?: string,
+    state?: GalleryPhotoState,
+  ): Promise<GalleryAlbumPhotoModel[]> {
+    const photos = await this.photoRepository.find({
+      where: { albumId, takenBy: uploadByProfileUid, ...GalleryPhotoEntity.findByStateOptionsWhere(state) },
+    })
     const profileUidOidMap = Object.fromEntries(
       [...new Set(photos.map((el) => el.takenBy).filter((el) => typeof el === 'string'))].map((el) => [
         el,
@@ -109,7 +121,9 @@ export class GalleryAlbumPhotoService {
 
     await this.storageService.putFile(entity.fullpath, buffer)
     this.logger.log(`Uploaded ${originalname} to ${entity.fullpath}`)
-    return this.photoRepository.save(entity)
+    await this.photoRepository.save(entity)
+    await this.galleryPhotoValidationQueue.add(entity.id, entity)
+    return entity
   }
 
   async importFiles(albumId: string, directory: string, importByUid: ProfileIdModel, takenByUid?: ProfileIdModel) {
@@ -127,6 +141,11 @@ export class GalleryAlbumPhotoService {
         }),
     )
     await this.photoRepository.insert(entities)
+    await this.galleryPhotoValidationQueue.addBulk(entities.map((entity) => ({ name: entity.id, data: entity })))
     return entities
+  }
+
+  async onModuleDestroy() {
+    await this.galleryPhotoValidationQueue.close()
   }
 }
