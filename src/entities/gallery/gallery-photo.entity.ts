@@ -17,9 +17,9 @@ import {
   FindOptionsWhere,
   IsNull,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   Not,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
@@ -107,7 +107,7 @@ export class GalleryPhotoEntity extends BaseEntity {
   @JoinColumn({ name: 'album_id' })
   album?: GalleryAlbumEntity
 
-  @ManyToMany(() => GalleryReportEntity, (report) => report.photos)
+  @OneToMany(() => GalleryReportEntity, (report) => report.photo)
   reports?: GalleryReportEntity[]
 
   @Column({ name: 'album_id', type: 'varchar', length: GALLERY_ID_LENGTH, nullable: true })

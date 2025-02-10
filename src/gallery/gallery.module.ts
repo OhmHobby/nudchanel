@@ -22,6 +22,7 @@ import { GalleryAlbumPhotoService } from './photo/gallery-album-photo.service'
 import { GalleryAlbumPhotoV1Controller } from './photo/gallery-album-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
+import { GalleryReportService } from './report/gallery-report.service'
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
     GalleryAlbumPhotoService,
     GalleryVideoService,
     IsForbiddenField,
+    GalleryReportService,
   ],
 })
 export class GalleryModule {}
