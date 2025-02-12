@@ -47,4 +47,8 @@ export class GalleryPhotoService {
   async resetApprovals(id: string) {
     await this.photoRepository.update({ id }, { reviewedBy: null, rejectReason: null, rejectMessage: null })
   }
+
+  async deletePhoto(id: string) {
+    await this.photoRepository.softDelete({ id })
+  }
 }

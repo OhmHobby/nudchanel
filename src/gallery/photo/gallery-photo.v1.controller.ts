@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch } from '@nestjs/common'
+import { Body, Controller, Delete, Param, Patch } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
@@ -44,5 +44,15 @@ export class GalleryPhotoV1Controller {
   @AuditLog(GalleryPhotoV1Controller.prototype.resetGalleryPhotoApprovals.name)
   async resetGalleryPhotoApprovals(@Param() { id }: UuidParamDto) {
     await this.galleryPhotoService.resetApprovals(id)
+  }
+
+  @Delete(':id')
+  @AuthGroups('pr')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiNoContentResponse()
+  @AuditLog(GalleryPhotoV1Controller.prototype.deleteGalleryPhoto.name)
+  async deleteGalleryPhoto(@Param() { id }: UuidParamDto) {
+    await this.galleryPhotoService.deletePhoto(id)
   }
 }
