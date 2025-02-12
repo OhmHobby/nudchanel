@@ -28,6 +28,8 @@ export class BullBoardController implements OnModuleDestroy {
     private readonly photoQueue: Queue,
     @InjectQueue(BullQueueName.GalleryPhotoValidation)
     private readonly galleryPhotoValidationQueue: Queue,
+    @InjectQueue(BullQueueName.GalleryPhotoConversion)
+    private readonly galleryPhotoConversionQueue: Queue,
   ) {}
 
   @All('*')
@@ -53,6 +55,7 @@ export class BullBoardController implements OnModuleDestroy {
       new BullMQAdapter(this.migrationQueue),
       new BullMQAdapter(this.photoQueue),
       new BullMQAdapter(this.galleryPhotoValidationQueue),
+      new BullMQAdapter(this.galleryPhotoConversionQueue),
     ]
   }
 
@@ -63,6 +66,7 @@ export class BullBoardController implements OnModuleDestroy {
       this.migrationQueue.close(),
       this.photoQueue.close(),
       this.galleryPhotoValidationQueue.close(),
+      this.galleryPhotoConversionQueue.close(),
     ])
     this.logger.log('Successfully closed bull queues')
   }

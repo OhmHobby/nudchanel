@@ -10,6 +10,7 @@ import { BullBoardController } from './bull-board.controller'
     BullModule.registerQueue({ name: BullQueueName.Migration }),
     BullModule.registerQueue({ name: BullQueueName.Photo }),
     BullModule.registerQueue({ name: BullQueueName.GalleryPhotoValidation }),
+    BullModule.registerQueue({ name: BullQueueName.GalleryPhotoConversion }),
   ],
   controllers: [BullBoardController],
   providers: [],
