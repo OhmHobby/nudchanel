@@ -9,8 +9,8 @@ import { Workspace } from './workspace'
 export class CommonSteps {
   constructor(private readonly _workspace: Workspace) {}
 
-  async httpRequest(method: string, endpoint?: string, query?: object, body?: object) {
-    const test = agent(this._workspace.serverUrl)
+  async httpRequest(method: string, endpoint?: string, query?: object, body?: object, serverUrl?: string) {
+    const test = agent(serverUrl ?? this._workspace.serverUrl)
     if (query) test.query(query)
     if (this._workspace.user.id) {
       const privateKey = config.get<string>(Config.NUDCH_TOKEN_PRIVATE_KEY)

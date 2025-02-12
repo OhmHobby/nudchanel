@@ -1,13 +1,22 @@
 import { DataTable } from '@cucumber/cucumber'
+import { HttpStatus } from '@nestjs/common'
+import config from 'config'
 import { binding, given, then, when } from 'cucumber-tsflow'
 import expect from 'expect'
 import { basename } from 'path'
+import { Config } from 'src/enums/config.enum'
+import { GalleryAlbumPhotoModel } from 'src/gallery/dto/gallery-album-photo.model'
 import { GalleryAlbumPhotosModel } from 'src/gallery/dto/gallery-album-photos.model'
+import { MD5 } from 'src/helpers/md5.helper'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
 @binding([Workspace])
 export class AlbumPhotosSteps extends CommonSteps {
+  private currentAlbumId: string
+
+  private currentUploadPhoto: GalleryAlbumPhotoModel
+
   constructor(private readonly workspace: Workspace) {
     super(workspace)
   }
@@ -30,6 +39,23 @@ export class AlbumPhotosSteps extends CommonSteps {
   @given('import album photos are taken by {string}')
   givenImportPhotosTakenBy(takenBy: string) {
     this.workspace.requestBody.takenBy = takenBy
+  }
+
+  @when('upload gallery album {string} photo')
+  async whenUpload(albumId: string) {
+    await this.httpRequest('POST', `/api/v1/gallery/albums/${albumId}/photos/uploads`)
+    this.currentAlbumId = albumId
+    this.currentUploadPhoto = this.workspace.response?.body
+  }
+
+  @when('wait for current gallery upload photo to be {string} state', undefined, 30000)
+  async whenWaitForFileIdToBeState(state: string) {
+    const result = await this.whenWaitForPhotoToBeState(
+      this.currentAlbumId,
+      state,
+      (el) => el.id === this.currentUploadPhoto.id,
+    )
+    expect(result).toBe(true)
   }
 
   @when('wait for gallery album {string} upload photo file {string} to be {string} state', undefined, 30000)
@@ -110,5 +136,15 @@ export class AlbumPhotosSteps extends CommonSteps {
   @then('upload file {string} should be existed')
   async thenUploadFileShouldBeExisted(path: string) {
     await expect(this.workspace.webdavClient.isExist(path)).resolves.toBe(true)
+  }
+
+  @then('uploaded gallery photo photo processed size {string} should have md5 {string}')
+  async thenProcessEtag(size: string, etag: string) {
+    const fullpath = this.currentUploadPhoto[size]
+    const endpoint = fullpath?.replace(config.get<string>(Config.HTTP_BASEURL_PHOTO), '')
+    this.workspace.responseType = 'blob'
+    await this.httpRequest('GET', endpoint, undefined, undefined, process.env.WORKER_URL)
+    expect(this.workspace.response?.status).toBe(HttpStatus.OK)
+    expect(MD5.fromBuffer(this.workspace.response?.body).hex).toBe(etag)
   }
 }

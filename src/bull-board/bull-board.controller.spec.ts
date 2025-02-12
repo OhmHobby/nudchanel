@@ -17,6 +17,7 @@ describe(BullBoardController.name, () => {
         { provide: getQueueToken(BullQueueName.Migration), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Photo), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.GalleryPhotoValidation), useValue: { close: jest.fn() } },
+        { provide: getQueueToken(BullQueueName.GalleryPhotoConversion), useValue: { close: jest.fn() } },
       ],
     }).compile()
 

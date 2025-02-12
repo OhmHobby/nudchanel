@@ -123,7 +123,14 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     const [album, profileDirectory] = await Promise.all([
       this.albumRepository.findOne({
         where: { id: albumId },
-        select: { id: true, uploadDirectory: true },
+        select: {
+          id: true,
+          uploadDirectory: true,
+          minimumResolutionMp: true,
+          takenAfter: true,
+          takenBefore: true,
+          watermarkPreset: true,
+        },
       }),
       this.profileNameService.getNickNameWithFirstNameAndInitial(profileId.objectId),
     ])
@@ -136,11 +143,12 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       takenBy: profileId.uuid,
       createdBy: profileId.uuid,
       albumId,
+      album,
     })
 
     await this.storageService.putFile(entity.fullpath, buffer)
     this.logger.log(`Uploaded ${originalname} to ${entity.fullpath}`)
-    await this.photoRepository.save(entity)
+    await this.photoRepository.insert(entity) // do not use .save to prevent cascading album field
     await this.galleryPhotoValidationQueue.add(entity.id, entity)
     return entity
   }

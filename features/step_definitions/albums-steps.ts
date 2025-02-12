@@ -30,6 +30,11 @@ export class AlbumSteps extends CommonSteps {
     this.workspace.requestBody.takenBefore = value
   }
 
+  @given('album watermarkPreset {string}')
+  givenWatermarkPreset(value: string) {
+    this.workspace.requestBody.watermarkPreset = value
+  }
+
   @then('albums should be')
   thenAlbumsShouldBe(dataTable: DataTable) {
     const columns = dataTable.raw().at(0)

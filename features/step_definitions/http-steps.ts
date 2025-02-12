@@ -12,7 +12,7 @@ export class HttpSteps extends CommonSteps {
 
   @given('request to worker url')
   givenTargetWorker() {
-    this.workspace.serverUrl = process.env.WORKER_URL ?? 'http://127.0.0.1:5000'
+    this.workspace.serverUrl = process.env.WORKER_URL ?? this.workspace.serverUrl
   }
 
   @given(/^If none match (.*)$/)
