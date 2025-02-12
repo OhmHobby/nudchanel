@@ -2,7 +2,7 @@ import { DataTable } from '@cucumber/cucumber'
 import { binding, given, then, when } from 'cucumber-tsflow'
 import expect from 'expect'
 import { basename } from 'path'
-import { GalleryAlbumPhotoModel } from 'src/gallery/dto/gallery-album-photo.model'
+import { GalleryAlbumPhotosModel } from 'src/gallery/dto/gallery-album-photos.model'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
 
@@ -33,21 +33,26 @@ export class AlbumPhotosSteps extends CommonSteps {
   }
 
   @when('wait for gallery album {string} upload photo file {string} to be {string} state', undefined, 30000)
-  async whenWaitForFileToBeState(album: string, filename: string, state: string) {
+  async whenWaitForFileNameToBeState(album: string, filename: string, state: string) {
+    const result = await this.whenWaitForPhotoToBeState(album, state, (el) => el.filename === filename)
+    expect(result).toBe(true)
+  }
+
+  private async whenWaitForPhotoToBeState(album: string, state: string, filter: (photo) => boolean) {
     for (let attempt = 0; attempt++ < 10; await this.whenDelay(1000, '.')) {
       await this.httpRequest('GET', `/api/v1/gallery/albums/${album}/photos/uploads`, {
         takenBy: this.workspace.user.id,
         state,
       }).catch((err) => console.error(err))
-      const photos = this.workspace.response?.body as GalleryAlbumPhotoModel[]
-      if (photos.some((el) => el.filename === filename)) return
+      const { photos } = this.workspace.response?.body as GalleryAlbumPhotosModel
+      if (photos.some(filter)) return true
     }
     console.error(`Time out`, this.workspace.response?.body)
-    expect(this.workspace.response?.body).toContainEqual({ filename, state })
+    return false
   }
 
   @then('gallery album photos should contain')
-  photosShouldContain(dataTable: DataTable) {
+  thenPhotosShouldContain(dataTable: DataTable) {
     const normalizedResponse = [this.workspace.response?.body?.photos ?? this.workspace.response?.body]
       .flat()
       .filter((photo) => dataTable.hashes().some((row) => !row.id || row.id === photo.id))
@@ -88,6 +93,18 @@ export class AlbumPhotosSteps extends CommonSteps {
       rejectReason: row.rejectReason ?? expect.anything(),
     }))
     normalizedTable.map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
+  }
+
+  @then('gallery album photo contributors should contain')
+  thenContributorsShouldContain(dataTable: DataTable) {
+    const normalizedTable = dataTable.hashes().map((row) => ({
+      profileId: row.profileId ?? expect.anything(),
+      firstname: row.firstname ?? expect.anything(),
+      lastname: row.lastname ?? expect.anything(),
+    }))
+    normalizedTable.map((row) =>
+      expect(this.workspace.response?.body?.contributors).toContainEqual(expect.objectContaining(row)),
+    )
   }
 
   @then('upload file {string} should be existed')

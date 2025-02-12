@@ -151,6 +151,19 @@ export class GalleryPhotoEntity extends BaseEntity {
     return join(this.directory, this.filename)
   }
 
+  static stateFromNextState(nextState?: GalleryPhotoNextState): GalleryPhotoState | undefined {
+    switch (nextState) {
+      case GalleryPhotoNextState.validation:
+        return GalleryPhotoState.created
+      case GalleryPhotoNextState.processing:
+        return GalleryPhotoState.accepted
+      case GalleryPhotoNextState.approval:
+        return GalleryPhotoState.processed
+      default:
+        return undefined
+    }
+  }
+
   static findByStateOptionsWhere(state?: GalleryPhotoState): FindOptionsWhere<GalleryPhotoEntity> {
     const optionsWhere: FindOptionsWhere<GalleryPhotoEntity> = {
       errorMessage: IsNull(),

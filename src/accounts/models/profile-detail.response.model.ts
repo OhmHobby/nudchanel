@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { isDocument } from '@typegoose/typegoose'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
-import { ProfileId } from 'src/models/types'
 
 export class ProfileDetailResponseModel {
   constructor(model?: Partial<ProfileDetailResponseModel>) {
@@ -20,9 +20,9 @@ export class ProfileDetailResponseModel {
   @ApiPropertyOptional()
   nickname?: string
 
-  static fromModel(profileId?: ProfileId, name?: ProfileNameModel) {
+  static fromModel(name?: ProfileNameModel) {
     return new ProfileDetailResponseModel({
-      profileId: profileId?.toHexString(),
+      profileId: (isDocument(name?.profile) ? name.profile._id : name?.profile)?.toHexString(),
       firstname: name?.firstname,
       lastname: name?.lastname,
       nickname: name?.nickname,
@@ -30,9 +30,6 @@ export class ProfileDetailResponseModel {
   }
 
   static fromProfile(profile?: ProfileModel, lang: ProfileNameLanguage = 'en') {
-    return ProfileDetailResponseModel.fromModel(
-      profile?._id,
-      profile?.populatedNames?.find((p) => p.lang === lang),
-    )
+    return ProfileDetailResponseModel.fromModel(profile?.populatedNames?.find((p) => p.lang === lang))
   }
 }

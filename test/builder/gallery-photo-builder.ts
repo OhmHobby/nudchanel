@@ -50,6 +50,11 @@ export class GalleryPhotoBuilder {
     return this
   }
 
+  withTakenBy(takenBy: string | null) {
+    this.entity.takenBy = takenBy
+    return this
+  }
+
   build() {
     return this.entity
   }

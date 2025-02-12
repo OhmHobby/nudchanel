@@ -42,6 +42,16 @@ Feature: Gallery album photo upload
       | state    | width | height | timestamp                | color   | md5                              | takenBy.profileId        | directory                  | filename     |
       | accepted | 6000  | 4000   | 2022-05-29T01:29:51.000Z | #9f5827 | 5be8733fe975ea3ac49a81c37460ab9f | 5b794c41fd533e3b2f61cf05 | /2023/test/(Arm) NattawatJ | IMG_2669.jpg |
 
+  Scenario: Get photo contributors
+    Given user profileId 5f26d84604f18f00186e4101
+    And user groups nudch
+    When GET /api/v1/gallery/albums/obo2m_X/photos/uploads?takenBy=5b794c41fd533e3b2f61cf05
+    Then HTTP response status should be OK
+    And gallery album photo contributors should contain
+      | profileId                | firstname | lastname      |
+      | 5f26d84604f18f00186e4101 | Ananyoch  | Sinananwanich |
+      | 5b794c41fd533e3b2f61cf05 | Nattawat  | Jamlongrad    |
+
   @reject
   Scenario: Early duplicated upload should be rejected
     Given user profileId 5f26d84604f18f00186e4101

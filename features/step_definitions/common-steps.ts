@@ -36,6 +36,8 @@ export class CommonSteps {
           : await request.send(body)
       } else if (method === 'PUT') {
         this._workspace.response = await test.put(requestEndpoint).send(body)
+      } else if (method === 'PATCH') {
+        this._workspace.response = await test.patch(requestEndpoint).send(body)
       } else {
         throw new Error('Unknown method ' + method)
       }
