@@ -15,7 +15,7 @@ import { TestData } from 'test/test-data'
 import { Repository } from 'typeorm'
 import { uuidv4 } from 'uuidv7'
 
-describe('Gallery photo', () => {
+describe('Gallery photo entity', () => {
   let app: INestApplication
   let galleryPhotoRepository: Repository<GalleryPhotoEntity>
 

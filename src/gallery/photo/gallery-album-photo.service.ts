@@ -18,6 +18,7 @@ import { StorageService } from 'src/storage/storage.service'
 import { Repository } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
 import { GalleryAlbumPhotoModel } from '../dto/gallery-album-photo.model'
+import { GalleryAlbumPhotosModel } from '../dto/gallery-album-photos.model'
 
 @Injectable()
 export class GalleryAlbumPhotoService implements OnModuleDestroy {
@@ -36,7 +37,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
   ) {}
 
   @Span()
-  async getPhotoV1ProcessedPhotos(albumId: string): Promise<GalleryAlbumPhotoModel[]> {
+  async getPhotoV1ProcessedPhotos(albumId: string): Promise<GalleryAlbumPhotosModel> {
     const batches = await this.photoV1Service.getBatchProfilePairs(albumId)
     const batchIds = [...batches.keys()]
     const profileIds = [...batches.values()].filter((el) => !!el)
@@ -49,22 +50,27 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
         .filter(([, profileId]) => !!profileId)
         .map(([batchId, profileId]) => {
           const profileName = profileId && profileNameMap.get(profileId.toHexString())
-          const response = profileName && ProfileDetailResponseModel.fromModel(profileId, profileName)
+          const response = profileName && ProfileDetailResponseModel.fromModel(profileName)
           return [batchId.toHexString(), response]
         }),
     )
-    return photos.map(
-      (photo) =>
-        new GalleryAlbumPhotoModel({
-          id: photo._id?.toHexString(),
-          uuid: photo.uuid?.toString(),
-          width: photo.width,
-          height: photo.height,
-          color: photo.color,
-          timestamp: photo.taken_timestamp,
-          takenBy: batchProfileNameMap.get(photo.batch.toString()),
-        }),
-    )
+    return new GalleryAlbumPhotosModel({
+      contributors: [...profileNameMap.values()].map((profileNameModel) =>
+        ProfileDetailResponseModel.fromModel(profileNameModel),
+      ),
+      photos: photos.map(
+        (photo) =>
+          new GalleryAlbumPhotoModel({
+            id: photo._id?.toHexString(),
+            uuid: photo.uuid?.toString(),
+            width: photo.width,
+            height: photo.height,
+            color: photo.color,
+            timestamp: photo.taken_timestamp,
+            takenBy: batchProfileNameMap.get(photo.batch.toString()),
+          }),
+      ),
+    })
   }
 
   async getUploadPhotos(
@@ -85,7 +91,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     const profileUidNameMap = Object.fromEntries(
       Object.entries(profileUidOidMap).map(([uid, oid]) => {
         const profileName = profileNameMap.get(oid.toHexString())
-        return [uid, profileName ? ProfileDetailResponseModel.fromModel(oid, profileName) : undefined]
+        return [uid, profileName ? ProfileDetailResponseModel.fromModel(profileName) : undefined]
       }),
     )
     return photos.map((photo) =>
@@ -93,6 +99,19 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
         photo.takenBy ? profileUidNameMap[photo.takenBy] : undefined,
       ),
     )
+  }
+
+  async getUploadContributors(albumId: string): Promise<ProfileDetailResponseModel[]> {
+    const photos = await this.photoRepository
+      .createQueryBuilder()
+      .select('taken_by', 'takenBy')
+      .distinct(true)
+      .where('album_id = :albumId', { albumId })
+      .andWhere('taken_by IS NOT NULL')
+      .getRawMany<Pick<GalleryPhotoEntity, 'takenBy'>>()
+    const profileOids = photos.map((el) => ObjectIdUuidConverter.toObjectId(el.takenBy!))
+    const profileNames = await this.profileNameService.getProfilesName(profileOids)
+    return profileNames.map((el) => ProfileDetailResponseModel.fromModel(el))
   }
 
   async uploadFile(
@@ -104,7 +123,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     const [album, profileDirectory] = await Promise.all([
       this.albumRepository.findOne({
         where: { id: albumId },
-        select: { uploadDirectory: true },
+        select: { id: true, uploadDirectory: true },
       }),
       this.profileNameService.getNickNameWithFirstNameAndInitial(profileId.objectId),
     ])

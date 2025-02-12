@@ -151,6 +151,7 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
     return this.galleryAlbumRepository.findOneOrFail({
       where: { id: albumId },
       select: {
+        id: true,
         minimumResolutionMp: true,
         takenAfter: true,
         takenBefore: true,

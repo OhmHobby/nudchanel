@@ -13,6 +13,7 @@ import { User } from '@nudchannel/auth'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
+import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { AlbumIdDto } from '../dto/album-id.dto'
 import { GalleryAlbumPhotoImportDto } from '../dto/gallery-album-photo-import.dto'
@@ -31,19 +32,27 @@ export class GalleryAlbumPhotoV1Controller {
   @ApiOkResponse({ type: GalleryAlbumPhotosModel })
   async getGalleryAlbumPhotos(@Param() { albumId }: AlbumIdDto): Promise<GalleryAlbumPhotosModel> {
     const v1Photos = await this.galleryAlbumPhotoService.getPhotoV1ProcessedPhotos(albumId)
-    return new GalleryAlbumPhotosModel({ photos: v1Photos })
+    return v1Photos
   }
 
   @Get('uploads')
   @AuthGroups('nudch')
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @ApiOkResponse({ type: [GalleryAlbumPhotoModel] })
-  getUploadedGalleryAlbumPhotos(
+  @ApiOkResponse({ type: GalleryAlbumPhotosModel })
+  async getUploadedGalleryAlbumPhotos(
     @Param() { albumId }: AlbumIdDto,
-    @Query() { takenBy, state }: GalleryUploadPhotosQueryDto,
-  ): Promise<GalleryAlbumPhotoModel[]> {
-    return this.galleryAlbumPhotoService.getUploadPhotos(albumId, ObjectIdUuidConverter.toUuid(takenBy), state)
+    @Query() { takenBy, state, nextState }: GalleryUploadPhotosQueryDto,
+  ): Promise<GalleryAlbumPhotosModel> {
+    const [contributors, photos] = await Promise.all([
+      this.galleryAlbumPhotoService.getUploadContributors(albumId),
+      this.galleryAlbumPhotoService.getUploadPhotos(
+        albumId,
+        ObjectIdUuidConverter.toUuid(takenBy),
+        state ?? GalleryPhotoEntity.stateFromNextState(nextState),
+      ),
+    ])
+    return new GalleryAlbumPhotosModel({ contributors, photos })
   }
 
   @Post('uploads')
