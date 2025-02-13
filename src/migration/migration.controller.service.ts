@@ -8,16 +8,6 @@ import { MigrationService } from './migration.service'
 export class MigrationController {
   constructor(private readonly service: MigrationService) {}
 
-  @Post('reprocess-photos')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @AuthGroups('it')
-  async triggerMigratePhotoStorageAll() {
-    return await this.service.triggerReprocessAll()
-  }
-
   @Get('data')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
