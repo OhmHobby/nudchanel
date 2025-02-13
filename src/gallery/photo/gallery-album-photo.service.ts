@@ -7,9 +7,11 @@ import { basename, join } from 'path'
 import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { DataMigration } from 'src/enums/data-migration.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
@@ -29,6 +31,8 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     private readonly albumRepository: Repository<GalleryAlbumEntity>,
     @InjectRepository(GalleryPhotoEntity)
     private readonly photoRepository: Repository<GalleryPhotoEntity>,
+    @InjectRepository(DataMigrationEntity)
+    private readonly dataMigrationRepository: Repository<DataMigrationEntity>,
     @InjectQueue(BullQueueName.GalleryPhotoValidation)
     private readonly galleryPhotoValidationQueue: Queue<GalleryPhotoEntity>,
     private readonly photoV1Service: PhotoV1Service,
@@ -73,11 +77,21 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     })
   }
 
+  async getGalleryAlbumPhotos(albumId: string) {
+    const isMigrated = await this.dataMigrationRepository.existsBy({ id: DataMigration.GalleryPhoto })
+    if (isMigrated) {
+      return this.getUploadPhotos(albumId, undefined, GalleryPhotoState.approved)
+    } else {
+      return this.getPhotoV1ProcessedPhotos(albumId)
+    }
+  }
+
+  @Span()
   async getUploadPhotos(
     albumId: string,
     uploadByProfileUid?: string,
     state?: GalleryPhotoState,
-  ): Promise<GalleryAlbumPhotoModel[]> {
+  ): Promise<GalleryAlbumPhotosModel> {
     const photos = await this.photoRepository.find({
       where: { albumId, takenBy: uploadByProfileUid, ...GalleryPhotoEntity.findByStateOptionsWhere(state) },
     })
@@ -94,11 +108,16 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
         return [uid, profileName ? ProfileDetailResponseModel.fromModel(profileName) : undefined]
       }),
     )
-    return photos.map((photo) =>
-      GalleryAlbumPhotoModel.fromEntity(photo).withTakenBy(
-        photo.takenBy ? profileUidNameMap[photo.takenBy] : undefined,
+    return new GalleryAlbumPhotosModel({
+      contributors: [...profileNameMap.values()].map((profileNameModel) =>
+        ProfileDetailResponseModel.fromModel(profileNameModel),
       ),
-    )
+      photos: photos.map((photo) =>
+        GalleryAlbumPhotoModel.fromEntity(photo).withTakenBy(
+          photo.takenBy ? profileUidNameMap[photo.takenBy] : undefined,
+        ),
+      ),
+    })
   }
 
   async getUploadContributors(albumId: string): Promise<ProfileDetailResponseModel[]> {

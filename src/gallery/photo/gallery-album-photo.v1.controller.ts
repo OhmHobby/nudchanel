@@ -31,8 +31,7 @@ export class GalleryAlbumPhotoV1Controller {
   @Get()
   @ApiOkResponse({ type: GalleryAlbumPhotosModel })
   async getGalleryAlbumPhotos(@Param() { albumId }: AlbumIdDto): Promise<GalleryAlbumPhotosModel> {
-    const v1Photos = await this.galleryAlbumPhotoService.getPhotoV1ProcessedPhotos(albumId)
-    return v1Photos
+    return await this.galleryAlbumPhotoService.getGalleryAlbumPhotos(albumId)
   }
 
   @Get('uploads')
@@ -44,7 +43,7 @@ export class GalleryAlbumPhotoV1Controller {
     @Param() { albumId }: AlbumIdDto,
     @Query() { takenBy, state, nextState }: GalleryUploadPhotosQueryDto,
   ): Promise<GalleryAlbumPhotosModel> {
-    const [contributors, photos] = await Promise.all([
+    const [contributors, { photos }] = await Promise.all([
       this.galleryAlbumPhotoService.getUploadContributors(albumId),
       this.galleryAlbumPhotoService.getUploadPhotos(
         albumId,
