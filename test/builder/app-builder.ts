@@ -19,6 +19,7 @@ import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.ent
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
+import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -110,6 +111,8 @@ export class AppBuilder {
       .useValue(mockTypegooseConnection)
       .overrideProvider(getDataSourceToken())
       .useValue({ getRepository: jest.fn() })
+      .overrideProvider(getRepositoryToken(ProfilePhotoEntity))
+      .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryActivityEntity))
       .useValue(jest.fn())
       .overrideProvider(getRepositoryToken(GalleryAlbumEntity))

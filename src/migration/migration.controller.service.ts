@@ -18,16 +18,6 @@ export class MigrationController {
     return await this.service.triggerReprocessAll()
   }
 
-  @Post('reprocess-profile-photos')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @AuthGroups('it')
-  async triggerReprocessProfilesAll() {
-    return await this.service.triggerProcessAllProfilePhotos()
-  }
-
   @Get('data')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
