@@ -9,7 +9,6 @@ import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullPriority } from 'src/enums/bull-priority.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
-import { ProfileModel } from 'src/models/accounts/profile.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { Repository } from 'typeorm'
 
@@ -18,8 +17,6 @@ export class MigrationService implements OnModuleDestroy {
   private readonly logger = new Logger(MigrationService.name)
 
   constructor(
-    @InjectModel(ProfileModel)
-    private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
     @InjectRepository(DataMigrationEntity)
@@ -45,22 +42,6 @@ export class MigrationService implements OnModuleDestroy {
         })
         .then((job) => this.logger.debug(`Queued ${photo.uuid} for migration`, job))
     }
-  }
-
-  async triggerProcessAllProfilePhotos() {
-    const profiles = await this.profileModel
-      .find({ photo: { $ne: null } })
-      .lean()
-      .exec()
-    const promises = profiles.map((profile) =>
-      this.migrationQueue.add(BullJobName.MigrateProfilePhoto, profile._id.toString(), {
-        attempts: 4,
-        backoff: 5000,
-        removeOnComplete: true,
-        removeOnFail: false,
-      }),
-    )
-    return await Promise.all(promises)
   }
 
   async getDataMigrations() {

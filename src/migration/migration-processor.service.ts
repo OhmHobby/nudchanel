@@ -4,15 +4,18 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bullmq'
+import { Types } from 'mongoose'
 import { join } from 'path'
-import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
+import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { Orientation } from 'src/enums/orientation.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
-import { ProfileModel } from 'src/models/accounts/profile.model'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
+import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { PhotoPath } from 'src/photo/models/photo-path.model'
 import { PhotoV1Service } from 'src/photo/photo-v1.service'
 import { PhotoMetadataService } from 'src/photo/processor/photo-metadata.service'
@@ -29,11 +32,10 @@ export class MigrationProcessorService extends WorkerHost {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-    @InjectModel(ProfileModel)
-    private readonly profileModel: ReturnModelType<typeof ProfileModel>,
+    @InjectModel(ProfilePhotoModel)
+    private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly batchFileModel: ReturnModelType<typeof UploadBatchFileModel>,
-    private readonly profilePhotoService: ProfilePhotoService,
     private readonly storageService: StorageService,
     private readonly photoV1Service: PhotoV1Service,
     private readonly photoProcessor: PhotoProcessorService,
@@ -47,8 +49,6 @@ export class MigrationProcessorService extends WorkerHost {
       switch (job.name) {
         case BullJobName.MigratePhoto:
           return await this.migratePhoto(job)
-        case BullJobName.MigrateProfilePhoto:
-          return await this.migrateProfilePhoto(job)
         case BullJobName.MigrateData:
           return await this.migrateData(job)
       }
@@ -94,22 +94,33 @@ export class MigrationProcessorService extends WorkerHost {
     this.logger.log(`Re-processed thumbnail ${originalPath} => ${thumbnailPath.sourcePath}`)
   }
 
-  async migrateProfilePhoto({ data: profileId }: Job<string>) {
-    this.logger.debug(`Processing ${profileId}`)
-    const profile = await this.profileModel.findById(profileId).exec()
-    if (!profile?.photo) return this.logger.warn(`No photo for profileId ${profileId}`)
-    const photo = await this.profilePhotoService.findByUuid(profile.photo)
-    if (!photo) return this.logger.warn(`No photo ${profile.photo} for profileId ${profileId}`)
-    await this.profilePhotoService.importFromNas(photo.directory, photo.filename, profile._id)
-    this.logger.log(`Re-processed ${profileId}: ${photo.directory}/${photo.filename}`)
-  }
-
   migrateData({ data: name }: Job<DataMigration>) {
     try {
+      if (name === DataMigration.ProfilePhoto) {
+        return this.migrateProfilePhoto()
+      }
       throw new Error(`${name} not found`)
     } catch (err) {
       this.logger.error(err)
       throw new Error(err)
     }
+  }
+
+  private migrateProfilePhoto() {
+    return this.dataSource.transaction(async (manager) => {
+      await manager.insert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.ProfilePhoto }))
+      const docs = await this.profilePhotoModel.find().exec()
+      const entities = docs.map(
+        (doc) =>
+          new ProfilePhotoEntity({
+            id: doc._id.toString(),
+            profileId: ObjectIdUuidConverter.toUuid(doc.profile as Types.ObjectId),
+            directory: doc.directory,
+            filename: doc.filename,
+            createdAt: doc.created_at,
+          }),
+      )
+      await manager.insert(ProfilePhotoEntity, entities)
+    })
   }
 }
