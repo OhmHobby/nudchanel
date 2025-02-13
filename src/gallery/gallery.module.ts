@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from 'src/accounts/accounts.module'
 import { IsForbiddenField } from 'src/auth/is-forbidden-field.validator'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
@@ -32,6 +33,7 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
       GalleryAlbumEntity,
       GalleryPhotoEntity,
       GalleryYouTubeVideoEntity,
+      DataMigrationEntity,
     ]),
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),
     BullModule.registerQueue({
