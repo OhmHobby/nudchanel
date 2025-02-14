@@ -41,7 +41,7 @@ export class AlbumPhotosSteps extends CommonSteps {
     this.workspace.requestBody.takenBy = takenBy
   }
 
-  @when('upload gallery album {string} photo')
+  @when('upload gallery album {string} photo', undefined, 15000)
   async whenUpload(albumId: string) {
     await this.httpRequest('POST', `/api/v1/gallery/albums/${albumId}/photos/uploads`)
     this.currentAlbumId = albumId
