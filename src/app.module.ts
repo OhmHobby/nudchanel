@@ -46,6 +46,7 @@ import { MigrationWorkerModule } from './migration/migration.worker.module'
 import { MongooseLifecyclesService } from './mongoose.life-cycles.service'
 import { OTELLifecyclesService } from './otel.life-cycles.service'
 import { PhotoWorkerModule } from './photo/photo.worker.module'
+import { RecruitModule } from './recruit/recruit.module'
 import { SchedulerModule } from './scheduler/scheduler.module'
 import { StorageModule } from './storage/storage.module'
 import { TypeormLifecyclesService } from './typeorm.life-cycles.service'
@@ -78,6 +79,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     ConditionalModule.registerWhen(AuditLogModule, isRegisterWebServer),
     ConditionalModule.registerWhen(DeliveryModule, isRegisterWebServer),
     ConditionalModule.registerWhen(GoogleModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(RecruitModule, isRegisterWebServer),
     ConditionalModule.registerWhen(LdapServerModule, isRegisterLdapServer),
     ConditionalModule.registerWhen(AccountsWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(GalleryWorkerModule, isRegisterWorker),

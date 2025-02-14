@@ -10,7 +10,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { Response } from 'express'
 import { catchError, Observable, tap } from 'rxjs'
-import { Request } from 'src/auth/request.interface'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 import { SKIP_HTTP_LOGGING } from './skip-http-logging.decorator'
 
 @Injectable()
@@ -23,7 +23,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const startTime = Date.now()
     const controller = context.getClass().name
     const handler = context.getHandler().name
-    const request: Request = context.switchToHttp().getRequest()
+    const request: RequestWithCtx = context.switchToHttp().getRequest()
     const response: Response = context.switchToHttp().getResponse()
     if (this.shouldSkip(context)) {
       return next.handle()
@@ -55,7 +55,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     startTime: number,
     controller: string,
     handler: string,
-    request?: Request,
+    request?: RequestWithCtx,
     response?: Response,
     err?: HttpException,
   ) {

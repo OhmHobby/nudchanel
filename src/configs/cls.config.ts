@@ -1,6 +1,6 @@
 import { User } from '@nudchannel/auth'
 import { ClsModuleFactoryOptions } from 'nestjs-cls'
-import { Request } from 'src/auth/request.interface'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 import { uuidv4 } from 'uuidv7'
 
 export const clsConfigFactory = (): ClsModuleFactoryOptions => ({
@@ -8,7 +8,7 @@ export const clsConfigFactory = (): ClsModuleFactoryOptions => ({
     mount: true,
     generateId: true,
     idGenerator: uuidv4,
-    setup: (cls, req: Request) => {
+    setup: (cls, req: RequestWithCtx) => {
       cls.set(User.name, req.user)
     },
   },

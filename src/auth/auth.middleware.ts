@@ -3,8 +3,8 @@ import { NextFunction, Response } from 'express'
 import { TraceService } from 'nestjs-otel'
 import { AccessTokenService } from 'src/accounts/access-token/access-token.service'
 import { RefreshTokenService } from 'src/accounts/refresh-token/refresh-token.service'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 import { CookieToken } from './cookie-token'
-import { Request } from './request.interface'
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -20,7 +20,7 @@ export class AuthMiddleware implements NestMiddleware {
     this.cookieToken = new CookieToken(accessTokenService, refreshTokenService)
   }
 
-  async use(req: Request, res: Response, nextFunction: NextFunction) {
+  async use(req: RequestWithCtx, res: Response, nextFunction: NextFunction) {
     const span = this.traceService.startSpan(AuthMiddleware.name)
     const next = () => {
       span.end()

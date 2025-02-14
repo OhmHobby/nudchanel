@@ -4,8 +4,8 @@ import { DocumentBuilder, OpenAPIObject, SwaggerDocumentOptions, SwaggerModule }
 import { NextFunction } from 'express'
 import { AuthMiddleware } from 'src/auth/auth.middleware'
 import { CookieToken } from 'src/auth/cookie-token'
-import { Request } from 'src/auth/request.interface'
 import { Config } from 'src/enums/config.enum'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 
 @Injectable()
 export class SwaggerConfigBuilder {
@@ -48,7 +48,7 @@ export class SwaggerConfigBuilder {
     app.use(
       [`/${path}*`],
       this.authMiddleware.use.bind(this.authMiddleware),
-      (req: Request, res, next: NextFunction) => {
+      (req: RequestWithCtx, res, next: NextFunction) => {
         req.user.isAuthorizedOrThrow(...authGroups)
         next()
       },

@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 import { RequestWithCtx } from 'src/interfaces/request.interface'
 
-export const UserCtx = createParamDecorator((data: any, ctx: ExecutionContext) => {
+export const RecruitCtx = createParamDecorator((data: any, ctx: ExecutionContext) => {
   const request = <RequestWithCtx>ctx.switchToHttp().getRequest()
-  return request.user
+  return request.recruit
 })
