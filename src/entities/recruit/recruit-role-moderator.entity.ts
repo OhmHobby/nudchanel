@@ -1,5 +1,4 @@
 import { BaseEntity, Column, DeepPartial, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { uuidv7 } from 'uuidv7'
 import { RecruitRoleEntity } from './recruit-role.entity'
 
 @Entity('recruit_role_moderators')
@@ -9,10 +8,10 @@ export class RecruitRoleModeratorEntity extends BaseEntity {
     Object.assign(this, entity)
   }
 
-  @PrimaryGeneratedColumn('uuid')
-  id = uuidv7()
+  @PrimaryGeneratedColumn('increment')
+  id: number
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'profile_id', type: 'uuid' })
   profileId: string
 
   @ManyToOne(() => RecruitRoleEntity)
