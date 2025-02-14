@@ -7,7 +7,7 @@ import { BullBoardController } from './bull-board.controller'
   imports: [
     BullModule.registerQueue({ name: BullQueueName.Email }),
     BullModule.registerQueue({ name: BullQueueName.Discord }),
-    BullModule.registerQueue({ name: BullQueueName.Migration }),
+    BullModule.registerQueue({ name: BullQueueName.DataMigration }),
     BullModule.registerQueue({ name: BullQueueName.Photo }),
     BullModule.registerQueue({ name: BullQueueName.GalleryPhotoValidation }),
     BullModule.registerQueue({ name: BullQueueName.GalleryPhotoConversion }),

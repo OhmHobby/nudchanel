@@ -10,18 +10,7 @@ export class MD5 {
   }
 
   get uuid() {
-    const hex = this.hex
-    return (
-      hex.substring(0, 8) +
-      '-' +
-      hex.substring(8, 12) +
-      '-' +
-      hex.substring(12, 16) +
-      '-' +
-      hex.substring(16, 20) +
-      '-' +
-      hex.substring(20)
-    ).toLowerCase()
+    return MD5.hexToUuid(this.hex)
   }
 
   static fromBuffer(buffer: Buffer) {
@@ -47,5 +36,23 @@ export class MD5 {
     if (uuid === undefined) return uuid as undefined extends T ? undefined : never
     if (uuid === null) return uuid as null extends T ? null : never
     return uuid.replaceAll('-', '')
+  }
+
+  static hexToUuid<T extends string | undefined | null>(
+    hex: T,
+  ): string | (undefined extends T ? undefined : never) | (null extends T ? null : never) {
+    if (hex === undefined) return hex as undefined extends T ? undefined : never
+    if (hex === null) return hex as null extends T ? null : never
+    return (
+      hex.substring(0, 8) +
+      '-' +
+      hex.substring(8, 12) +
+      '-' +
+      hex.substring(12, 16) +
+      '-' +
+      hex.substring(16, 20) +
+      '-' +
+      hex.substring(20)
+    ).toLowerCase()
   }
 }

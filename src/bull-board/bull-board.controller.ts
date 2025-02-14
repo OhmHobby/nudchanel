@@ -22,7 +22,7 @@ export class BullBoardController implements OnModuleDestroy {
     private readonly emailQueue: Queue,
     @InjectQueue(BullQueueName.Discord)
     private readonly discordQueue: Queue,
-    @InjectQueue(BullQueueName.Migration)
+    @InjectQueue(BullQueueName.DataMigration)
     private readonly migrationQueue: Queue,
     @InjectQueue(BullQueueName.Photo)
     private readonly photoQueue: Queue,
