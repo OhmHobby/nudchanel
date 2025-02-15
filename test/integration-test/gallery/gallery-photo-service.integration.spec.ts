@@ -1,15 +1,18 @@
+import { BullModule } from '@nestjs/bullmq'
 import { INestApplication } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm'
 import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
+import { BullConfig } from 'src/configs/bull.config'
 import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { GalleryPhotoService } from 'src/gallery/photo/gallery-photo.service'
@@ -28,6 +31,8 @@ describe('Gallery photo service', () => {
         ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
         ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
+        BullModule.forRootAsync({ imports: [ConfigModule], useClass: BullConfig, inject: [ConfigService] }),
+        BullModule.registerQueue({ name: BullQueueName.GalleryPhotoValidation }),
         TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
         TypeOrmModule.forFeature([GalleryPhotoEntity]),
       ],

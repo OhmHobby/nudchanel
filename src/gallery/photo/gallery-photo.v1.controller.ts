@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Param, Patch } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { ApiAcceptedResponse, ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
@@ -14,8 +14,19 @@ import { GalleryPhotoService } from './gallery-photo.service'
 export class GalleryPhotoV1Controller {
   constructor(private readonly galleryPhotoService: GalleryPhotoService) {}
 
+  @Post(':id/reprocess')
+  @AuthGroups('nudch')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiAcceptedResponse()
+  async reprocessGalleryPhoto(@Param() { id }: UuidParamDto) {
+    await this.galleryPhotoService.reprocess(id)
+  }
+
   @Patch(':id/approve')
   @AuthGroups('pr', 'photo')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiNoContentResponse()
@@ -25,6 +36,7 @@ export class GalleryPhotoV1Controller {
 
   @Patch(':id/reject')
   @AuthGroups('pr', 'photo')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiNoContentResponse()
@@ -38,6 +50,7 @@ export class GalleryPhotoV1Controller {
 
   @Patch(':id/reset-approvals')
   @AuthGroups('it')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiNoContentResponse()
@@ -48,6 +61,7 @@ export class GalleryPhotoV1Controller {
 
   @Delete(':id')
   @AuthGroups('pr')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiNoContentResponse()

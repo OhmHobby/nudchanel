@@ -54,7 +54,7 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
       await this.galleryPhotoRepository.update({ id: photo.id }, { processedAt: new Date() })
     } catch (err) {
       this.logger.error(`Error processing ${photo.id}: ${err.message}`, err)
-      throw Error(err.message)
+      throw Error(`Error during conversion "${err.message}"`)
     }
   }
 
