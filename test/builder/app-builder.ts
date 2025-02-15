@@ -32,7 +32,6 @@ import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { resetMockModel } from 'test/helpers/mock-model'
 import { MockBullModule } from './mock-bull-module.ts'
 import { mockDiscordRestClient } from './mock-discord-rest-client'
@@ -73,8 +72,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(ProfileModel)))
       .overrideProvider(getModelToken(ProfileNameModel.name))
       .useValue(resetMockModel(getModelForClass(ProfileNameModel)))
-      .overrideProvider(getModelToken(ProfilePhotoModel.name))
-      .useValue(resetMockModel(getModelForClass(ProfilePhotoModel)))
       .overrideProvider(getModelToken(RefreshTokenModel.name))
       .useValue(resetMockModel(getModelForClass(RefreshTokenModel)))
       .overrideProvider(getModelToken(RegistrationTokenModel.name))
