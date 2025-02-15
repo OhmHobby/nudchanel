@@ -10,7 +10,7 @@ export class GalleryAlbumPhotoImportDto {
   @Validate(ValidPath, [/^\/\d{4}\/.+/])
   directory: string
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @Transform(transformProfileObjectId)
   takenBy: ProfileId
 }
