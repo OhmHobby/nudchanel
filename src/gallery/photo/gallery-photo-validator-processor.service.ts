@@ -1,7 +1,7 @@
-import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq'
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
+import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq'
+import { Injectable, InternalServerErrorException, Logger, OnModuleDestroy } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
-import { Job } from 'bullmq'
+import { Job, Queue } from 'bullmq'
 import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
@@ -22,16 +22,16 @@ dayjs.extend(isSameOrBefore)
 
 @Injectable()
 @Processor(BullQueueName.GalleryPhotoValidation, { concurrency: 1 })
-export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
-  private readonly logger = new Logger(GalleryAlbumPhotoValidatorProcessorService.name)
+export class GalleryPhotoValidatorProcessorService extends WorkerHost implements OnModuleDestroy {
+  private readonly logger = new Logger(GalleryPhotoValidatorProcessorService.name)
 
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
     @InjectRepository(GalleryPhotoEntity)
     private readonly galleryPhotoRepository: Repository<GalleryPhotoEntity>,
-    @InjectRepository(GalleryAlbumEntity)
-    private readonly galleryAlbumRepository: Repository<GalleryAlbumEntity>,
+    @InjectQueue(BullQueueName.GalleryPhotoConversion)
+    private readonly galleryPhotoConversionQueue: Queue<GalleryPhotoEntity>,
     private readonly storageService: StorageService,
     private readonly photoMetadataService: PhotoMetadataService,
   ) {
@@ -41,8 +41,7 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
   async process(job: Job<GalleryPhotoEntity>) {
     const photo = new GalleryPhotoEntity(job.data)
     try {
-      if (!photo.albumId) throw new Error('Missing albumId')
-      const albumInfo = await this.getAlbumInfoOrThrow(photo.albumId)
+      if (!photo.album?.id) throw new Error('Missing populated album info')
       const photoBuffer = await this.storageService.getBuffer(photo.fullpath)
       if (!photoBuffer.length) throw new Error('File has no content')
       const md5uuid = MD5.fromBuffer(photoBuffer).uuid
@@ -51,7 +50,10 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
         this.photoMetadataService.getPhotoColor(photoBuffer),
       ])
       this.logger.warn(`${photo.id} (${photo.filename}) md5 has changed from ${photo.md5} to ${md5uuid}`)
-      await this.validate(photo, albumInfo, md5uuid, exif, color)
+      const result = await this.validate(photo, photo.album, md5uuid, exif, color)
+      if (result) {
+        await this.galleryPhotoConversionQueue.add(photo.id, photo)
+      }
     } catch (err) {
       this.logger.error(`Error validating ${photo.id}: ${err.message}`, err)
       throw Error(err.message)
@@ -82,8 +84,8 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
     md5Uuid: string,
     exif: Exif,
     color: number,
-  ): Promise<void> {
-    await this.dataSource.transaction(async (manager) => {
+  ): Promise<boolean> {
+    return await this.dataSource.transaction(async (manager) => {
       const repository = manager.getRepository(GalleryPhotoEntity)
       await repository.update(
         { id: photo.id },
@@ -99,19 +101,26 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
       )
 
       const isRejectByDuplicated = await this.rejectNonrecentDuplicatedFiles(repository, md5Uuid, photo.id)
-      if (isRejectByDuplicated) return this.logger.log(`${photo.id} has duplicated ${md5Uuid}`)
+      if (isRejectByDuplicated) {
+        this.logger.log(`${photo.id} has duplicated ${md5Uuid}`)
+        return false
+      }
 
       const isValidResolution = await this.isValidResolution(exif, album)
       if (!isValidResolution) {
         await repository.update({ id: photo.id }, { rejectReason: GalleryPhotoRejectReason.resolution })
-        return this.logger.log(`${photo.id}`)
+        this.logger.log(`${photo.id}`)
+        return false
       }
 
       const isValidTimestamp = await this.isValidTimestamp(exif.date, album)
       if (!isValidTimestamp) {
         await repository.update({ id: photo.id }, { rejectReason: GalleryPhotoRejectReason.timestamp })
-        return this.logger.log(`${photo.id}`)
+        this.logger.log(`${photo.id}`)
+        return false
       }
+
+      return true
     })
   }
 
@@ -147,14 +156,7 @@ export class GalleryAlbumPhotoValidatorProcessorService extends WorkerHost {
     return rejectedFileIds.includes(photoId)
   }
 
-  private getAlbumInfoOrThrow(albumId: string) {
-    return this.galleryAlbumRepository.findOneOrFail({
-      where: { id: albumId },
-      select: {
-        minimumResolutionMp: true,
-        takenAfter: true,
-        takenBefore: true,
-      },
-    })
+  async onModuleDestroy() {
+    await this.galleryPhotoConversionQueue.close()
   }
 }

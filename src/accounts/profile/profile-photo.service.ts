@@ -1,21 +1,21 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
-import { ReturnModelType } from '@typegoose/typegoose'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Queue } from 'bullmq'
 import { createHash } from 'crypto'
 import { join } from 'path'
 import { DEFAULT_UUID, NAMESPACE_OID_UUID } from 'src/constants/uuid.constants'
+import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullJobName } from 'src/enums/bull-job-name.enum'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileId } from 'src/models/types'
 import { ProfilePhotoPath } from 'src/photo/models/profile-photo-path.model'
 import { AsyncProcessPhotoParams } from 'src/photo/processor/async-process-photo-params'
 import { StorageService } from 'src/storage/storage.service'
+import { Repository } from 'typeorm'
 import { v5 as uuidv5 } from 'uuid'
-import MUUID from 'uuid-mongodb'
 import { ProfileService } from './profile.service'
 
 @Injectable()
@@ -23,8 +23,8 @@ export class ProfilePhotoService implements OnModuleDestroy {
   private readonly logger = new Logger(ProfilePhotoService.name)
 
   constructor(
-    @InjectModel(ProfilePhotoModel)
-    private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
+    @InjectRepository(ProfilePhotoEntity)
+    private readonly profilePhotoRepository: Repository<ProfilePhotoEntity>,
     private readonly profileService: ProfileService,
     private readonly storageService: StorageService,
     @InjectQueue(BullQueueName.Photo)
@@ -32,7 +32,7 @@ export class ProfilePhotoService implements OnModuleDestroy {
   ) {}
 
   findByUuid(uuid: string) {
-    return this.profilePhotoModel.findById(MUUID.from(uuid)).exec()
+    return this.profilePhotoRepository.findOneBy({ id: uuid })
   }
 
   async importFromNas(directory: string, filename: string, profileId: ProfileId) {
@@ -41,22 +41,15 @@ export class ProfilePhotoService implements OnModuleDestroy {
     const path = this.getSrcFilepath(directory, filename)
     const md5 = await this.storageService.getFileMd5(path)
     const uuid = this.generateUuidFromMd5HashString(md5)
-    const muuid = MUUID.from(uuid)
     await this.processProfilePhoto(path, uuid, profile.emails?.at(0))
     profile.photo = uuid
-    const [profilePhoto] = await Promise.all([
-      await this.profilePhotoModel.findByIdAndUpdate(
-        muuid,
-        {
-          _id: muuid,
-          profile,
-          directory,
-          filename,
-        },
-        { upsert: true, new: true },
-      ),
-      await profile.save(),
-    ])
+    const profilePhoto = new ProfilePhotoEntity({
+      id: uuid,
+      profileId: ObjectIdUuidConverter.toUuid(profileId),
+      directory,
+      filename,
+    })
+    await Promise.all([await profilePhoto.save(), await profile.save()])
     return profilePhoto
   }
 

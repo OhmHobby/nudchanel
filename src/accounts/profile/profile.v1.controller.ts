@@ -44,7 +44,7 @@ export class ProfileV1Controller {
     @Param() { profileId }: ProfileIdDto,
     @Body() { directory, filename }: ImportProfilePhotoDto,
   ): Promise<ProfilePhotoResponseModel> {
-    const doc = await this.profilePhotoService.importFromNas(directory, filename, profileId)
-    return ProfilePhotoResponseModel.fromModel(doc)
+    const entity = await this.profilePhotoService.importFromNas(directory, filename, profileId)
+    return ProfilePhotoResponseModel.fromEntity(entity)
   }
 }

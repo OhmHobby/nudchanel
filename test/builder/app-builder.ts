@@ -13,12 +13,7 @@ import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
-import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
-import { AuditLogEntity } from 'src/entities/audit-log.entity'
-import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
-import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
-import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
-import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
+import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -37,7 +32,6 @@ import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
 import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { resetMockModel } from 'test/helpers/mock-model'
 import { MockBullModule } from './mock-bull-module.ts'
 import { mockDiscordRestClient } from './mock-discord-rest-client'
@@ -78,8 +72,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(ProfileModel)))
       .overrideProvider(getModelToken(ProfileNameModel.name))
       .useValue(resetMockModel(getModelForClass(ProfileNameModel)))
-      .overrideProvider(getModelToken(ProfilePhotoModel.name))
-      .useValue(resetMockModel(getModelForClass(ProfilePhotoModel)))
       .overrideProvider(getModelToken(RefreshTokenModel.name))
       .useValue(resetMockModel(getModelForClass(RefreshTokenModel)))
       .overrideProvider(getModelToken(RegistrationTokenModel.name))
@@ -110,18 +102,11 @@ export class AppBuilder {
       .useValue(mockTypegooseConnection)
       .overrideProvider(getDataSourceToken())
       .useValue({ getRepository: jest.fn() })
-      .overrideProvider(getRepositoryToken(GalleryActivityEntity))
-      .useValue(jest.fn())
-      .overrideProvider(getRepositoryToken(GalleryAlbumEntity))
-      .useValue(jest.fn())
-      .overrideProvider(getRepositoryToken(GalleryPhotoEntity))
-      .useValue(jest.fn())
-      .overrideProvider(getRepositoryToken(GalleryYouTubeVideoEntity))
-      .useValue(jest.fn())
-      .overrideProvider(getRepositoryToken(AuditLogEntity))
-      .useValue(jest.fn())
-      .overrideProvider(getRepositoryToken(ApplicationSettingEntity))
-      .useValue(jest.fn())
+
+    for (const entity of TypeormConfigService.entities) {
+      this.moduleFixture.overrideProvider(getRepositoryToken(entity)).useValue(jest.fn())
+    }
+
     return this
   }
 

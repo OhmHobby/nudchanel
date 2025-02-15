@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
+import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 
 export class ProfilePhotoResponseModel {
   constructor(model?: Partial<ProfilePhotoResponseModel>) {
@@ -12,10 +13,10 @@ export class ProfilePhotoResponseModel {
   @ApiProperty()
   profileId: string
 
-  static fromModel(model: ProfilePhotoModel) {
+  static fromEntity(entity: ProfilePhotoEntity) {
     return new ProfilePhotoResponseModel({
-      id: model._id.toString(),
-      profileId: model.profile.toString(),
+      id: entity.id,
+      profileId: ObjectIdUuidConverter.toHexString(entity.profileId),
     })
   }
 }

@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 import { AUTH_GROUP_KEY } from './auth-group.decorator'
-import { Request } from './request.interface'
 
 @Injectable()
 export class AuthGroupGuard implements CanActivate {
@@ -12,7 +12,7 @@ export class AuthGroupGuard implements CanActivate {
     if (groups === undefined) {
       return true
     }
-    const { user }: Request = context.switchToHttp().getRequest()
+    const { user }: RequestWithCtx = context.switchToHttp().getRequest()
     return user.isAuthorizedOrThrow(...groups)
   }
 }

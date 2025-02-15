@@ -5,12 +5,12 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { ClsService } from 'nestjs-cls'
 import { TraceService } from 'nestjs-otel'
 import { Observable } from 'rxjs'
-import { Request } from 'src/auth/request.interface'
 import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { Config } from 'src/enums/config.enum'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { DataSource, Repository } from 'typeorm'
 import { AUDIT_LOG_METADATA_KEY } from './audit-log.decorator'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 
 @Injectable()
 export class AuditLogger implements NestInterceptor {
@@ -32,7 +32,7 @@ export class AuditLogger implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> | Promise<Observable<any>> {
     const span = this.traceService.startSpan('AuditLogger.intercept')
     const action = this.reflector.get<string>(AUDIT_LOG_METADATA_KEY, context.getHandler())
-    const request: Request = context.switchToHttp().getRequest()
+    const request: RequestWithCtx = context.switchToHttp().getRequest()
 
     if (action) {
       this.insert(action, request)
@@ -41,7 +41,7 @@ export class AuditLogger implements NestInterceptor {
     return next.handle()
   }
 
-  async insert(action: string, request: Request) {
+  async insert(action: string, request: RequestWithCtx) {
     const span = this.traceService.startSpan('AuditLogger.insert')
     const model = new AuditLogEntity({
       action,

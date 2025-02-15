@@ -14,9 +14,10 @@ describe(BullBoardController.name, () => {
       providers: [
         { provide: getQueueToken(BullQueueName.Discord), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Email), useValue: { close: jest.fn() } },
-        { provide: getQueueToken(BullQueueName.Migration), useValue: { close: jest.fn() } },
+        { provide: getQueueToken(BullQueueName.DataMigration), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.Photo), useValue: { close: jest.fn() } },
         { provide: getQueueToken(BullQueueName.GalleryPhotoValidation), useValue: { close: jest.fn() } },
+        { provide: getQueueToken(BullQueueName.GalleryPhotoConversion), useValue: { close: jest.fn() } },
       ],
     }).compile()
 

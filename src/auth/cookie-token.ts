@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { AccessTokenService } from 'src/accounts/access-token/access-token.service'
 import { RefreshTokenService } from 'src/accounts/refresh-token/refresh-token.service'
-import { Request } from './request.interface'
+import { RequestWithCtx } from 'src/interfaces/request.interface'
 import { ProfileId } from 'src/models/types'
 
 export class CookieToken {
@@ -28,7 +28,7 @@ export class CookieToken {
     return this
   }
 
-  fromHttpRequest(request: Pick<Request, 'cookies'>) {
+  fromHttpRequest(request: Pick<RequestWithCtx, 'cookies'>) {
     const instance = new CookieToken(this.accessTokenService, this.refreshTokenService)
     return instance.fromCookies(request.cookies)
   }

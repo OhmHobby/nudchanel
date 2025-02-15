@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from 'src/accounts/accounts.module'
 import { IsForbiddenField } from 'src/auth/is-forbidden-field.validator'
+import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
@@ -20,6 +21,8 @@ import { GalleryAlbumService } from './album/gallery-album.service'
 import { GalleryAlbumV1Controller } from './album/gallery-album.v1.controller'
 import { GalleryAlbumPhotoService } from './photo/gallery-album-photo.service'
 import { GalleryAlbumPhotoV1Controller } from './photo/gallery-album-photo.v1.controller'
+import { GalleryPhotoService } from './photo/gallery-photo.service'
+import { GalleryPhotoV1Controller } from './photo/gallery-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
 import { GalleryReportService } from './report/gallery-report.service'
@@ -31,6 +34,7 @@ import { GalleryReportService } from './report/gallery-report.service'
       GalleryAlbumEntity,
       GalleryPhotoEntity,
       GalleryYouTubeVideoEntity,
+      DataMigrationEntity,
     ]),
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),
     BullModule.registerQueue({
@@ -51,12 +55,14 @@ import { GalleryReportService } from './report/gallery-report.service'
     GalleryActivityV1Controller,
     GalleryAlbumV1Controller,
     GalleryAlbumPhotoV1Controller,
+    GalleryPhotoV1Controller,
     GalleryVideoV1Controller,
   ],
   providers: [
     GalleryActivityService,
     GalleryAlbumService,
     GalleryAlbumPhotoService,
+    GalleryPhotoService,
     GalleryVideoService,
     IsForbiddenField,
     GalleryReportService,

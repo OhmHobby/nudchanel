@@ -1,17 +1,19 @@
+import { getQueueToken } from '@nestjs/bullmq'
 import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Exif } from 'src/photo/models/exif.model'
 import { PhotoMetadataService } from 'src/photo/processor/photo-metadata.service'
 import { StorageService } from 'src/storage/storage.service'
-import { GalleryAlbumPhotoValidatorProcessorService } from './gallery-album-photo-validator-processor.service'
+import { GalleryPhotoValidatorProcessorService } from './gallery-photo-validator-processor.service'
 
 jest.mock('src/photo/processor/photo-metadata.service')
 jest.mock('src/storage/storage.service')
 
-describe(GalleryAlbumPhotoValidatorProcessorService.name, () => {
-  let service: GalleryAlbumPhotoValidatorProcessorService
+describe(GalleryPhotoValidatorProcessorService.name, () => {
+  let service: GalleryPhotoValidatorProcessorService
   const dataSource = {
     transaction: jest.fn(),
   }
@@ -19,23 +21,24 @@ describe(GalleryAlbumPhotoValidatorProcessorService.name, () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        GalleryAlbumPhotoValidatorProcessorService,
+        GalleryPhotoValidatorProcessorService,
         { provide: getDataSourceToken(), useValue: dataSource },
         { provide: getRepositoryToken(GalleryPhotoEntity), useValue: jest.fn() },
         { provide: getRepositoryToken(GalleryAlbumEntity), useValue: jest.fn() },
+        { provide: getQueueToken(BullQueueName.GalleryPhotoConversion), useValue: jest.fn() },
         StorageService,
         PhotoMetadataService,
       ],
     }).compile()
 
-    service = module.get(GalleryAlbumPhotoValidatorProcessorService)
+    service = module.get(GalleryPhotoValidatorProcessorService)
   })
 
   it('should be defined', () => {
     expect(service).toBeDefined()
   })
 
-  describe(GalleryAlbumPhotoValidatorProcessorService.prototype.isValidResolution.name, () => {
+  describe(GalleryPhotoValidatorProcessorService.prototype.isValidResolution.name, () => {
     it('should return true when no requirement', () => {
       const result = service.isValidResolution(new Exif(3000, 4000), new GalleryAlbumEntity())
       expect(result).toBe(true)
@@ -58,7 +61,7 @@ describe(GalleryAlbumPhotoValidatorProcessorService.name, () => {
     })
   })
 
-  describe(GalleryAlbumPhotoValidatorProcessorService.prototype.isValidTimestamp.name, () => {
+  describe(GalleryPhotoValidatorProcessorService.prototype.isValidTimestamp.name, () => {
     it('should return true when no requirement', () => {
       const result = service.isValidTimestamp(new Date(), new GalleryAlbumEntity())
       expect(result).toBe(true)

@@ -1,7 +1,7 @@
-@data_migration_gallery
-Feature: Data migration - Gallery
+@data_migration
+Feature: Data migration
 
-  Scenario: Migrate gallery activity data
+  Scenario: Migrate data
     Given request to worker url
     And user profileId 5b794c41fd533e3b2f61cf05
     And user groups nudch, it
@@ -9,3 +9,4 @@ Feature: Data migration - Gallery
     Then data migration "GalleryActivity" should be success
     And data migration "GalleryAlbum" should be success
     And data migration "GalleryYouTube" should be success
+      # And data migration "ProfilePhoto" should be success
