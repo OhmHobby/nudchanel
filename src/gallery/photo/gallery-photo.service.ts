@@ -1,18 +1,43 @@
-import { ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { InjectQueue } from '@nestjs/bullmq'
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleDestroy,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Queue } from 'bullmq'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { Repository } from 'typeorm'
 
 @Injectable()
-export class GalleryPhotoService {
+export class GalleryPhotoService implements OnModuleDestroy {
   private readonly logger = new Logger(GalleryPhotoService.name)
 
   constructor(
     @InjectRepository(GalleryPhotoEntity)
     private readonly photoRepository: Repository<GalleryPhotoEntity>,
+    @InjectQueue(BullQueueName.GalleryPhotoValidation)
+    private readonly galleryPhotoValidationQueue: Queue<GalleryPhotoEntity>,
   ) {}
+
+  async reprocess(photoId: string) {
+    const photo = await this.photoRepository.findOneBy({ id: photoId })
+    if (!photo) throw new NotFoundException()
+    if (photo?.reviewedBy) throw new ConflictException(`The photo has already reviewed`)
+    photo.validatedAt = null
+    photo.processedAt = null
+    photo.rejectReason = null
+    photo.rejectMessage = null
+    photo.errorMessage = null
+    await photo.save()
+    await this.galleryPhotoValidationQueue.add(photoId, photo)
+  }
 
   async approvePhoto(photoId: string, profile: ProfileIdModel) {
     await this.approvalPrecheck(photoId, profile.uuid)
@@ -50,5 +75,9 @@ export class GalleryPhotoService {
 
   async deletePhoto(id: string) {
     await this.photoRepository.softDelete({ id })
+  }
+
+  async onModuleDestroy() {
+    await this.galleryPhotoValidationQueue.close()
   }
 }
