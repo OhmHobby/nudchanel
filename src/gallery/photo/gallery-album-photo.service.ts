@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq'
-import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Queue } from 'bullmq'
 import { Span } from 'nestjs-otel'
@@ -189,6 +189,13 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     await this.photoRepository.insert(entities)
     await this.galleryPhotoValidationQueue.addBulk(entities.map((entity) => ({ name: entity.id, data: entity })))
     return entities
+  }
+
+  validateMimeOrThrow(mimeType: string) {
+    if (!mimeType.startsWith('image/')) {
+      this.logger.warn(`Unexpected mimeType ${mimeType} has uploaded`)
+      throw new BadRequestException('UNSUPPORTED_MIMETYPE')
+    }
   }
 
   async onModuleDestroy() {
