@@ -19,7 +19,6 @@ import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { PhotoModule } from 'src/photo/photo.module'
 import { StorageModule } from 'src/storage/storage.module'
 import { ProfileModel } from '../models/accounts/profile.model'
@@ -63,7 +62,6 @@ import { UserLocalService } from './user/user-local.service'
       ],
       MongoConnection.Accounts,
     ),
-    TypegooseModule.forFeature([ProfilePhotoModel]),
     TypeOrmModule.forFeature([ProfilePhotoEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,

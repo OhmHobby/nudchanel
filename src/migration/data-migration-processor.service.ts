@@ -4,12 +4,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { isDocument, ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bullmq'
-import { Types } from 'mongoose'
 import { DEFAULT_UUID } from 'src/constants/uuid.constants'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
-import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
@@ -18,7 +16,6 @@ import { HexDecConverter } from 'src/helpers/hex-dec-converter'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
-import { ProfilePhotoModel } from 'src/models/profile-photo.model'
 import { DataSource, InsertResult } from 'typeorm'
 
 @Injectable()
@@ -29,8 +26,6 @@ export class DataMigrationProcessorService extends WorkerHost {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-    @InjectModel(ProfilePhotoModel)
-    private readonly profilePhotoModel: ReturnModelType<typeof ProfilePhotoModel>,
     @InjectModel(UploadBatchFileModel)
     private readonly photoFileModel: ReturnModelType<typeof UploadBatchFileModel>,
   ) {
@@ -39,9 +34,7 @@ export class DataMigrationProcessorService extends WorkerHost {
 
   process(job: Job): Promise<any> {
     try {
-      if (job.name === DataMigration.ProfilePhoto) {
-        return this.migrateProfilePhoto()
-      } else if (job.name === DataMigration.GalleryPhoto) {
+      if (job.name === DataMigration.GalleryPhoto) {
         return this.migrateGalleryPhoto()
       }
       throw new Error(`${job.name} not found`)
@@ -49,24 +42,6 @@ export class DataMigrationProcessorService extends WorkerHost {
       this.logger.error(err)
       throw new Error(err)
     }
-  }
-
-  private migrateProfilePhoto() {
-    return this.dataSource.transaction(async (manager) => {
-      await manager.insert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.ProfilePhoto }))
-      const docs = await this.profilePhotoModel.find().exec()
-      const entities = docs.map(
-        (doc) =>
-          new ProfilePhotoEntity({
-            id: doc._id.toString(),
-            profileId: ObjectIdUuidConverter.toUuid(doc.profile as Types.ObjectId),
-            directory: doc.directory,
-            filename: doc.filename,
-            createdAt: doc.created_at,
-          }),
-      )
-      await manager.insert(ProfilePhotoEntity, entities)
-    })
   }
 
   private migrateGalleryPhoto() {
