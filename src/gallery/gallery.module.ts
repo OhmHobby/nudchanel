@@ -26,6 +26,7 @@ import { GalleryPhotoV1Controller } from './photo/gallery-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
 import { GalleryReportService } from './report/gallery-report.service'
+import { GalleryReportEntity } from 'src/entities/gallery/gallery-report.entity'
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { GalleryReportService } from './report/gallery-report.service'
       GalleryAlbumEntity,
       GalleryPhotoEntity,
       GalleryYouTubeVideoEntity,
+      GalleryReportEntity,
       DataMigrationEntity,
     ]),
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),
