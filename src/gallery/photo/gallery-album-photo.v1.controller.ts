@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import {
   ApiBearerAuth,
@@ -56,6 +67,7 @@ export class GalleryAlbumPhotoV1Controller {
 
   @Post('uploads')
   @AuthGroups('nudch')
+  @HttpCode(HttpStatus.CREATED)
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   @ApiCookieAuth()
@@ -78,6 +90,7 @@ export class GalleryAlbumPhotoV1Controller {
 
   @Post('imports')
   @AuthGroups('it')
+  @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiCreatedResponse({ type: [GalleryAlbumPhotoModel] })

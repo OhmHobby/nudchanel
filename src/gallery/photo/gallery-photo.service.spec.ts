@@ -6,6 +6,8 @@ import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { TestData } from 'test/test-data'
 import { GalleryPhotoService } from './gallery-photo.service'
+import { getQueueToken } from '@nestjs/bullmq'
+import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 
 describe(GalleryPhotoService.name, () => {
   let service: GalleryPhotoService
@@ -14,7 +16,11 @@ describe(GalleryPhotoService.name, () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [GalleryPhotoService, { provide: getRepositoryToken(GalleryPhotoEntity), useValue: photoRepository }],
+      providers: [
+        GalleryPhotoService,
+        { provide: getRepositoryToken(GalleryPhotoEntity), useValue: photoRepository },
+        { provide: getQueueToken(BullQueueName.GalleryPhotoValidation), useValue: jest.fn() },
+      ],
     }).compile()
 
     service = module.get(GalleryPhotoService)
