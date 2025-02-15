@@ -79,6 +79,7 @@ export class GalleryAlbumPhotoV1Controller {
     @UploadedFile() file: Express.Multer.File,
     @UserCtx() user: User,
   ): Promise<GalleryAlbumPhotoModel> {
+    this.galleryAlbumPhotoService.validateMimeOrThrow(file.mimetype)
     const photo = await this.galleryAlbumPhotoService.uploadFile(
       albumId,
       ProfileIdModel.fromObjectIdOrThrow(user.id),
