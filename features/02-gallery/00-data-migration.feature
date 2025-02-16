@@ -10,3 +10,5 @@ Feature: Data migration
     And data migration "GalleryAlbum" should be success
     And data migration "GalleryYouTube" should be success
       # And data migration "ProfilePhoto" should be success
+      # And data migration "GalleryPhoto" should be success
+      # And data migration "PhotoUploadTask" should be success
