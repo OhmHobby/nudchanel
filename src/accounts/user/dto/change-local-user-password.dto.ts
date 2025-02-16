@@ -1,17 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, IsStrongPassword, Validate } from 'class-validator'
-import { IsNonCommonPasswordConstraint } from '../non-password-password.constraint'
+import { IsString } from 'class-validator'
+import { RequestLocalUserDto } from './request-local-user.dto'
 
-export class ChangeLocalUserPasswordDto {
+export class ChangeLocalUserPasswordDto extends RequestLocalUserDto {
   @ApiProperty()
   @IsString()
   currentPassword: string
-
-  @ApiProperty()
-  @IsStrongPassword(
-    { minLength: 8, minLowercase: 0, minUppercase: 0, minNumbers: 0, minSymbols: 0 },
-    { message: 'Password is not strong enough' },
-  )
-  @Validate(IsNonCommonPasswordConstraint)
-  newPassword: string
 }
