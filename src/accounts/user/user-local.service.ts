@@ -50,6 +50,9 @@ export class UserLocalService {
   }
 
   async requestUsername(profileId: ProfileId): Promise<string> {
+    const countByProfile = await this.userLocalModel.countDocuments({ profile: profileId }).exec()
+    if (countByProfile) throw new Error('Username has already created')
+
     const name = await this.profileNameService.getProfileName(profileId, 'en')
     const firstname = this.usernameCleanUp(name?.firstname)
     const lastname = this.usernameCleanUp(name?.lastname)
