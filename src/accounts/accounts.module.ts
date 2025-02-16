@@ -44,6 +44,7 @@ import { TeamMemberV1Controller } from './team/team-member.v1.controller'
 import { TeamService } from './team/team.service'
 import { UserGroupService } from './user/user-group.service'
 import { UserLocalService } from './user/user-local.service'
+import { LocalUserV1Controller } from './user/user-local.v1.controller'
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { UserLocalService } from './user/user-local.service'
     SignInV1Controller,
     SignOutV1Controller,
     TeamMemberV1Controller,
+    LocalUserV1Controller,
   ],
   exports: [
     ProfileService,

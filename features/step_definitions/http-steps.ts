@@ -40,6 +40,11 @@ export class HttpSteps extends CommonSteps {
     return await this.httpRequest('PUT', endpoint, this.workspace.requestQueries, this.workspace.requestBody)
   }
 
+  @when(/^PATCH (.+)$/, undefined, 15000)
+  async whenPatch(endpoint: string) {
+    return await this.httpRequest('PATCH', endpoint, this.workspace.requestQueries, this.workspace.requestBody)
+  }
+
   @then(/^HTTP response status should be (.+)$/)
   thenStatusCode(status: string) {
     if (this.workspace.response?.status !== HttpStatus[status])
@@ -65,6 +70,11 @@ export class HttpSteps extends CommonSteps {
   @then('HTTP response redirect to be {string}')
   then(redirect: string) {
     expect(this.workspace.response?.headers.location).toBe(redirect)
+  }
+
+  @then('HTTP response error message should be {string}')
+  thenResponseErrorMessage(message: string) {
+    expect(this.workspace.response?.body?.message).toContain(message)
   }
 
   @then(/^ETag should be (.+)$/)
