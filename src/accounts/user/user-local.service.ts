@@ -1,5 +1,5 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
@@ -83,6 +83,14 @@ export class UserLocalService {
     return this.userLocalModel
       .findOneAndUpdate({ username }, { password: hashedPassword, password_last_set: new Date() })
       .exec()
+  }
+
+  async verifyAndChangePassword(profileId: ProfileId, currentPassword: string, newPassword: string) {
+    const user = await this.userLocalModel.findOne({ profile: profileId }).select(['username', 'password']).exec()
+    if (!user) throw new ForbiddenException('Current profile has no local user')
+    const isValidPassword = await verify(user.password, currentPassword)
+    if (!isValidPassword) throw new BadRequestException('Invalid current password')
+    return this.changePassword(user.username, newPassword)
   }
 
   async create(username: string, plainPassword: string, profile?: ProfileId) {
