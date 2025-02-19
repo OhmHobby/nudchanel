@@ -1,26 +1,23 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { getModelForClass } from '@typegoose/typegoose'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import { Types } from 'mongoose'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { TestData } from 'test/test-data'
+import { Repository } from 'typeorm'
 import { RefreshTokenService } from './refresh-token.service'
 
 jest.mock('@nestjs/config')
 
 describe(RefreshTokenService.name, () => {
   let service: RefreshTokenService
-  const refreshTokenModel = getModelForClass(RefreshTokenModel)
+  const refreshTokenRepository: Partial<Repository<RefreshTokenEntity>> = { existsBy: jest.fn() }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RefreshTokenService,
-        {
-          provide: getModelToken('RefreshTokenModel'),
-          useValue: refreshTokenModel,
-        },
+        { provide: getRepositoryToken(RefreshTokenEntity), useValue: refreshTokenRepository },
         ConfigService,
       ],
     }).compile()
@@ -36,45 +33,6 @@ describe(RefreshTokenService.name, () => {
     it('should return date type', () => {
       expect(service.refreshTokenExpires()).toBeInstanceOf(Date)
       expect(service.refreshTokenExpires(true)).toBeInstanceOf(Date)
-    })
-  })
-
-  describe('create', () => {
-    it('should create correctly', async () => {
-      const profileId = new Types.ObjectId()
-      refreshTokenModel.create = jest.fn().mockResolvedValue(new RefreshTokenModel())
-      const result = await service.create(profileId)
-      expect(result).toBeInstanceOf(RefreshTokenModel)
-    })
-  })
-
-  describe('update', () => {
-    it('should call updateOne correctly', async () => {
-      refreshTokenModel.updateOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
-      })
-      const result = await service.update('refresh-token', new Date(), 'new-token')
-      expect(result).toBe(true)
-    })
-  })
-
-  describe('remove', () => {
-    it('should call deleteOne correctly', async () => {
-      refreshTokenModel.deleteOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ deletedCount: 1 }),
-      })
-      const result = await service.remove('refresh-token')
-      expect(result).toBe(true)
-    })
-  })
-
-  describe('find', () => {
-    it('should call findOne correctly', async () => {
-      refreshTokenModel.findOne = jest.fn().mockReturnValue({
-        lean: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValue(null),
-      })
-      await expect(service.find('refresh-token')).resolves.toBeNull()
     })
   })
 
@@ -99,18 +57,12 @@ describe(RefreshTokenService.name, () => {
 
   describe('isExpired', () => {
     it('should not expired when found', async () => {
-      refreshTokenModel.countDocuments = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(1),
-      })
-
+      refreshTokenRepository.existsBy = jest.fn().mockResolvedValue(true)
       await expect(service.isExpired('refresh-token')).resolves.toBe(false)
     })
 
     it('should expired when not found', async () => {
-      refreshTokenModel.countDocuments = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(0),
-      })
-
+      refreshTokenRepository.existsBy = jest.fn().mockResolvedValue(false)
       await expect(service.isExpired('refresh-token')).resolves.toBe(true)
     })
   })
@@ -128,20 +80,17 @@ describe(RefreshTokenService.name, () => {
       service.create = jest.fn().mockResolvedValue(newRefreshToken)
       service.revokeToken = jest.fn()
       const result = await service.use('refresh-token')
-      expect(result?._id).toEqual(newRefreshToken._id)
+      expect(result?.id).toEqual(newRefreshToken.id)
       expect(service.revokeToken).toHaveBeenCalled()
     })
 
     it('should return issued token when token already use in given period', async () => {
       const issuedRefreshToken = 'issued-refresh-token'
-      service.find = jest.fn().mockResolvedValue({
-        profile,
-        new_token: issuedRefreshToken,
-      })
+      service.find = jest.fn().mockResolvedValue({ profile, nextToken: issuedRefreshToken })
       service.create = jest.fn()
       service.revokeToken = jest.fn()
       const result = await service.use('refresh-token')
-      expect(result?._id).toBe(issuedRefreshToken)
+      expect(result?.id).toBe(issuedRefreshToken)
       expect(service.create).not.toHaveBeenCalled()
       expect(service.revokeToken).not.toHaveBeenCalled()
     })

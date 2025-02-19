@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
 import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
@@ -43,6 +44,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     RecruitRoleEntity,
     RecruitRoleModeratorEntity,
     RecruitSettingEntity,
+    RefreshTokenEntity,
     AuditLogEntity,
     ApplicationSettingEntity,
     DataMigrationEntity,

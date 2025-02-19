@@ -2,9 +2,8 @@ import { HttpStatus, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Types } from 'mongoose'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
-import { uuidv4 } from 'uuidv7'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { RefreshTokenService } from '../refresh-token/refresh-token.service'
 import { UserLocalService } from '../user/user-local.service'
@@ -64,7 +63,7 @@ describe(SignInV1Controller.name, () => {
         redirect: jest.fn().mockReturnThis(),
         clearCookie: jest.fn(),
       }
-      refreshTokenService.create = jest.fn().mockResolvedValue(new RefreshTokenModel({ _id: uuidv4() }))
+      refreshTokenService.create = jest.fn().mockResolvedValue(new RefreshTokenEntity())
     })
 
     it('should throw exception when provider not found', async () => {

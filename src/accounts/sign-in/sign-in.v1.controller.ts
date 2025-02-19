@@ -17,6 +17,7 @@ import { ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger
 import { Request, Response } from 'express'
 import { Config } from 'src/enums/config.enum'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileId } from 'src/models/types'
 import { AccessTokenService } from '../access-token/access-token.service'
 import { AuthProviderResponseModel } from '../models/auth-provider.response.model'
@@ -120,12 +121,12 @@ export class SignInV1Controller {
   ) {
     const [accessToken, refreshToken] = await Promise.all([
       this.accessTokenService.generateAccessToken(profileId),
-      this.refreshTokenService.create(profileId, isSession),
+      this.refreshTokenService.create(ObjectIdUuidConverter.toUuid(profileId), isSession),
     ])
-    if (!refreshToken._id) throw new Error('Failed to create refreshToken')
+    if (!refreshToken.id) throw new Error('Failed to create refreshToken')
     const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
     this.accessTokenService.setHttpAccessTokenCookie(response, accessToken, expires)
-    this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken._id.toString(), expires)
+    this.refreshTokenService.setHttpRefreshTokenCookie(response, refreshToken.id, expires)
     this.logger.log({ message: 'Successful sign-in', profileId, isSession })
   }
 }
