@@ -3,11 +3,11 @@ import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AmqpModule } from 'src/amqp/amqp.module'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
@@ -27,19 +27,10 @@ import { UserGroupService } from './user/user-group.service'
 @Module({
   imports: [
     TypegooseModule.forFeature(
-      [
-        ProfileModel,
-        ProfileNameModel,
-        UserGroupModel,
-        GroupModel,
-        RefreshTokenModel,
-        TeamMemberModel,
-        TeamGroupModel,
-        TeamRoleModel,
-      ],
+      [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, TeamMemberModel, TeamGroupModel, TeamRoleModel],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity]),
+    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     AmqpModule,

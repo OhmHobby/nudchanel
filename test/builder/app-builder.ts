@@ -19,7 +19,6 @@ import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { RegistrationTokenModel } from 'src/models/accounts/registration-token.model'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
@@ -38,7 +37,6 @@ import { mockDiscordRestClient } from './mock-discord-rest-client'
 import { MockOpenTelemetryModule } from './mock-opentelemetry-module'
 import { MockRabbitMQModule } from './mock-rabbitmq-module'
 import { mockTypegooseConnection } from './mock-typegoose-connection'
-
 export class AppBuilder {
   private readonly moduleFixture: TestingModuleBuilder
 
@@ -72,8 +70,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(ProfileModel)))
       .overrideProvider(getModelToken(ProfileNameModel.name))
       .useValue(resetMockModel(getModelForClass(ProfileNameModel)))
-      .overrideProvider(getModelToken(RefreshTokenModel.name))
-      .useValue(resetMockModel(getModelForClass(RefreshTokenModel)))
       .overrideProvider(getModelToken(RegistrationTokenModel.name))
       .useValue(resetMockModel(getModelForClass(RegistrationTokenModel)))
       .overrideProvider(getModelToken(TeamGroupModel.name))
@@ -104,7 +100,9 @@ export class AppBuilder {
       .useValue({ getRepository: jest.fn() })
 
     for (const entity of TypeormConfigService.entities) {
-      this.moduleFixture.overrideProvider(getRepositoryToken(entity)).useValue(jest.fn())
+      this.moduleFixture
+        .overrideProvider(getRepositoryToken(entity))
+        .useValue({ save: jest.fn().mockImplementation((e) => Promise.resolve(e)) })
     }
 
     return this

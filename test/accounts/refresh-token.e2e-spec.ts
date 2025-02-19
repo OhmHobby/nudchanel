@@ -1,28 +1,29 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import request from 'supertest'
-import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
+import { Repository } from 'typeorm'
 
 describe('Accounts - refresh token', () => {
   let app: INestApplication
-  let mockRefreshTokenModel: MockModelType<typeof RefreshTokenModel>
+  let mockRefreshTokenRepository: Repository<RefreshTokenEntity>
 
   beforeAll(async () => {
     app = await TestData.aValidApp().build()
   })
 
   beforeEach(async () => {
-    mockRefreshTokenModel = await app.get(getModelToken(RefreshTokenModel.name))
-    resetMockModel(mockRefreshTokenModel)
+    mockRefreshTokenRepository = await app.get(getRepositoryToken(RefreshTokenEntity))
+    mockRefreshTokenRepository.save = jest.fn().mockImplementation((entity) => Promise.resolve(entity))
+    mockRefreshTokenRepository.update = jest.fn().mockResolvedValue({ affected: 1 })
   })
 
   it('POST /api/v1/accounts/refresh-token (success)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
-    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
-    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
+    mockRefreshTokenRepository.findOneBy = jest.fn().mockResolvedValue(refreshToken)
+    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken.id).build()
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/refresh-token')
@@ -37,10 +38,10 @@ describe('Accounts - refresh token', () => {
   it('GET /api/v1/accounts/profiles/me (should not re-new when accessToken is valid)', async () => {
     const accessToken = await TestData.aValidAccessToken().build()
     const refreshToken = TestData.aValidRefreshToken().build()
-    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
+    mockRefreshTokenRepository.findOneBy = jest.fn().mockResolvedValue(refreshToken)
     const cookies = TestData.aValidSupertestCookies()
       .withAccessToken(accessToken)
-      .withRefreshToken(refreshToken._id!.toString())
+      .withRefreshToken(refreshToken.id)
       .build()
 
     const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
@@ -52,10 +53,10 @@ describe('Accounts - refresh token', () => {
 
   it('GET /api/v1/accounts/profiles/me (automatically re-new expired accessToken)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
-    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
+    mockRefreshTokenRepository.findOneBy = jest.fn().mockResolvedValue(refreshToken)
     const cookies = TestData.aValidSupertestCookies()
       .withAccessToken(TestData.anExpiredAccessToken)
-      .withRefreshToken(refreshToken._id!.toString())
+      .withRefreshToken(refreshToken.id)
       .build()
 
     const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
@@ -68,8 +69,8 @@ describe('Accounts - refresh token', () => {
 
   it('GET /api/v1/accounts/profiles/me (automatically re-new missing accessToken)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
-    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(refreshToken) })
-    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
+    mockRefreshTokenRepository.findOneBy = jest.fn().mockResolvedValue(refreshToken)
+    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken.id).build()
 
     const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 
@@ -81,8 +82,8 @@ describe('Accounts - refresh token', () => {
 
   it('GET /api/v1/accounts/profiles/me (expired refresh token should not be re-newed)', async () => {
     const refreshToken = TestData.aValidRefreshToken().build()
-    mockRefreshTokenModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
-    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken._id!.toString()).build()
+    mockRefreshTokenRepository.findOneBy = jest.fn().mockResolvedValue(null)
+    const cookies = TestData.aValidSupertestCookies().withRefreshToken(refreshToken.id).build()
 
     const result = await request(app.getHttpServer()).get('/api/v1/accounts/profiles/me').set('Cookie', cookies).send()
 

@@ -1,15 +1,13 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose'
+import { InjectRepository } from '@nestjs/typeorm'
 import dayjs from 'dayjs'
 import dayjsDuration from 'dayjs/plugin/duration'
 import { Response } from 'express'
 import { CookieToken } from 'src/auth/cookie-token'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { Config } from 'src/enums/config.enum'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
-import { ProfileId } from 'src/models/types'
-import { uuidv4 } from 'uuidv7'
+import { IsNull, MoreThan, MoreThanOrEqual, Repository } from 'typeorm'
 
 dayjs.extend(dayjsDuration)
 
@@ -19,8 +17,8 @@ const SESSION_REFRESH_TOKEN_DURATION = dayjs.duration({ hours: 8 })
 @Injectable()
 export class RefreshTokenService {
   constructor(
-    @InjectModel(RefreshTokenModel)
-    private readonly refreshTokenModel: ReturnModelType<typeof RefreshTokenModel>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly configService: ConfigService,
   ) {}
 
@@ -29,52 +27,29 @@ export class RefreshTokenService {
     return dayjs().add(sessionDuration).toDate()
   }
 
-  async create(profileId: ProfileId, sessionToken = false): Promise<RefreshTokenModel> {
-    const refreshTokenDocument = await this.refreshTokenModel.create({
-      _id: uuidv4(),
-      profile: profileId,
-      expires_at: this.refreshTokenExpires(sessionToken),
+  async create(profileUid: string, sessionToken = false): Promise<RefreshTokenEntity> {
+    const refreshToken = new RefreshTokenEntity({
+      profileId: profileUid,
+      expiresAt: this.refreshTokenExpires(sessionToken),
     })
-
-    return refreshTokenDocument
+    return await this.refreshTokenRepository.save(refreshToken)
   }
 
   async update(refreshToken: string, expiresAt: Date, newToken: string) {
-    const { modifiedCount } = await this.refreshTokenModel
-      .updateOne(
-        {
-          _id: refreshToken,
-          expires_at: { $gte: new Date() },
-        },
-        {
-          $set: {
-            expires_at: expiresAt,
-            new_token: newToken,
-          },
-        },
-      )
-      .exec()
-
-    return !!modifiedCount
+    const result = await this.refreshTokenRepository.update(
+      { id: refreshToken, expiresAt: MoreThanOrEqual(new Date()) },
+      { expiresAt, nextToken: newToken },
+    )
+    return !!result.affected
   }
 
   async remove(refreshToken: string) {
-    const { deletedCount } = await this.refreshTokenModel
-      .deleteOne({
-        _id: refreshToken,
-      })
-      .exec()
-
-    return !!deletedCount
+    const result = await this.refreshTokenRepository.delete({ id: refreshToken })
+    return !!result.affected
   }
 
-  find(refreshToken: string): Promise<DocumentType<RefreshTokenModel> | null> {
-    return this.refreshTokenModel
-      .findOne({
-        _id: refreshToken,
-        expires_at: { $gt: new Date() },
-      })
-      .exec()
+  find(refreshToken: string): Promise<RefreshTokenEntity | null> {
+    return this.refreshTokenRepository.findOneBy({ id: refreshToken, expiresAt: MoreThan(new Date()) })
   }
 
   revokeToken(toRevokeRefreshToken: string, newRefreshToken?: string) {
@@ -89,37 +64,33 @@ export class RefreshTokenService {
   }
 
   async isExpired(refreshToken: string) {
-    const count = await this.refreshTokenModel
-      .countDocuments({
-        _id: refreshToken,
-        expires_at: { $gt: new Date() },
-        new_token: null,
-      })
-      .exec()
-    return !count
+    const hasValidToken = await this.refreshTokenRepository.existsBy({
+      id: refreshToken,
+      expiresAt: MoreThan(new Date()),
+      nextToken: IsNull(),
+    })
+    return !hasValidToken
   }
 
-  async use(
-    refreshToken: string,
-  ): Promise<Pick<DocumentType<RefreshTokenModel>, '_id' | 'profile' | 'created_at' | 'expires_at'> | null> {
+  async use(refreshToken: string): Promise<RefreshTokenEntity | null> {
     const currentRefreshToken = await this.find(refreshToken)
     if (!currentRefreshToken) {
       return null
     }
 
-    const issuedRefreshToken = currentRefreshToken.new_token as Buffer | undefined
+    const issuedRefreshToken = currentRefreshToken.nextToken
     if (issuedRefreshToken) {
-      currentRefreshToken._id = issuedRefreshToken
+      currentRefreshToken.id = issuedRefreshToken
       return currentRefreshToken
     }
 
-    const isSessionToken = this.isSessionToken(currentRefreshToken.created_at!, currentRefreshToken.expires_at!)
+    const isSessionToken = this.isSessionToken(currentRefreshToken.createdAt, currentRefreshToken.expiresAt)
 
-    const profileId = currentRefreshToken.profile as ProfileId
+    const profileId = currentRefreshToken.profileId
     const newRefreshToken = await this.create(profileId, isSessionToken)
-    await this.revokeToken(refreshToken, newRefreshToken._id!.toString())
+    await this.revokeToken(refreshToken, newRefreshToken.id)
 
-    currentRefreshToken._id = newRefreshToken._id!
+    currentRefreshToken.id = newRefreshToken.id
     return currentRefreshToken
   }
 
@@ -128,10 +99,8 @@ export class RefreshTokenService {
     return dayjs(expiresAt).isBefore(defaultTokenExpiresAt)
   }
 
-  tokenCookieExpires(refreshToken: RefreshTokenModel): Date | undefined {
-    return this.isSessionToken(refreshToken.created_at!, refreshToken.expires_at!)
-      ? undefined
-      : this.refreshTokenExpires()
+  tokenCookieExpires(refreshToken: RefreshTokenEntity): Date | undefined {
+    return this.isSessionToken(refreshToken.createdAt, refreshToken.expiresAt) ? undefined : this.refreshTokenExpires()
   }
 
   setHttpRefreshTokenCookie(response: Pick<Response, 'cookie'>, refreshToken: string, expires?: Date) {
