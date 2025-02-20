@@ -1,15 +1,5 @@
-import {
-  BaseEntity,
-  Column,
-  DeepPartial,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm'
+import { BaseEntity, Column, DeepPartial, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
-import { RecruitFormCollectionEntity } from './recruit-form-collection.entity'
 
 @Entity('recruit_settings')
 export class RecruitSettingEntity extends BaseEntity {
@@ -44,13 +34,6 @@ export class RecruitSettingEntity extends BaseEntity {
 
   @Column({ name: 'is_active', type: 'boolean', default: false })
   isActive: boolean
-
-  @ManyToOne(() => RecruitFormCollectionEntity)
-  @JoinColumn({ name: 'survey_collection_id' })
-  surveyCollection?: RecruitFormCollectionEntity
-
-  @Column({ name: 'survey_collection_id', type: 'uuid', nullable: true })
-  surveyCollectionId: string | null
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date
