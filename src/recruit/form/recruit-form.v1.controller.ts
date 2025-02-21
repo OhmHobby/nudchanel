@@ -1,0 +1,56 @@
+import { Controller, ForbiddenException, Get, NotFoundException, Param, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiCookieAuth, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { User } from '@nudchannel/auth'
+import { AuthGroups } from 'src/auth/auth-group.decorator'
+import { UserCtx } from 'src/auth/user.decorator'
+import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
+import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
+import { RecruitCtx } from '../context/recruit-context.decorator'
+import { RecruitContext } from '../context/recruit-context.model'
+import { GetRecruitFormCollectionDto } from '../dto/get-recruit-form-collection.dto'
+import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
+import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
+import { RecruitFormService } from './recruit-form.service'
+
+@Controller({ path: 'recruit/forms', version: '1' })
+@ApiTags('RecruitFormV1')
+export class RecruitFormV1Controller {
+  constructor(
+    private readonly recruitApplicantService: RecruitApplicantService,
+    private readonly recruitModeratorService: RecruitModeratorService,
+    private readonly recruitFormService: RecruitFormService,
+  ) {}
+
+  @Get('collections/:id')
+  @AuthGroups()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOkResponse({ type: RecruitFormCollectionModel })
+  @ApiForbiddenResponse({ description: 'Has not yet registered or no permission to view the applicant' })
+  async getRecruitFormCollection(
+    @Param() { id }: UuidParamDto,
+    @Query() { applicantId }: GetRecruitFormCollectionDto,
+    @UserCtx() user: User,
+    @RecruitCtx() ctx: RecruitContext,
+  ): Promise<RecruitFormCollectionModel> {
+    const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
+    await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
+    applicantId =
+      applicantId ??
+      (await this.recruitApplicantService.getIdBySettingProfileId(ctx.currentSettingId, profileUid)) ??
+      undefined
+    if (!applicantId) throw new ForbiddenException(`User has not yet registered`)
+    const [collection, questions, completionMap] = await Promise.all([
+      this.recruitFormService.getCollectionById(id),
+      this.recruitFormService.getQAByCollectionId(id, applicantId),
+      this.recruitFormService.getCompletionMap(applicantId, [id]),
+    ])
+    if (!collection) throw new NotFoundException()
+    return RecruitFormCollectionModel.fromEntity(collection)
+      .withIsCompleted(completionMap?.get(id) ?? false)
+      .withQuestions(questions)
+  }
+}

@@ -5,6 +5,7 @@ import { Span } from 'nestjs-otel'
 import { ProfileNameLanguage, ProfileNameModel } from 'src/models/accounts/profile.name.model'
 import { ProfileId } from 'src/models/types'
 import { TeamService } from '../team/team.service'
+import { ProfileNameMap } from '../types/profile-name-map.type'
 
 @Injectable()
 export class ProfileNameService {
@@ -51,10 +52,7 @@ export class ProfileNameService {
   }
 
   @Span()
-  async getProfilesNameMap(
-    profileIds: ProfileId[],
-    language: ProfileNameLanguage = 'en',
-  ): Promise<Map<String, ProfileNameModel>> {
+  async getProfilesNameMap(profileIds: ProfileId[], language: ProfileNameLanguage = 'en'): Promise<ProfileNameMap> {
     const profiles = await this.getProfilesName(profileIds, language)
     return new Map(profiles.map((el) => [el.profile.toString(), el]))
   }

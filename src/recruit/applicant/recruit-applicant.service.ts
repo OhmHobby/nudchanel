@@ -1,0 +1,54 @@
+import { ConflictException, Injectable, Logger } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Span } from 'nestjs-otel'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
+import { Repository } from 'typeorm'
+
+@Injectable()
+export class RecruitApplicantService {
+  private readonly logger = new Logger(RecruitApplicantService.name)
+
+  constructor(
+    @InjectRepository(RecruitApplicantEntity)
+    private readonly applicantRepostory: Repository<RecruitApplicantEntity>,
+    // @InjectRepository(RecruitApplicantRoleEntity)
+    // private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
+  ) {}
+
+  @Span()
+  async getIdBySettingProfileId(settingId: string, profileId?: string): Promise<string | null> {
+    if (!profileId) return null
+    const applicant = await this.applicantRepostory.findOne({
+      where: { recruitId: settingId, profileId },
+      select: { id: true },
+    })
+    return applicant?.id ?? null
+  }
+
+  async findOne(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
+    const result = await this.find(applicantId, settingId, profileId)
+    return result.at(0) ?? null
+  }
+
+  async find(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity[]> {
+    return await this.applicantRepostory.find({
+      where: { id: applicantId, recruitId: settingId, profileId },
+      relations: { roles: { role: true }, interviewSlots: true },
+      select: {
+        id: true,
+        profileId: true,
+        roles: { id: true, role: { id: true, name: true, collectionId: true }, rank: true },
+        interviewSlots: { id: true, startWhen: true, endWhen: true, interviewAt: true },
+      },
+    })
+  }
+
+  async createApplicant(settingId: string, profileId: string): Promise<RecruitApplicantEntity> {
+    const currentApplicantId = await this.getIdBySettingProfileId(settingId, profileId)
+    this.logger.log(`Creating applicant for profile ${profileId} recruit ${settingId} (${!!currentApplicantId})`)
+    if (currentApplicantId) throw new ConflictException()
+    const applicant = new RecruitApplicantEntity({ profileId, recruitId: settingId })
+    await this.applicantRepostory.insert(applicant)
+    return applicant
+  }
+}
