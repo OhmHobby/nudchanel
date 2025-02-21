@@ -22,7 +22,7 @@ export class RecruitRoleEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id = uuidv7()
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, select: false })
   oid: string | null
 
   @Column({ type: 'text' })
@@ -41,7 +41,7 @@ export class RecruitRoleEntity extends BaseEntity {
   @JoinColumn({ name: 'recruit_id' })
   recruit?: RecruitSettingEntity
 
-  @Column({ name: 'recruit_id', type: 'uuid' })
+  @Column({ name: 'recruit_id', type: 'uuid', select: false })
   recruitId: string
 
   @ManyToOne(() => RecruitFormCollectionEntity)

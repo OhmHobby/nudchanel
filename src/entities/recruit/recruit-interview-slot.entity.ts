@@ -22,7 +22,7 @@ export class RecruitInterviewSlotEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id = uuidv7()
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, select: false })
   oid: string | null
 
   @Column({ name: 'start_when', type: 'timestamptz' })

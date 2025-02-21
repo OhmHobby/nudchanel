@@ -21,7 +21,7 @@ export class RecruitFormCollectionEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id = uuidv7()
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, select: false })
   oid: string | null
 
   @Column({ type: 'text' })
