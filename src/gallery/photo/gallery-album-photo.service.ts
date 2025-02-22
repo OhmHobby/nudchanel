@@ -65,7 +65,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       photos: photos.map(
         (photo) =>
           new GalleryAlbumPhotoModel({
-            id: photo._id?.toHexString(),
+            id: photo.uuid?.toString(),
             uuid: photo.uuid?.toString(),
             width: photo.width,
             height: photo.height,
