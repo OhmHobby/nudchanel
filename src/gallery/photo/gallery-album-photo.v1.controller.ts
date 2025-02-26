@@ -60,6 +60,7 @@ export class GalleryAlbumPhotoV1Controller {
         albumId,
         ObjectIdUuidConverter.toUuid(takenBy),
         state ?? GalleryPhotoEntity.stateFromNextState(nextState),
+        true,
       ),
     ])
     return new GalleryAlbumPhotosModel({ contributors, photos })

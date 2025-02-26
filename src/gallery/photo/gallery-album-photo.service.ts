@@ -72,6 +72,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
             color: photo.color,
             timestamp: photo.taken_timestamp,
             takenBy: batchProfileNameMap.get(photo.batch.toString()),
+            isProcessed: true,
           }),
       ),
     })
@@ -91,9 +92,13 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     albumId: string,
     uploadByProfileUid?: string,
     state?: GalleryPhotoState,
+    selectAll = false,
   ): Promise<GalleryAlbumPhotosModel> {
     const photos = await this.photoRepository.find({
       where: { albumId, takenBy: uploadByProfileUid, ...GalleryPhotoEntity.findByStateOptionsWhere(state) },
+      select: selectAll
+        ? undefined
+        : { id: true, width: true, height: true, takenWhen: true, color: true, takenBy: true, processedAt: true },
     })
     const profileUidOidMap = Object.fromEntries(
       [...new Set(photos.map((el) => el.takenBy).filter((el) => typeof el === 'string'))].map((el) => [

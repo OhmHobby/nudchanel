@@ -68,10 +68,14 @@ export class AlbumPhotosSteps extends CommonSteps {
     for (let attempt = 0; attempt++ < 10; await this.whenDelay(1000, '.')) {
       await this.httpRequest('GET', `/api/v1/gallery/albums/${album}/photos/uploads`, {
         takenBy: this.workspace.user.id,
-        state,
       }).catch((err) => console.error(err))
       const { photos } = this.workspace.response?.body as GalleryAlbumPhotosModel
-      if (photos.some(filter)) return true
+      const photo = photos.find(filter)
+      const currentUploadPhoto = this.currentUploadPhoto.id
+        ? photos.find((el) => (el.id = this.currentUploadPhoto.id))
+        : undefined
+      this.currentUploadPhoto = currentUploadPhoto ?? this.currentUploadPhoto
+      if (photo?.state === state) return true
     }
     console.error(`Time out`, this.workspace.response?.body)
     return false
@@ -92,8 +96,8 @@ export class AlbumPhotosSteps extends CommonSteps {
         takenByProfileId: photo.takenBy?.profileId ?? '',
         takenByFirstname: photo.takenBy?.firstname ?? '',
         takenByLastname: photo.takenBy?.lastname ?? '',
-        thumbnail: photo.thumbnail,
-        preview: photo.preview,
+        thumbnail: String(photo.thumbnail),
+        preview: String(photo.preview),
         state: String(photo.state),
         directory: String(photo.directory),
         filename: String(photo.filename),
