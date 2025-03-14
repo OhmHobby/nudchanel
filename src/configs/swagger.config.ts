@@ -5,6 +5,7 @@ import { NextFunction } from 'express'
 import { AuthMiddleware } from 'src/auth/auth.middleware'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
+import { GalleryExtraModel } from 'src/gallery/dto/gallery-extra.model'
 import { RequestWithCtx } from 'src/interfaces/request.interface'
 
 @Injectable()
@@ -41,6 +42,7 @@ export class SwaggerConfigBuilder {
   private get documentOptions(): SwaggerDocumentOptions {
     return {
       operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
+      extraModels: [GalleryExtraModel],
     }
   }
 
