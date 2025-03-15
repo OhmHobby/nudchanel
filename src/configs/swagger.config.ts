@@ -5,7 +5,7 @@ import { NextFunction } from 'express'
 import { AuthMiddleware } from 'src/auth/auth.middleware'
 import { CookieToken } from 'src/auth/cookie-token'
 import { Config } from 'src/enums/config.enum'
-import { GalleryExtraModel } from 'src/gallery/dto/gallery-extra.model'
+import { GalleryPhotoFlowState } from 'src/enums/gallery-photo-flow-state.enum'
 import { RequestWithCtx } from 'src/interfaces/request.interface'
 
 @Injectable()
@@ -26,6 +26,11 @@ export class SwaggerConfigBuilder {
         this.setupAuth(app, path, authGroups)
       }
       this.document = SwaggerModule.createDocument(app, this.config, this.documentOptions)
+      this.document.components!.schemas!.GalleryPhotoFlowStateEnum = {
+        type: 'number',
+        enum: Object.values(GalleryPhotoFlowState).filter((el) => typeof el === 'number'),
+        'x-enum-varnames': Object.values(GalleryPhotoFlowState).filter((el) => typeof el !== 'number'),
+      } as any
       SwaggerModule.setup(path, app, this.document)
     }
   }
@@ -42,7 +47,6 @@ export class SwaggerConfigBuilder {
   private get documentOptions(): SwaggerDocumentOptions {
     return {
       operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
-      extraModels: [GalleryExtraModel],
     }
   }
 
