@@ -19,13 +19,11 @@ import {
   JoinColumn,
   ManyToOne,
   Not,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { uuidv4 } from 'uuidv7'
 import { GalleryAlbumEntity } from './gallery-album.entity'
-import { GalleryReportEntity } from './gallery-report.entity'
 
 @Entity('gallery_photos')
 export class GalleryPhotoEntity extends BaseEntity {
@@ -106,9 +104,6 @@ export class GalleryPhotoEntity extends BaseEntity {
   @ManyToOne(() => GalleryAlbumEntity, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'album_id' })
   album?: GalleryAlbumEntity
-
-  @OneToMany(() => GalleryReportEntity, (report) => report.photo)
-  reports?: GalleryReportEntity[]
 
   @Column({ name: 'album_id', type: 'varchar', length: GALLERY_ID_LENGTH, nullable: true })
   albumId: string | null
