@@ -1,33 +1,19 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm'
-import { GalleryPhotoEntity } from './gallery-photo.entity'
-import { GALLERY_REPORT_TITLE_LENGTH } from 'src/constants/gallery.constant'
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { GalleryReportState } from 'src/enums/gallery-report-state.enum'
+import { GALLERY_REPORT_EMAIL_LENGTH } from 'src/constants/gallery.constant'
 
 @Entity('gallery_reports')
 export class GalleryReportEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number
-
-  @Column({ length: GALLERY_REPORT_TITLE_LENGTH })
-  title: string
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column({ type: 'text' })
-  description: string
+  reason: string
 
-  @ManyToOne(() => GalleryPhotoEntity, (photo) => photo.reports)
-  @JoinColumn({ name: 'photo_id' })
-  photo: GalleryPhotoEntity
+  @Column({ name: 'album_id', type: 'uuid', nullable: true })
+  albumId: string
 
-  @Column({ name: 'photo_id', type: 'uuid' })
+  @Column({ name: 'photo_id', type: 'uuid', nullable: true })
   photoId: string
 
   @Column({
@@ -38,8 +24,11 @@ export class GalleryReportEntity extends BaseEntity {
   })
   state: GalleryReportState
 
-  @Column({ name: 'report_by_id', type: 'uuid' })
-  reportById: string
+  @Column({ name: 'report_by_id', default: null, type: 'uuid', nullable: true })
+  reportById: string | null = null
+
+  @Column({ name: 'email', type: 'varchar', length: GALLERY_REPORT_EMAIL_LENGTH, nullable: true, default: null })
+  email: string | null = null
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date

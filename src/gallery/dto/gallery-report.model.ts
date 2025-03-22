@@ -3,20 +3,31 @@ import { GalleryReportState } from 'src/enums/gallery-report-state.enum'
 
 export class GalleryReportModel {
   @ApiProperty()
-  id: number
+  id: string
 
   @ApiProperty()
-  title: string
+  reason: string
 
   @ApiProperty()
-  description: string
+  albumId: string
 
   @ApiProperty()
   photoId: string
 
-  @ApiProperty({ type: String, enum: GalleryReportState })
+  @ApiProperty({
+    enum: GalleryReportState,
+  })
   state: GalleryReportState
 
-  @ApiProperty()
-  reportById: string
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
+  reportById: string | null
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
+  email: string | null
 }

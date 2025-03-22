@@ -7,6 +7,7 @@ import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
+import { GalleryReportEntity } from 'src/entities/gallery/gallery-report.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
@@ -33,6 +34,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     GalleryPhotoEntity,
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
+    GalleryReportEntity,
     RecruitApplicantEntity,
     RecruitApplicantRoleEntity,
     RecruitFormAnswerEntity,

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsEmail, IsString, IsUUID } from 'class-validator'
 
 export class GalleryReportDto {
   constructor(base: Partial<GalleryReportDto>) {
@@ -6,11 +7,18 @@ export class GalleryReportDto {
   }
 
   @ApiProperty()
-  title: string
+  @IsString()
+  reason: string
 
   @ApiProperty()
-  description: string
-
-  @ApiProperty()
+  @IsUUID()
   photoId: string
+
+  @ApiProperty()
+  @IsUUID()
+  albumId: string
+
+  @ApiProperty()
+  @IsEmail()
+  email: string
 }

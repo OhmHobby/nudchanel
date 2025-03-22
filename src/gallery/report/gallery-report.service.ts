@@ -9,12 +9,13 @@ export class GalleryReportService {
     @InjectRepository(GalleryReportEntity) private readonly reportRepository: Repository<GalleryReportEntity>,
   ) {}
 
-  createReport(title: string, description: string, photoId: string, reportBy: string) {
+  createReport(reason: string, photoId: string, albumId: string, reportBy: string | null, email: string | null) {
     const galleryReport = new GalleryReportEntity({
-      title,
-      description,
+      reason,
       photoId,
+      albumId,
       reportById: reportBy,
+      email,
     })
 
     return this.reportRepository.save(galleryReport)
