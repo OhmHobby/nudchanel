@@ -22,8 +22,13 @@ export class GalleryReportSteps extends CommonSteps {
   }
 
   @given('create gallery report with albumId {string}')
-  givenCreateReportWithAlbumId(photoId: string) {
-    this.workspace.requestBody.photoId = photoId
+  givenCreateReportWithAlbumId(albumId: string) {
+    this.workspace.requestBody.albumId = albumId
+  }
+
+  @given('create gallery report with email {string}')
+  givenCreateReportWithEmail(email: string) {
+    this.workspace.requestBody.email = email
   }
 
   @then('gallery report must contain')
