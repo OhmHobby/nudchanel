@@ -31,7 +31,7 @@
   "dependencies": {
     "@bull-board/api": "6.7.4",
     "@bull-board/express": "6.7.4",
-    "@discordjs/core": "^2.0.0",
+    "@discordjs/core": "2.0.1",
     "@golevelup/nestjs-rabbitmq": "5.5.0",
     "@m8a/nestjs-typegoose": "12.0.0",
     "@nestjs/bullmq": "11.0.2",
