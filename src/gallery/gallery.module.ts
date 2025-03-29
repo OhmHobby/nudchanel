@@ -27,6 +27,7 @@ import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
 import { GalleryReportService } from './report/gallery-report.service'
 import { GalleryReportEntity } from 'src/entities/gallery/gallery-report.entity'
+import { GalleryReportController } from './report/gallery-report.controller'
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { GalleryReportEntity } from 'src/entities/gallery/gallery-report.entity'
     GalleryAlbumPhotoV1Controller,
     GalleryPhotoV1Controller,
     GalleryVideoV1Controller,
+    GalleryReportController,
   ],
   providers: [
     GalleryActivityService,
