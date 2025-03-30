@@ -92,6 +92,8 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.11.13",
     "@types/config": "^3.3.3",
     "@types/cookie-parser": "^1.4.7",
     "@types/etag": "1.8.3",
