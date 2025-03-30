@@ -2,7 +2,7 @@ import { binding, given, then } from 'cucumber-tsflow'
 import { Workspace } from './workspace'
 import { CommonSteps } from './common-steps'
 import { DataTable } from '@cucumber/cucumber'
-import except from 'expect'
+import { expect } from '@jest/globals'
 import { GalleryReportModel } from 'src/gallery/dto/gallery-report.model'
 
 @binding([Workspace])
@@ -41,6 +41,6 @@ export class GalleryReportSteps extends CommonSteps {
     record.state = record.state ?? expect.anything()
     record.reportById = record.reportById ?? expect.anything()
 
-    except(body).toContainEqual(record)
+    expect(body).toContainEqual(record)
   }
 }
