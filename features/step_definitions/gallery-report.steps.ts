@@ -2,7 +2,7 @@ import { binding, given, then } from 'cucumber-tsflow'
 import { Workspace } from './workspace'
 import { CommonSteps } from './common-steps'
 import { DataTable } from '@cucumber/cucumber'
-import { expect } from '@jest/globals'
+import expect from 'expect'
 import { GalleryReportModel } from 'src/gallery/dto/gallery-report.model'
 
 @binding([Workspace])
