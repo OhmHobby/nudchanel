@@ -10,5 +10,5 @@ Feature: gallery report
     When POST /api/v1/gallery/reports
     Then HTTP response status should be CREATED
     And gallery report must contain
-      | reason            | photoId                              | albumId                              |
-      | Photo included me | 4e29faae-be60-437e-aac5-b312ba9fdd7e | cc7600d9-e2f2-4f6f-bad1-ff51fabe70b3 |
+      | reason            | photoId                              | albumId                              | state   |
+      | Photo included me | 4e29faae-be60-437e-aac5-b312ba9fdd7e | cc7600d9-e2f2-4f6f-bad1-ff51fabe70b3 | pending |

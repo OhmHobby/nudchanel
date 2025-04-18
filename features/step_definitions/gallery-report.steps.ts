@@ -35,12 +35,9 @@ export class GalleryReportSteps extends CommonSteps {
   thenReportMustContain(dt: DataTable) {
     const record: Partial<Record<keyof GalleryReportModel, any>> = dt.hashes()[0]
     const body = this.workspace.response?.body ?? {}
-    record.id = record.id ? +record.id : expect.anything()
-    record.reason = record.reason ?? expect.anything()
-    record.photoId = record.photoId ?? expect.anything()
-    record.state = record.state ?? expect.anything()
-    record.reportById = record.reportById ?? expect.anything()
-
-    expect(body).toContainEqual(record)
+    for (const key in record) {
+      const value = record[key]
+      expect(body[key]).toBe(value)
+    }
   }
 }
