@@ -70,8 +70,8 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
     } catch (err) {
       this.logger.error(
         {
-          message: `Failed to mark a job ${job.data.id} as "${job.failedReason}": ${err.message}`,
-          data: job.data,
+          message: `Failed to mark a job ${job?.data?.id} as "${job.failedReason}": ${err.message}`,
+          data: job?.data,
         },
         err,
       )
