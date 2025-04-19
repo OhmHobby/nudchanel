@@ -1,6 +1,6 @@
 {
   "name": "webservice",
-  "version": "1.22.0",
+  "version": "1.24.1",
   "description": "",
   "author": "",
   "private": true,
@@ -31,7 +31,7 @@
   "dependencies": {
     "@bull-board/api": "6.7.4",
     "@bull-board/express": "6.7.4",
-    "@discordjs/core": "2.0.1",
+    "@discordjs/core": "^2.0.0",
     "@golevelup/nestjs-rabbitmq": "5.5.0",
     "@m8a/nestjs-typegoose": "12.0.0",
     "@nestjs/bullmq": "11.0.2",
@@ -57,7 +57,7 @@
     "config": "3.3.12",
     "cookie-parser": "1.4.7",
     "dayjs": "1.11.13",
-    "discord.js": "14.18.0",
+    "discord.js": "14.16.3",
     "etag": "1.8.1",
     "exif-parser": "^0.1.12",
     "fast-average-color-node": "^3.0.0",
@@ -122,3 +122,4 @@
     "typescript": "^5.1.3"
   }
 }
+
