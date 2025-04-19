@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import {
   ApiBearerAuth,
@@ -49,6 +60,7 @@ export class GalleryAlbumPhotoV1Controller {
         albumId,
         ObjectIdUuidConverter.toUuid(takenBy),
         state ?? GalleryPhotoEntity.stateFromNextState(nextState),
+        true,
       ),
     ])
     return new GalleryAlbumPhotosModel({ contributors, photos })
@@ -56,6 +68,7 @@ export class GalleryAlbumPhotoV1Controller {
 
   @Post('uploads')
   @AuthGroups('nudch')
+  @HttpCode(HttpStatus.CREATED)
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   @ApiCookieAuth()
@@ -67,6 +80,7 @@ export class GalleryAlbumPhotoV1Controller {
     @UploadedFile() file: Express.Multer.File,
     @UserCtx() user: User,
   ): Promise<GalleryAlbumPhotoModel> {
+    this.galleryAlbumPhotoService.validateMimeOrThrow(file.mimetype)
     const photo = await this.galleryAlbumPhotoService.uploadFile(
       albumId,
       ProfileIdModel.fromObjectIdOrThrow(user.id),
@@ -78,6 +92,7 @@ export class GalleryAlbumPhotoV1Controller {
 
   @Post('imports')
   @AuthGroups('it')
+  @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiCreatedResponse({ type: [GalleryAlbumPhotoModel] })

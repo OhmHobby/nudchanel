@@ -5,10 +5,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
+import { RecruitFormAnswerEntity } from './recruit-form-answer.entity'
 import { RecruitFormCollectionEntity } from './recruit-form-collection.entity'
 
 @Entity('recruit_form_questions')
@@ -42,6 +44,9 @@ export class RecruitFormQuestionEntity extends BaseEntity {
 
   @Column({ type: 'smallint', default: 0 })
   rank: number
+
+  @OneToMany(() => RecruitFormAnswerEntity, (answer: RecruitFormAnswerEntity) => answer.question)
+  answers?: RecruitFormAnswerEntity[]
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date

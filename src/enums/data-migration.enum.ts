@@ -5,4 +5,5 @@ export enum DataMigration {
   GalleryPhoto = 'GalleryPhoto',
   Recruit = 'Recruit',
   ProfilePhoto = 'ProfilePhoto',
+  PhotoUploadTask = 'PhotoUploadTask',
 }

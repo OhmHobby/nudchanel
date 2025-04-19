@@ -12,10 +12,12 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { UploadTaskBatchFileState } from 'src/enums/upload-task-batch-file-state.enum'
+import { AlbumPhotoUploadRule } from 'src/gallery/photo/rules/album-photo-upload-rule'
 import { HexDecConverter } from 'src/helpers/hex-dec-converter'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
+import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataSource, InsertResult } from 'typeorm'
 
 @Injectable()
@@ -28,6 +30,8 @@ export class DataMigrationProcessorService extends WorkerHost {
     private readonly dataSource: DataSource,
     @InjectModel(UploadBatchFileModel)
     private readonly photoFileModel: ReturnModelType<typeof UploadBatchFileModel>,
+    @InjectModel(UploadTaskModel)
+    private readonly uploadTaskModel: ReturnModelType<typeof UploadTaskModel>,
   ) {
     super()
   }
@@ -36,6 +40,8 @@ export class DataMigrationProcessorService extends WorkerHost {
     try {
       if (job.name === DataMigration.GalleryPhoto) {
         return this.migrateGalleryPhoto()
+      } else if (job.name === DataMigration.PhotoUploadTask) {
+        return this.migratePhotoUploadTask()
       }
       throw new Error(`${job.name} not found`)
     } catch (err) {
@@ -54,7 +60,7 @@ export class DataMigrationProcessorService extends WorkerHost {
 
     return this.dataSource.transaction(async (manager) => {
       await manager.insert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.GalleryPhoto }))
-      const albums = await manager.find(GalleryAlbumEntity, { select: { id: true } })
+      const albums = await manager.find(GalleryAlbumEntity, { select: { id: true }, withDeleted: true })
       const albumIds = new Set(albums.map((el) => el.id))
 
       const total = await this.photoFileModel.countDocuments().exec()
@@ -99,7 +105,7 @@ export class DataMigrationProcessorService extends WorkerHost {
           deletedAt:
             doc.deleted ||
             doc.state === UploadTaskBatchFileState.aborted ||
-            (isDocument(doc.batch) ? !doc.batch.task : !doc.batch)
+            (isDocument(doc.batch) ? !doc.batch.task || doc.batch.deleted : !doc.batch)
               ? doc._id.getTimestamp()
               : undefined,
         })
@@ -107,6 +113,49 @@ export class DataMigrationProcessorService extends WorkerHost {
         this.logger.log({ message: `[${++i}/${total}] Inserting gallery photo ${entity.id}`, entity })
       }
       await Promise.all(insertPromises)
+    })
+  }
+
+  private migratePhotoUploadTask() {
+    return this.dataSource.transaction(async (manager) => {
+      const albumRepository = manager.getRepository(GalleryAlbumEntity)
+      await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.PhotoUploadTask }), {
+        conflictPaths: ['id'],
+      })
+      const tasks = await this.uploadTaskModel.find().exec()
+      const promises = tasks.map(async (task) => {
+        const album = await albumRepository.findOne({
+          where: { id: task.album },
+          withDeleted: true,
+          select: {
+            id: true,
+            uploadDirectory: true,
+            minimumResolutionMp: true,
+            takenAfter: true,
+            takenBefore: true,
+            watermarkPreset: true,
+            updatedAt: true,
+          },
+        })
+        if (!album) return this.logger.warn({ message: `Task ${task.id} has no album ${task.album}`, task })
+        const rule = AlbumPhotoUploadRule.fromPattern(task.rules)
+        if (
+          album.uploadDirectory ||
+          album.minimumResolutionMp ||
+          album.takenAfter ||
+          album.takenBefore ||
+          album.watermarkPreset
+        )
+          return this.logger.log(`Skipped album ${album.id}`)
+        album.uploadDirectory = task.src_directory ?? null
+        album.minimumResolutionMp = rule.minimumResoluionMp ?? null
+        album.takenAfter = rule.takenAfterDate ?? null
+        album.takenBefore = rule.takenBeforeDate ?? null
+        album.watermarkPreset = rule.watermarkPreset ?? null
+        this.logger.log({ message: `Update album ${album.id}`, album })
+        return manager.save(album)
+      })
+      await Promise.all(promises)
     })
   }
 }

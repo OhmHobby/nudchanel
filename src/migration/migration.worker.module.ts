@@ -6,12 +6,13 @@ import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { UploadBatchFileModel } from 'src/models/photo/upload-batch-file.model'
+import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataMigrationProcessorService } from './data-migration-processor.service'
 import { MigrationController } from './migration.controller.service'
 import { MigrationService } from './migration.service'
 @Module({
   imports: [
-    TypegooseModule.forFeature([UploadBatchFileModel], MongoConnection.Photo),
+    TypegooseModule.forFeature([UploadBatchFileModel, UploadTaskModel], MongoConnection.Photo),
     TypeOrmModule.forFeature([DataMigrationEntity]),
     BullModule.registerQueue({ name: BullQueueName.DataMigration }),
   ],

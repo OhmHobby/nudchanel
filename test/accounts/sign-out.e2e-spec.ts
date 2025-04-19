@@ -1,26 +1,26 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import request from 'supertest'
-import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
+import { Repository } from 'typeorm'
 
 describe('Accounts - sign-out', () => {
   let app: INestApplication
-  let refreshTokenModel: MockModelType<typeof RefreshTokenModel>
+  let refreshTokenRepository: Repository<RefreshTokenEntity>
 
   beforeAll(async () => {
     app = await TestData.aValidApp().build()
   })
 
   beforeEach(async () => {
-    refreshTokenModel = await app.get(getModelToken(RefreshTokenModel.name))
-    resetMockModel(refreshTokenModel)
+    refreshTokenRepository = await app.get(getRepositoryToken(RefreshTokenEntity))
+    refreshTokenRepository.delete = jest.fn().mockResolvedValue({ affected: 1 })
   })
 
   it('POST /api/v1/accounts/sign-out', async () => {
-    const refreshToken = TestData.aValidRefreshToken().build()._id!.toString()
+    const refreshToken = TestData.aValidRefreshToken().build().id
     const cookies = TestData.aValidSupertestCookies()
       .withAccessToken(await TestData.aValidAccessToken().build())
       .withRefreshToken(refreshToken)
@@ -32,7 +32,7 @@ describe('Accounts - sign-out', () => {
     expect(result.status).toBe(HttpStatus.NO_CONTENT)
     expect(setCookie).toContainEqual(expect.stringMatching(/access_token=;.+Expires=Thu, 01 Jan 1970 00:00:00 GMT/))
     expect(setCookie).toContainEqual(expect.stringMatching(/refresh_token=;.+Expires=Thu, 01 Jan 1970 00:00:00 GMT/))
-    expect(refreshTokenModel.deleteOne).toHaveBeenCalledWith({ _id: refreshToken })
+    expect(refreshTokenRepository.delete).toHaveBeenCalledWith({ id: refreshToken })
   })
 
   afterAll(() => {

@@ -6,13 +6,13 @@ import { ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { REST } from 'discord.js'
 import { Auth, google } from 'googleapis'
+import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Config } from 'src/enums/config.enum'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
-import { RefreshTokenModel } from 'src/models/accounts/refresh-token.model'
 import { RegistrationTokenModel } from 'src/models/accounts/registration-token.model'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
@@ -44,6 +44,7 @@ import { TeamMemberV1Controller } from './team/team-member.v1.controller'
 import { TeamService } from './team/team.service'
 import { UserGroupService } from './user/user-group.service'
 import { UserLocalService } from './user/user-local.service'
+import { LocalUserV1Controller } from './user/user-local.v1.controller'
 
 @Module({
   imports: [
@@ -54,7 +55,6 @@ import { UserLocalService } from './user/user-local.service'
         UserLocalModel,
         UserGroupModel,
         GroupModel,
-        RefreshTokenModel,
         TeamMemberModel,
         TeamRoleModel,
         TeamGroupModel,
@@ -62,7 +62,7 @@ import { UserLocalService } from './user/user-local.service'
       ],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity]),
+    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     PhotoModule,
@@ -110,6 +110,7 @@ import { UserLocalService } from './user/user-local.service'
     SignInV1Controller,
     SignOutV1Controller,
     TeamMemberV1Controller,
+    LocalUserV1Controller,
   ],
   exports: [
     ProfileService,

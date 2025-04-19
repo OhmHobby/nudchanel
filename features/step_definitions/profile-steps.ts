@@ -19,6 +19,16 @@ export class ProfileSteps extends CommonSteps {
     this.workspace.requestBody.filename = filename
   }
 
+  @given('change password using current password = {string}')
+  givenCurrentPassword(password: string) {
+    this.workspace.requestBody.currentPassword = password
+  }
+
+  @given('change password using new password = {string}')
+  givenNewPassword(password: string) {
+    this.workspace.requestBody.newPassword = password
+  }
+
   @then('profile photo id should be {string}')
   thenProfilePhotoId(id: string) {
     expect(this.workspace.response?.body.id).toBe(id)

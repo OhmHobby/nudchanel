@@ -112,18 +112,24 @@ describe(UserLocalService.name, () => {
       profileName.lastname = 'Lastname'
     })
 
+    it('should error when username has already created', async () => {
+      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(1) })
+      await expect(service.requestUsername(profileId)).rejects.toThrow()
+    })
+
     it('should error when english fullname not found', async () => {
       profileNameService.getProfileName = jest.fn().mockResolvedValue(new ProfileNameModel())
-      await expect(service.requestUsername(profileId)).rejects.toThrowError()
+      await expect(service.requestUsername(profileId)).rejects.toThrow()
     })
 
     it('should error when fullname not complete', async () => {
       profileName.lastname = undefined
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
-      await expect(service.requestUsername(profileId)).rejects.toThrowError()
+      await expect(service.requestUsername(profileId)).rejects.toThrow()
     })
 
     it('should return expected username correctly', async () => {
+      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) })
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
       service.isUsernameExists = jest.fn().mockResolvedValue(false)
       const result = await service.requestUsername(profileId)
@@ -131,6 +137,7 @@ describe(UserLocalService.name, () => {
     })
 
     it('should add more character if duplicate', async () => {
+      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) })
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
       service.isUsernameExists = jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false)
       const result = await service.requestUsername(profileId)

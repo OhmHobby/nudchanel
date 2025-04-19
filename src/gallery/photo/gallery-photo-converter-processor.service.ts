@@ -54,7 +54,7 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
       await this.galleryPhotoRepository.update({ id: photo.id }, { processedAt: new Date() })
     } catch (err) {
       this.logger.error(`Error processing ${photo.id}: ${err.message}`, err)
-      throw Error(err.message)
+      throw Error(`Error during conversion "${err.message}"`)
     }
   }
 
@@ -68,8 +68,8 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
     } catch (err) {
       this.logger.error(
         {
-          message: `Failed to mark a job ${job.data.id} as "${job.failedReason}": ${err.message}`,
-          data: job.data,
+          message: `Failed to mark a job ${job?.data?.id} as "${job.failedReason}": ${err.message}`,
+          data: job?.data,
         },
         err,
       )

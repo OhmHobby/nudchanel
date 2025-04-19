@@ -1,11 +1,11 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { GetRecruitSettingsDto } from '../dto/get-recruit-settings.dto'
-import { RecruitSettingModel } from '../models/recruit-setting.models'
+import { RecruitSettingModel } from '../models/recruit-setting.model'
 import { RecruitSettingService } from './recruit-setting.service'
 
 @Controller({ path: 'recruit/settings', version: '1' })
@@ -15,6 +15,8 @@ export class RecruitSettingV1Controller {
 
   @Get()
   @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: [RecruitSettingModel] })
   async getRecruitSettings(
     @Query() { all }: GetRecruitSettingsDto,
@@ -27,6 +29,8 @@ export class RecruitSettingV1Controller {
 
   @Get(':id')
   @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: RecruitSettingModel })
   async getRecruitSetting(@Param() { id }: UuidParamDto): Promise<RecruitSettingModel> {
     const setting = await this.recruitSettingService.getById(id)

@@ -44,6 +44,20 @@ export class YouTubeService {
   @Span()
   async getVideo(id: string): Promise<IYouTubeVideo> {
     const cacheKey = 'youtube:video:' + id
-    return await this.cacheManager.wrap(cacheKey, () => this.fetchVideo(id))
+    const cached = await this.cacheManager.get<IYouTubeVideo>(cacheKey)
+    if (cached?.id) {
+      return {
+        id: cached.id,
+        title: cached.title,
+        cover: cached.cover,
+        url: cached.url,
+        published: cached.published,
+        publishedAt: new Date(cached.publishedAt),
+      }
+    } else {
+      const video = await this.fetchVideo(id)
+      await this.cacheManager.set(cacheKey, video)
+      return video
+    }
   }
 }

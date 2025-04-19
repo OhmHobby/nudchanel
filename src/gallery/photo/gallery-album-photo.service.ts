@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq'
-import { Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Queue } from 'bullmq'
 import { Span } from 'nestjs-otel'
@@ -65,13 +65,14 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       photos: photos.map(
         (photo) =>
           new GalleryAlbumPhotoModel({
-            id: photo._id?.toHexString(),
+            id: photo.uuid?.toString(),
             uuid: photo.uuid?.toString(),
             width: photo.width,
             height: photo.height,
             color: photo.color,
             timestamp: photo.taken_timestamp,
             takenBy: batchProfileNameMap.get(photo.batch.toString()),
+            isProcessed: true,
           }),
       ),
     })
@@ -91,9 +92,13 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     albumId: string,
     uploadByProfileUid?: string,
     state?: GalleryPhotoState,
+    selectAll = false,
   ): Promise<GalleryAlbumPhotosModel> {
     const photos = await this.photoRepository.find({
       where: { albumId, takenBy: uploadByProfileUid, ...GalleryPhotoEntity.findByStateOptionsWhere(state) },
+      select: selectAll
+        ? undefined
+        : { id: true, width: true, height: true, takenWhen: true, color: true, takenBy: true, processedAt: true },
     })
     const profileUidOidMap = Object.fromEntries(
       [...new Set(photos.map((el) => el.takenBy).filter((el) => typeof el === 'string'))].map((el) => [
@@ -189,6 +194,13 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     await this.photoRepository.insert(entities)
     await this.galleryPhotoValidationQueue.addBulk(entities.map((entity) => ({ name: entity.id, data: entity })))
     return entities
+  }
+
+  validateMimeOrThrow(mimeType: string) {
+    if (!mimeType.startsWith('image/')) {
+      this.logger.warn(`Unexpected mimeType ${mimeType} has uploaded`)
+      throw new BadRequestException('UNSUPPORTED_MIMETYPE')
+    }
   }
 
   async onModuleDestroy() {

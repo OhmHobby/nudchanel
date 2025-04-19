@@ -10,9 +10,9 @@ import {
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { ActivityIdQueryDto } from '../dto/activity-id-query.dto'
-import { GalleryQueryDto } from '../dto/gallery-query.dto'
 import { GalleryVideoResponseModel } from '../dto/gallery-video-response.model'
 import { GalleryVideoDto } from '../dto/gallery-video.dto'
+import { GalleryVideosDto } from '../dto/gallery-videos.dto'
 import { VideoIdParamDto } from '../dto/video-id-param.dto'
 import { GalleryVideoService } from './gallery-video.service'
 
@@ -24,7 +24,7 @@ export class GalleryVideoV1Controller {
   @Get()
   @ApiOkResponse({ type: [GalleryVideoResponseModel] })
   async getGalleryVideosByActivityId(
-    @Query() { all, activityId }: GalleryQueryDto & ActivityIdQueryDto,
+    @Query() { all, activityId }: GalleryVideosDto,
   ): Promise<GalleryVideoResponseModel[]> {
     const videos = await this.galleryVideoService.findByActivity(activityId, all)
     return videos.map((video) => new GalleryVideoResponseModel(video))
