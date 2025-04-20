@@ -37,21 +37,21 @@ otlp:
 database:
   migration: true
   postgres:
-    host: ""
-    user: ""
-    pass: ""
+    host: ''
+    user: ''
+    pass: ''
     port: 5432
     db: nudchannel
   mongodb:
-    default: ""
-    accounts: ""
-    gallery: ""
-    photo: ""
-    mailer: ""
+    default: ''
+    accounts: ''
+    gallery: ''
+    photo: ''
+    mailer: ''
   redis:
     default:
-      host: ""
-      pass: ""
+      host: ''
+      pass: ''
       port: 6379
       db: 0
 
@@ -67,35 +67,35 @@ storage:
   webdav:
     url: http://localhost:4000
     authtype: password
-    username: ""
-    password: ""
+    username: ''
+    password: ''
 
 encryption:
-  key: "0000000000000000000000000000000000000000000000000000000000000000"
+  key: '0000000000000000000000000000000000000000000000000000000000000000'
 
 googleapis:
-  clientId: ""
-  clientSecret: ""
-  callback: ""
-  email: ""
+  clientId: ''
+  clientSecret: ''
+  callback: ''
+  email: ''
   service:
-    email: ""
-    privateKey: ""
+    email: ''
+    privateKey: ''
 
 discord:
-  clientId: ""
-  clientSecret: ""
-  token: ""
-  primaryGuildId: ""
+  clientId: ''
+  clientSecret: ''
+  token: ''
+  primaryGuildId: ''
 
 photo:
   minio:
-    endpoint: ""
+    endpoint: ''
     port: 9000
-    access_key: ""
-    secret_key: ""
+    access_key: ''
+    secret_key: ''
     use_ssl: false
-    bucket_name: ""
+    bucket_name: ''
   stream:
     upload: false
     cache:
@@ -106,7 +106,7 @@ photo:
     default:
       quality: 80
     watermark:
-      "01":
+      '01':
         file: assets/watermarks/01.png
         position: bottom-left
         size: 0.01
@@ -116,8 +116,8 @@ photo:
 authentication:
   accessToken:
     issuer: accounts.nudchannel.com
-    publicKey: ""
-    privateKey: ""
+    publicKey: ''
+    privateKey: ''
   refreshToken:
     secure: true
 
@@ -126,14 +126,14 @@ auditLog:
 
 delivery:
   upcomingEvents:
-    cron: ""
+    cron: ''
     lookAheadHours: 9
     rangeHours: 12
-    discordWebhook: ""
+    discordWebhook: ''
   startingEvents:
-    cron: ""
+    cron: ''
     rangeMinutes: 15
-    discordWebhook: ""
+    discordWebhook: ''
   smtp:
     host:
     port:

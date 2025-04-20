@@ -84,7 +84,7 @@ authentication:
 
 googleapis:
   clientId: 1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com
-  clientSecret: ""
+  clientSecret: ''
   service:
     email: dev-85@nudchannel.iam.gserviceaccount.com
     privateKey: |
@@ -118,8 +118,8 @@ googleapis:
       -----END PRIVATE KEY-----
 
 discord:
-  clientId: "1095379875226988664"
-  clientSecret: ""
+  clientId: '1095379875226988664'
+  clientSecret: ''
 
 photo:
   minio:

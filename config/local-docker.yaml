@@ -14,7 +14,7 @@ database:
   redis:
     default:
       host: localhost
-      pass: ""
+      pass: ''
       port: 6379
       db: 0
 
@@ -33,8 +33,8 @@ storage:
   webdav:
     url: http://localhost:8080
     authtype: password
-    username: ""
-    password: ""
+    username: ''
+    password: ''
 
 photo:
   minio:

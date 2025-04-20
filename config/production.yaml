@@ -21,7 +21,7 @@ delivery:
     cron: 0 9,21 * * *
     lookAheadHours: 9
     rangeHours: 12
-    discordWebhook: ""
+    discordWebhook: ''
   startingEvents:
-    cron: "*/15 * * * *"
+    cron: '*/15 * * * *'
     rangeMinutes: 15
