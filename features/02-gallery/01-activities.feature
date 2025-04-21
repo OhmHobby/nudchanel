@@ -93,6 +93,17 @@ Feature: Gallery activities
       | Music Band Audition 2020 (2/3) | https://youtu.be/zVuMxpJPMFw | https://i.ytimg.com/vi/zVuMxpJPMFw/maxresdefault.jpg |
       | Music Band Audition 2020 (3/3) | https://youtu.be/Lm4iOuDAubs | https://i.ytimg.com/vi/Lm4iOuDAubs/maxresdefault.jpg |
 
+  @query
+  Scenario: Get academic year paginated activities (Date between)
+    Given activities before "2022-08-11T00:00:22.263Z"
+    And activities limit to 1
+    And activities year 2022
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                                                   | time                     | cover                                | coverUrl                                                                            |
+      | 2oq_D97 | โครงการ 12 สิงหา พระบรมราชินีนาถ พระบรมราชชนนีพันปีหลวง | 2022-08-08T00:00:39.500Z | 7b759c07-b51e-47bf-b0a4-23d8dd80c03f | https://photos.nudchannel.com/photos/cover/7b759c07-b51e-47bf-b0a4-23d8dd80c03f.jpg |
+
   @create
   Scenario: Create activity
     Given user profileId 5b794c41fd533e3b2f61cf05

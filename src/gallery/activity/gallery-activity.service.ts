@@ -6,7 +6,7 @@ import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import {
-  Between,
+  And,
   DataSource,
   EntityManager,
   FindOperator,
@@ -104,7 +104,7 @@ export class GalleryActivityService {
   }
 
   private buildTimeQuery(afterDate?: Date, beforeDate?: Date): FindOperator<Date> | undefined {
-    if (afterDate && beforeDate) return Between(afterDate, beforeDate)
+    if (afterDate && beforeDate) return And(MoreThan(afterDate), LessThan(beforeDate))
     else if (afterDate) return MoreThan(afterDate)
     else if (beforeDate) return LessThan(beforeDate)
     else return undefined
