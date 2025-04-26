@@ -89,8 +89,8 @@ storage:
   webdav:
     url: http://webdav
     authtype: password
-    username: ""
-    password: ""
+    username: ''
+    password: ''
 
 photo:
   stream:
@@ -137,4 +137,4 @@ googleapis:
       -----END PRIVATE KEY-----
 
 discord:
-  clientId: "1095379875226988664"
+  clientId: '1095379875226988664'

@@ -25,6 +25,9 @@ import { GalleryPhotoService } from './photo/gallery-photo.service'
 import { GalleryPhotoV1Controller } from './photo/gallery-photo.v1.controller'
 import { GalleryVideoService } from './video/gallery-video.service'
 import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
+import { GalleryReportService } from './report/gallery-report.service'
+import { GalleryReportEntity } from 'src/entities/gallery/gallery-report.entity'
+import { GalleryReportController } from './report/gallery-report.controller'
 
 @Module({
   imports: [
@@ -33,6 +36,7 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
       GalleryAlbumEntity,
       GalleryPhotoEntity,
       GalleryYouTubeVideoEntity,
+      GalleryReportEntity,
       DataMigrationEntity,
     ]),
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),
@@ -56,6 +60,7 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
     GalleryAlbumPhotoV1Controller,
     GalleryPhotoV1Controller,
     GalleryVideoV1Controller,
+    GalleryReportController,
   ],
   providers: [
     GalleryActivityService,
@@ -64,6 +69,7 @@ import { GalleryVideoV1Controller } from './video/gallery-video.v1.controller'
     GalleryPhotoService,
     GalleryVideoService,
     IsForbiddenField,
+    GalleryReportService,
   ],
 })
 export class GalleryModule {}

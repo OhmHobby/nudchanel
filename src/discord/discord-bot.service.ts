@@ -21,7 +21,7 @@ export class DiscordBotService {
     protected readonly cacheManager: Cache,
   ) {
     const rest = new REST().setToken(configService.getOrThrow<string>(Config.DISCORD_TOKEN))
-    this.client = new API(rest)
+    this.client = new API(rest as any)
     this.primaryGuildId = configService.getOrThrow<Snowflake>(Config.DISCORD_PRIMARY_GUILD_ID)
   }
 
