@@ -66,7 +66,11 @@ export class DataMigrationProcessorService extends WorkerHost {
       const total = await this.photoFileModel.countDocuments().exec()
       const cursor = await this.photoFileModel
         .find()
-        .populate({ path: 'batch', populate: { path: 'task', select: ['_id', 'album'] }, select: ['_id', 'task'] })
+        .populate({
+          path: 'batch',
+          populate: { path: 'task', select: ['_id', 'album'] },
+          select: ['_id', 'creator', 'owner', 'task', 'deleted'],
+        })
         .cursor()
       const insertPromises: Promise<InsertResult>[] = []
       let i = 0
@@ -92,7 +96,9 @@ export class DataMigrationProcessorService extends WorkerHost {
             doc.state === UploadTaskBatchFileState.rejected && doc.message ? parseRejectReason(doc.message) : null,
           rejectMessage: doc.state === UploadTaskBatchFileState.rejected ? doc.message : null,
           errorMessage: doc.state === UploadTaskBatchFileState.error ? doc.message : null,
-          createdBy: isDocument(doc.batch) ? ObjectIdUuidConverter.toUuid(doc.batch.creator) : DEFAULT_UUID,
+          createdBy: isDocument(doc.batch)
+            ? (ObjectIdUuidConverter.toUuid(doc.batch.creator) ?? DEFAULT_UUID)
+            : DEFAULT_UUID,
           importId: isDocument(doc.batch)
             ? ObjectIdUuidConverter.toUuid(doc.batch._id)
             : ObjectIdUuidConverter.toUuid(doc.batch),
