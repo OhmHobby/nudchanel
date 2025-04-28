@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 import { PhotoUrlHelper } from 'src/helpers/photo-url.helper'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
@@ -32,6 +32,9 @@ export class TeamMembersResponseModel {
   @ApiProperty()
   group: string
 
+  @ApiPropertyOptional()
+  email?: string
+
   static fromModel(member: TeamMemberModel) {
     return new TeamMembersResponseModel({
       profileId: member.profile._id.toHexString(),
@@ -39,6 +42,7 @@ export class TeamMembersResponseModel {
       photo: member.populatedProfile?.photo,
       roles: member.roles.map((role) => (role as TeamRoleModel)?.name),
       group: (member.group as TeamGroupModel)?.name,
+      email: member.populatedProfile?.emails?.[0],
     })
   }
 }

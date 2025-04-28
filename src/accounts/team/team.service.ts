@@ -1,5 +1,6 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
+import { User } from '@nudchannel/auth'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Span } from 'nestjs-otel'
 import { TeamGroupModel } from 'src/models/accounts/team-group.model'
@@ -45,11 +46,15 @@ export class TeamService {
   }
 
   @Span()
-  async getYearMembers(year: number) {
+  async getYearMembers(year: number, user?: User) {
     const members = await this.teamMemberModel
       .find({ year })
       .sort({ profile: 'asc' })
-      .populate({ path: 'profile', populate: { path: 'names' }, select: ['names', 'photo'] })
+      .populate({
+        path: 'profile',
+        populate: { path: 'names' },
+        select: ['_id', 'names', 'photo'].concat(user?.isAuthorizedToGroups(`nudch_${year}`) ? ['emails'] : []),
+      })
       .populate({ path: 'roles', select: '-_id' })
       .populate({ path: 'group', select: '-_id' })
       .exec()
