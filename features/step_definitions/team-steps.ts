@@ -14,12 +14,13 @@ export class TeamSteps extends CommonSteps {
   thenTeamMembersShouldContain(dataTable: DataTable) {
     const normalizedResponse = [this.workspace.response?.body].flat().map((member) => ({
       profileId: member.profileId,
-      firstname: member.name.firstname,
-      lastname: member.name.lastname,
-      nickname: member.name.nickname,
+      firstname: member.name.firstname?.trim(),
+      lastname: member.name.lastname?.trim(),
+      nickname: member.name.nickname?.trim(),
       roles: member.roles.join(', '),
       group: member.group,
       photoUrl: member.photoUrl,
+      email: String(member.email),
     }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }

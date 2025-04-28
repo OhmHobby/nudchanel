@@ -20,7 +20,7 @@ export class ProfileModel {
   @Prop({ required: false })
   photo?: string
 
-  @Prop({ index: true, type: String, dim: 1, select: true, lowercase: true })
+  @Prop({ index: true, type: String, dim: 1, lowercase: true })
   emails?: string[]
 
   @Prop({ select: false, type: String, dim: 1 })
