@@ -99,6 +99,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       select: selectAll
         ? undefined
         : { id: true, width: true, height: true, takenWhen: true, color: true, takenBy: true, processedAt: true },
+      order: { takenWhen: 'ASC' },
     })
     const profileUidOidMap = Object.fromEntries(
       [...new Set(photos.map((el) => el.takenBy).filter((el) => typeof el === 'string'))].map((el) => [
