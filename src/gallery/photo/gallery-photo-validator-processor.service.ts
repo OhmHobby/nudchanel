@@ -30,6 +30,8 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
     private readonly dataSource: DataSource,
     @InjectRepository(GalleryPhotoEntity)
     private readonly galleryPhotoRepository: Repository<GalleryPhotoEntity>,
+    @InjectRepository(GalleryAlbumEntity)
+    private readonly albumRepository: Repository<GalleryAlbumEntity>,
     @InjectQueue(BullQueueName.GalleryPhotoConversion)
     private readonly galleryPhotoConversionQueue: Queue<GalleryPhotoEntity>,
     private readonly storageService: StorageService,
@@ -41,6 +43,14 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
   async process(job: Job<GalleryPhotoEntity>) {
     const photo = new GalleryPhotoEntity(job.data)
     try {
+      if (!photo.album?.id && photo.albumId) {
+        this.logger.warn({
+          message: `Photo ${photo.id} has no album info. Try fallback albumId ${photo.albumId}`,
+          data: job.data,
+        })
+        const album = await this.albumRepository.findOneBy({ id: photo.albumId })
+        photo.album = album ?? undefined
+      }
       if (!photo.album?.id) throw new Error('Missing populated album info')
       const photoBuffer = await this.storageService.getBuffer(photo.fullpath)
       if (!photoBuffer.length) throw new Error('File has no content')
