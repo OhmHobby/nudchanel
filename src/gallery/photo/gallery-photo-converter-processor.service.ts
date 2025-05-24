@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import utc from 'dayjs/plugin/utc'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { PhotoSize } from 'src/enums/photo-size.enum'
@@ -26,6 +27,8 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
   constructor(
     @InjectRepository(GalleryPhotoEntity)
     private readonly galleryPhotoRepository: Repository<GalleryPhotoEntity>,
+    @InjectRepository(GalleryAlbumEntity)
+    private readonly albumRepository: Repository<GalleryAlbumEntity>,
     private readonly storageService: StorageService,
     private readonly photoProcessorService: PhotoProcessorService,
   ) {
@@ -35,9 +38,11 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
   async process(job: Job<GalleryPhotoEntity>) {
     const photo = new GalleryPhotoEntity(job.data)
     try {
+      if (!photo.albumId) throw new Error(`Photo ${photo.id} has no albumId`)
+      const album = await this.albumInfoForPhotoProcessing(photo.albumId)
       const previewPath = new PhotoPath(PhotoSize.preview, photo.id)
       const thumbnailPath = new PhotoPath(PhotoSize.thumbnail, photo.id)
-      const watermarkPreset = photo.album?.watermarkPreset ?? undefined
+      const watermarkPreset = album?.watermarkPreset ?? undefined
       if (!watermarkPreset) this.logger.warn(`Missing watermark for photo ${photo.id}`)
       const originalBuffer = await this.storageService.getBuffer(photo.fullpath)
       const previewBuffer = await this.photoProcessorService.process(
@@ -74,5 +79,15 @@ export class GalleryPhotoConverterProcessorService extends WorkerHost {
         err,
       )
     }
+  }
+
+  private albumInfoForPhotoProcessing(albumId: string): Promise<GalleryAlbumEntity> {
+    return this.albumRepository.findOneOrFail({
+      where: { id: albumId },
+      select: {
+        id: true,
+        watermarkPreset: true,
+      },
+    })
   }
 }
