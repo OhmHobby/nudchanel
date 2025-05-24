@@ -157,7 +157,7 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
   ): Promise<boolean> {
     const rejectedFiles = await repository.find({
       select: { id: true },
-      where: { md5: md5Uuid, rejectReason: IsNull() },
+      where: { md5: md5Uuid, rejectReason: IsNull(), errorMessage: IsNull() },
       order: { createdAt: 'DESC' },
       skip: 1,
     })
