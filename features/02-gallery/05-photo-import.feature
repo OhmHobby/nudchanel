@@ -2,6 +2,14 @@
 @import_photos
 Feature: Gallery album photo import
 
+  Background:
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And user groups nudch, pr
+    And album title "Test E2E"
+    And album upload directory "/2022/[2022.02.03] Rotation"
+    When PUT /api/v1/gallery/albums/BaVRIkb
+    Then HTTP response status should be NO_CONTENT
+
   @error
   Scenario: Non IT team should not able to import photos
     Given user profileId 5b794c41fd533e3b2f61cf05
