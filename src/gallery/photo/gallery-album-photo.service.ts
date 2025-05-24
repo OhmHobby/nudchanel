@@ -174,8 +174,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       this.albumInfoForPhotoProcessing(albumId),
       this.storageService.listFiles(directory),
     ])
-    if (!album?.uploadDirectory) throw new NotFoundException()
-    if (!directory.includes(album.uploadDirectory)) throw new BadRequestException('Directory mismatch')
+    if (!album) throw new NotFoundException()
 
     const entities = files.map(
       (file) =>
