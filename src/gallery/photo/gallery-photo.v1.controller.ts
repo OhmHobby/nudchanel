@@ -7,12 +7,23 @@ import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
 import { GalleryPhotoRejectionDto } from '../dto/gallery-photo-rejection.dto'
 import { UuidParamDto } from '../dto/uuid-param.dto'
+import { UuidsBodyDto } from '../dto/uuids-body.dto'
 import { GalleryPhotoService } from './gallery-photo.service'
 
 @Controller({ path: 'gallery/photos', version: '1' })
 @ApiTags('GalleryPhotoV1')
 export class GalleryPhotoV1Controller {
   constructor(private readonly galleryPhotoService: GalleryPhotoService) {}
+
+  @Post('reprocess')
+  @AuthGroups('nudch')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiAcceptedResponse()
+  async reprocessGalleryPhotos(@Body() { ids }: UuidsBodyDto) {
+    await Promise.all(ids.map((id) => this.galleryPhotoService.reprocess(id)))
+  }
 
   @Post(':id/reprocess')
   @AuthGroups('nudch')
