@@ -14,7 +14,7 @@ import { MD5 } from 'src/helpers/md5.helper'
 import { Exif } from 'src/photo/models/exif.model'
 import { PhotoMetadataService } from 'src/photo/processor/photo-metadata.service'
 import { StorageService } from 'src/storage/storage.service'
-import { DataSource, In, IsNull, Or, Repository } from 'typeorm'
+import { DataSource, In, IsNull, Repository } from 'typeorm'
 
 dayjs.extend(utc)
 dayjs.extend(isSameOrAfter)
