@@ -146,17 +146,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     buffer: Buffer,
   ): Promise<GalleryPhotoEntity> {
     const [album, profileDirectory] = await Promise.all([
-      this.albumRepository.findOne({
-        where: { id: albumId },
-        select: {
-          id: true,
-          uploadDirectory: true,
-          minimumResolutionMp: true,
-          takenAfter: true,
-          takenBefore: true,
-          watermarkPreset: true,
-        },
-      }),
+      this.albumInfoForPhotoProcessing(albumId),
       this.profileNameService.getNickNameWithFirstNameAndInitial(profileId.objectId),
     ])
     if (!album?.uploadDirectory) throw new NotFoundException()
@@ -180,7 +170,13 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
 
   async importFiles(albumId: string, directory: string, importByUid: ProfileIdModel, takenByUid?: ProfileIdModel) {
     const importId = uuidv7()
-    const files = await this.storageService.listFiles(directory)
+    const [album, files] = await Promise.all([
+      this.albumInfoForPhotoProcessing(albumId),
+      this.storageService.listFiles(directory),
+    ])
+    if (!album?.uploadDirectory) throw new NotFoundException()
+    if (!directory.includes(album.uploadDirectory)) throw new BadRequestException('Directory mismatch')
+
     const entities = files.map(
       (file) =>
         new GalleryPhotoEntity({
@@ -190,6 +186,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
           createdBy: importByUid.uuid,
           albumId,
           importId,
+          album,
         }),
     )
     await this.photoRepository.insert(entities)
@@ -206,5 +203,19 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
 
   async onModuleDestroy() {
     await this.galleryPhotoValidationQueue.close()
+  }
+
+  private albumInfoForPhotoProcessing(albumId: string): Promise<GalleryAlbumEntity | null> {
+    return this.albumRepository.findOne({
+      where: { id: albumId },
+      select: {
+        id: true,
+        uploadDirectory: true,
+        minimumResolutionMp: true,
+        takenAfter: true,
+        takenBefore: true,
+        watermarkPreset: true,
+      },
+    })
   }
 }
