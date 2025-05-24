@@ -43,15 +43,8 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
   async process(job: Job<GalleryPhotoEntity>) {
     const photo = new GalleryPhotoEntity(job.data)
     try {
-      if (!photo.album?.id && photo.albumId) {
-        this.logger.warn({
-          message: `Photo ${photo.id} has no album info. Try fallback albumId ${photo.albumId}`,
-          data: job.data,
-        })
-        const album = await this.albumRepository.findOneBy({ id: photo.albumId })
-        photo.album = album ?? undefined
-      }
-      if (!photo.album?.id) throw new Error('Missing populated album info')
+      if (!photo.albumId) throw new Error(`Photo ${photo.id} has no albumId`)
+      const album = await this.albumInfoForPhotoProcessing(photo.albumId)
       const photoBuffer = await this.storageService.getBuffer(photo.fullpath)
       if (!photoBuffer.length) throw new Error('File has no content')
       const md5uuid = MD5.fromBuffer(photoBuffer).uuid
@@ -60,7 +53,7 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
         this.photoMetadataService.getPhotoColor(photoBuffer),
       ])
       this.logger.warn(`${photo.id} (${photo.filename}) md5 has changed from ${photo.md5} to ${md5uuid}`)
-      const result = await this.validate(photo, photo.album, md5uuid, exif, color)
+      const result = await this.validate(photo, album, md5uuid, exif, color)
       if (result) {
         await this.galleryPhotoConversionQueue.add(photo.id, photo)
       }
@@ -168,5 +161,18 @@ export class GalleryPhotoValidatorProcessorService extends WorkerHost implements
 
   async onModuleDestroy() {
     await this.galleryPhotoConversionQueue.close()
+  }
+
+  private albumInfoForPhotoProcessing(albumId: string): Promise<GalleryAlbumEntity> {
+    return this.albumRepository.findOneOrFail({
+      where: { id: albumId },
+      select: {
+        id: true,
+        uploadDirectory: true,
+        minimumResolutionMp: true,
+        takenAfter: true,
+        takenBefore: true,
+      },
+    })
   }
 }
