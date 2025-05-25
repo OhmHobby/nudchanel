@@ -49,7 +49,7 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
       where: { albumId, takenBy: uploadByProfileUid, ...GalleryPhotoEntity.findByStateOptionsWhere(state) },
       select: selectAll
         ? undefined
-        : { id: true, width: true, height: true, takenWhen: true, color: true, takenBy: true, processedAt: true },
+        : { id: true, width: true, height: true, takenWhen: true, color: true, takenBy: true },
       order: { takenWhen: 'ASC' },
     })
     const profileUidOidMap = Object.fromEntries(
