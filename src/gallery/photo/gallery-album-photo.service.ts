@@ -7,15 +7,12 @@ import { basename, join } from 'path'
 import { ProfileDetailResponseModel } from 'src/accounts/models/profile-detail.response.model'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
-import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
-import { DataMigration } from 'src/enums/data-migration.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
 import { MD5 } from 'src/helpers/md5.helper'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
-import { PhotoV1Service } from 'src/photo/photo-v1.service'
 import { StorageService } from 'src/storage/storage.service'
 import { Repository } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
@@ -31,60 +28,14 @@ export class GalleryAlbumPhotoService implements OnModuleDestroy {
     private readonly albumRepository: Repository<GalleryAlbumEntity>,
     @InjectRepository(GalleryPhotoEntity)
     private readonly photoRepository: Repository<GalleryPhotoEntity>,
-    @InjectRepository(DataMigrationEntity)
-    private readonly dataMigrationRepository: Repository<DataMigrationEntity>,
     @InjectQueue(BullQueueName.GalleryPhotoValidation)
     private readonly galleryPhotoValidationQueue: Queue<GalleryPhotoEntity>,
-    private readonly photoV1Service: PhotoV1Service,
     private readonly profileNameService: ProfileNameService,
     private readonly storageService: StorageService,
   ) {}
 
-  @Span()
-  async getPhotoV1ProcessedPhotos(albumId: string): Promise<GalleryAlbumPhotosModel> {
-    const batches = await this.photoV1Service.getBatchProfilePairs(albumId)
-    const batchIds = [...batches.keys()]
-    const profileIds = [...batches.values()].filter((el) => !!el)
-    const [photos, profileNameMap] = await Promise.all([
-      this.photoV1Service.getBatchesProcessedPhotos(batchIds),
-      this.profileNameService.getProfilesNameMap(profileIds),
-    ])
-    const batchProfileNameMap = new Map(
-      [...batches]
-        .filter(([, profileId]) => !!profileId)
-        .map(([batchId, profileId]) => {
-          const profileName = profileId && profileNameMap.get(profileId.toHexString())
-          const response = profileName && ProfileDetailResponseModel.fromModel(profileName)
-          return [batchId.toHexString(), response]
-        }),
-    )
-    return new GalleryAlbumPhotosModel({
-      contributors: [...profileNameMap.values()].map((profileNameModel) =>
-        ProfileDetailResponseModel.fromModel(profileNameModel),
-      ),
-      photos: photos.map(
-        (photo) =>
-          new GalleryAlbumPhotoModel({
-            id: photo.uuid?.toString(),
-            uuid: photo.uuid?.toString(),
-            width: photo.width,
-            height: photo.height,
-            color: photo.color,
-            timestamp: photo.taken_timestamp,
-            takenBy: batchProfileNameMap.get(photo.batch.toString()),
-            isProcessed: true,
-          }),
-      ),
-    })
-  }
-
-  async getGalleryAlbumPhotos(albumId: string) {
-    const isMigrated = await this.dataMigrationRepository.existsBy({ id: DataMigration.GalleryPhoto })
-    if (isMigrated) {
-      return this.getUploadPhotos(albumId, undefined, GalleryPhotoState.approved)
-    } else {
-      return this.getPhotoV1ProcessedPhotos(albumId)
-    }
+  getGalleryAlbumPhotos(albumId: string) {
+    return this.getUploadPhotos(albumId, undefined, GalleryPhotoState.approved)
   }
 
   @Span()
