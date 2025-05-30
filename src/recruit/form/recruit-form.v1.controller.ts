@@ -1,5 +1,24 @@
-import { Controller, ForbiddenException, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiForbiddenResponse,
+  ApiHeader,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
@@ -9,6 +28,7 @@ import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
+import { AnswerRecruitFormQuestionsDto } from '../dto/answer-recruit-form-questions.dto'
 import { GetRecruitFormCollectionDto } from '../dto/get-recruit-form-collection.dto'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
@@ -52,5 +72,19 @@ export class RecruitFormV1Controller {
     return RecruitFormCollectionModel.fromEntity(collection)
       .withIsCompleted(completionMap?.get(id) ?? false)
       .withQuestions(questions)
+  }
+
+  @Patch('answers')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiNoContentResponse()
+  async answerRecruitFormQuestions(
+    @Body() body: AnswerRecruitFormQuestionsDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ): Promise<void> {
+    await this.recruitFormService.updateFormAnswers(ctx.applicantIdOrThrow, body.items)
   }
 }

@@ -11,4 +11,9 @@ export class RecruitContext {
     if (!settingId || this.manageableRecruitId.includes(settingId)) return true
     else throw new ForbiddenException()
   }
+
+  get applicantIdOrThrow(): string {
+    if (this.applicantId) return this.applicantId
+    else throw new ForbiddenException('The applicant has not been created')
+  }
 }

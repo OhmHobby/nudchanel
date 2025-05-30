@@ -1,5 +1,5 @@
 import { DataTable } from '@cucumber/cucumber'
-import { binding, then } from 'cucumber-tsflow'
+import { binding, given, then } from 'cucumber-tsflow'
 import expect from 'expect'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
@@ -8,6 +8,16 @@ import { Workspace } from './workspace'
 export class RecruitSteps extends CommonSteps {
   constructor(private readonly workspace: Workspace) {
     super(workspace)
+  }
+
+  @given('recruit applicant selected roles = {string}')
+  givenRecruitApplicantSelectedRoles(rolesString: string) {
+    this.workspace.requestBody = { roleIds: rolesString.split(',') }
+  }
+
+  @given('recruit applicant form answers')
+  givenRecruitApplicantFormAnswers(dataTable: DataTable) {
+    this.workspace.requestBody = { items: dataTable.hashes() }
   }
 
   @then('recruit collection title should be {string}')
@@ -69,10 +79,6 @@ export class RecruitSteps extends CommonSteps {
 
   @then('recruit collection questions should be')
   thenRecruitCollectionQuestionsShouldBe(dataTable: DataTable) {
-    const columns = dataTable.raw().at(0)
-    const normalizedResponse = [this.workspace.response?.body?.questions]
-      .flat()
-      .map((role) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(role[column]) }), {}))
     const normalizedTable = dataTable.hashes().map((row) => ({
       id: row.id ?? expect.anything(),
       question: row.question ?? expect.anything(),
@@ -80,6 +86,10 @@ export class RecruitSteps extends CommonSteps {
       rank: row.rank ?? expect.anything(),
       answer: row.answer ?? expect.anything(),
     }))
+    const columns = Object.keys(normalizedTable[0])
+    const normalizedResponse = [this.workspace.response?.body?.questions]
+      .flat()
+      .map((role) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(role[column]) }), {}))
     normalizedTable.map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }
 }

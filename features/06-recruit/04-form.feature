@@ -56,3 +56,16 @@ Feature: Recruit forms
     And user groups nudch
     When GET /api/v1/recruit/forms/collections/018ff83a-ef38-71b9-a31e-31d1369d8c89?applicantId=0190f4a5-76f8-7328-9b2d-769e7cc88bbe
     Then HTTP response status should be FORBIDDEN
+
+  Scenario: Update answers
+    Given user profileId 61e308efa4d9680019bc343c
+    And recruit applicant form answers
+      | questionId                           | answer   |
+      | 0190f4bb-b648-7a82-9929-4642a9bd0994 | E2E Test |
+    When PATCH /api/v1/recruit/forms/answers
+    Then HTTP response status should be NO_CONTENT
+    When GET /api/v1/recruit/forms/collections/018ff83c-cfb0-7e1a-b175-1f3775ef427e
+    Then HTTP response status should be OK
+    And recruit collection questions should be
+      | id                                   | answer   |
+      | 0190f4bb-b648-7a82-9929-4642a9bd0994 | E2E Test |

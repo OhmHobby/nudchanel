@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
 import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answer.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
-import { Repository } from 'typeorm'
+import { DataSource, In, Repository } from 'typeorm'
+import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
 
 @Injectable()
@@ -13,6 +14,8 @@ export class RecruitFormService {
   private readonly logger = new Logger(RecruitFormService.name)
 
   constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     @InjectRepository(RecruitRoleEntity)
     private readonly roleRepostory: Repository<RecruitRoleEntity>,
     @InjectRepository(RecruitFormCollectionEntity)
@@ -75,5 +78,19 @@ export class RecruitFormService {
       .groupBy('rfq.collection_id')
       .getRawMany()
     return new Map(rows.map((row) => [row.collection_id, row.is_completed]))
+  }
+
+  updateFormAnswers(applicantId: string, questionAnswers: AnswerRecruitFormQuestionDto[]): Promise<void> {
+    return this.dataSource.transaction(async (manager) => {
+      const existingAnswers = await manager.getRepository(RecruitFormAnswerEntity).find({
+        where: { applicantId, questionId: In(questionAnswers.map((el) => el.questionId)) },
+        select: { id: true, questionId: true },
+      })
+      const questionIdAnswerIdMap = Object.fromEntries(existingAnswers.map((el) => [el.questionId, el.id]))
+      await manager.getRepository(RecruitFormAnswerEntity).upsert(
+        questionAnswers.map((el) => el.toEntity(applicantId, questionIdAnswerIdMap[el.questionId])),
+        { conflictPaths: ['applicantId', 'questionId'] },
+      )
+    })
   }
 }
