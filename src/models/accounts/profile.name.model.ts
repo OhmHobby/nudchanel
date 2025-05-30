@@ -6,6 +6,10 @@ export type ProfileNameLanguage = 'en' | 'th'
 @modelOptions({ schemaOptions: { collection: 'profiles.names' } })
 @index({ profile: 1, lang: 1 })
 export class ProfileNameModel {
+  constructor(model?: Partial<ProfileNameModel>) {
+    Object.assign(this, model)
+  }
+
   @Prop({ ref: () => ProfileModel })
   profile: Ref<ProfileModel>
 
