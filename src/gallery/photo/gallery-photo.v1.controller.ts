@@ -1,10 +1,29 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
-import { ApiAcceptedResponse, ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common'
+import {
+  ApiAcceptedResponse,
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
+import { GalleryAlbumPhotoModel } from '../dto/gallery-album-photo.model'
 import { GalleryPhotoRejectionDto } from '../dto/gallery-photo-rejection.dto'
 import { UuidParamDto } from '../dto/uuid-param.dto'
 import { UuidsBodyDto } from '../dto/uuids-body.dto'
@@ -14,6 +33,18 @@ import { GalleryPhotoService } from './gallery-photo.service'
 @ApiTags('GalleryPhotoV1')
 export class GalleryPhotoV1Controller {
   constructor(private readonly galleryPhotoService: GalleryPhotoService) {}
+
+  @Get(':id')
+  @AuthGroups('nudch')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOkResponse({ type: GalleryAlbumPhotoModel })
+  async getGalleryPhotoInfo(@Param() { id }: UuidParamDto): Promise<GalleryAlbumPhotoModel> {
+    const photo = await this.galleryPhotoService.findById(id)
+    if (!photo) throw new NotFoundException()
+    return GalleryAlbumPhotoModel.fromEntity(photo)
+  }
 
   @Post('reprocess')
   @AuthGroups('nudch')

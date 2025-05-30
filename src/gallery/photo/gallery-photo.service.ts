@@ -26,6 +26,10 @@ export class GalleryPhotoService implements OnModuleDestroy {
     private readonly galleryPhotoValidationQueue: Queue<GalleryPhotoEntity>,
   ) {}
 
+  findById(id: string) {
+    return this.photoRepository.findOneBy({ id })
+  }
+
   async reprocess(photoId: string) {
     const photo = await this.photoRepository.findOneBy({ id: photoId })
     if (!photo) throw new NotFoundException()
