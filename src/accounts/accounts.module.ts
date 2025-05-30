@@ -32,12 +32,14 @@ import { ProfileV1Controller } from './profile/profile.v1.controller'
 import { RefreshTokenV1Controller } from './refresh-token/refresh-token-v1.controller'
 import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { RegistrationService } from './registration/registration.service'
+import { RegistrationV1Controller } from './registration/registration.v1.controller'
 import { DiscordOauth2ProviderService } from './sign-in/oidc/discord/discord-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './sign-in/oidc/google/google-oauth2-provider.service'
 import {
   UnintializedGoogleOauth2,
   UnintializedGoogleOauth2Client,
 } from './sign-in/oidc/google/uninitialized-google.types'
+import { SignInService } from './sign-in/sign-in.service'
 import { SignInV1Controller } from './sign-in/sign-in.v1.controller'
 import { SignOutV1Controller } from './sign-in/sign-out-v1.controller'
 import { TeamMemberV1Controller } from './team/team-member.v1.controller'
@@ -79,6 +81,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
     UserLocalService,
     UserGroupService,
     GroupService,
+    SignInService,
     RegistrationService,
     { provide: ServiceProvider.DISCORD_REST, useValue: () => new REST({ authPrefix: 'Bearer' }) },
     {
@@ -111,6 +114,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
     SignOutV1Controller,
     TeamMemberV1Controller,
     LocalUserV1Controller,
+    RegistrationV1Controller,
   ],
   exports: [
     ProfileService,

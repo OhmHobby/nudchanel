@@ -11,6 +11,7 @@ import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
 import { SignInProviderDto } from './dto/sign-in-provider.dto'
 import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
+import { SignInService } from './sign-in.service'
 import { SignInV1Controller } from './sign-in.v1.controller'
 
 jest.mock('../access-token/access-token.service')
@@ -30,6 +31,7 @@ describe(SignInV1Controller.name, () => {
       controllers: [SignInV1Controller],
       providers: [
         ConfigService,
+        SignInService,
         RefreshTokenService,
         AccessTokenService,
         UserLocalService,
