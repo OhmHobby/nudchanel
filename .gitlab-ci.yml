@@ -22,7 +22,7 @@ default:
   interruptible: true
 
 .node:
-  image: node:20-alpine
+  image: node:24-alpine
   variables:
     PNPM_VERSION: 9
 
