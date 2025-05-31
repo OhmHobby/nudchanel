@@ -72,7 +72,7 @@ export class RecruitSteps extends CommonSteps {
       ['roles.id']: applicant.roles.map((el) => el.id).join(','),
       ['roles.name']: applicant.roles.map((el) => el.name).join(','),
       ['roles.selectedPriority']: applicant.roles.map((el) => el.selectedPriority).join(','),
-      interviewSlotStart: String(applicant.interviewSlotStart),
+      ['interview.start']: String(applicant.interview?.start),
     }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }
@@ -91,5 +91,27 @@ export class RecruitSteps extends CommonSteps {
       .flat()
       .map((role) => columns?.reduce((acc, column) => Object.assign(acc, { [column]: String(role[column]) }), {}))
     normalizedTable.map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
+  }
+
+  @then('recruit interview slots should contain')
+  thenRecruitInterviewSlotsShouldContain(dataTable: DataTable) {
+    const normalizedResponse = [this.workspace.response?.body].flat().map((slot) => ({
+      refId: slot.refId,
+      start: slot.start,
+      end: slot.end,
+      isAvailable: String(slot.isAvailable),
+      isSelected: String(slot.isSelected),
+    }))
+    dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
+  }
+
+  @then('recruit interview should be started at {string}')
+  thenInterviewStartAt(startAt: string) {
+    expect(this.workspace.response?.body?.start).toBe(startAt)
+  }
+
+  @then('recruit interview should be ended at {string}')
+  thenInterviewEndAt(endAt: string) {
+    expect(this.workspace.response?.body?.end).toBe(endAt)
   }
 }

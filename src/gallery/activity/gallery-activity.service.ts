@@ -5,6 +5,7 @@ import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
+import { mergeObject } from 'src/helpers/merge-object.helper'
 import {
   And,
   DataSource,
@@ -48,7 +49,7 @@ export class GalleryActivityService {
       entity.tags = await this.resolveTagEntities(entity.tags)(manager)
       const activity = await manager.getRepository(GalleryActivityEntity).findOneBy({ id })
       if (!activity) return false
-      Object.assign(activity, entity)
+      mergeObject(activity, entity)
       await manager.save(activity)
       return true
     })

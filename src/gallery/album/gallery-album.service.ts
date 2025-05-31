@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { mergeObject } from 'src/helpers/merge-object.helper'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataSource, LessThanOrEqual, Repository } from 'typeorm'
 import { AlbumPhotoUploadRule } from '../photo/rules/album-photo-upload-rule'
@@ -59,7 +60,7 @@ export class GalleryAlbumService {
     return this.dataSource.transaction(async (manager) => {
       const album = await manager.getRepository(GalleryAlbumEntity).findOneBy({ id })
       if (!album) return false
-      Object.assign(album, entity)
+      mergeObject(album, entity)
       await manager.save(album)
       await this.upsertUploadTaskInfo(entity)
       return true

@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
+import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { Repository } from 'typeorm'
 
@@ -11,8 +12,8 @@ export class RecruitApplicantService {
   constructor(
     @InjectRepository(RecruitApplicantEntity)
     private readonly applicantRepostory: Repository<RecruitApplicantEntity>,
-    // @InjectRepository(RecruitApplicantRoleEntity)
-    // private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
+    @InjectRepository(RecruitApplicantRoleEntity)
+    private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
   ) {}
 
   @Span()
@@ -26,6 +27,7 @@ export class RecruitApplicantService {
   }
 
   async findOne(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
+    if (!applicantId && !settingId && !profileId) return null
     const result = await this.find(applicantId, settingId, profileId)
     return result.at(0) ?? null
   }
@@ -50,5 +52,13 @@ export class RecruitApplicantService {
     const applicant = new RecruitApplicantEntity({ profileId, recruitId: settingId })
     await this.applicantRepostory.insert(applicant)
     return applicant
+  }
+
+  async getSelectedRoleIds(applicantId: string): Promise<string[]> {
+    const roles = await this.applicantRoleRepostory.find({
+      where: { applicantId },
+      select: { id: true, roleId: true },
+    })
+    return roles.map((el) => el.roleId)
   }
 }

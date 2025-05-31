@@ -3,6 +3,7 @@ import { ProfileNameResponseModel } from 'src/accounts/models/profile-name.respo
 import { ProfileNameMap } from 'src/accounts/types/profile-name-map.type'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { RecruitInterviewSlotModel } from './recruit-interview-slot.model'
 import { RecruitRoleModel } from './recruit-role.model'
 
 export class RecruitApplicantModel {
@@ -22,14 +23,8 @@ export class RecruitApplicantModel {
   @ApiProperty({ type: RecruitRoleModel, isArray: true })
   roles: RecruitRoleModel[]
 
-  @ApiPropertyOptional()
-  interviewSlotStart?: Date | null
-
-  @ApiPropertyOptional()
-  interviewSlotEnd?: Date | null
-
-  @ApiPropertyOptional()
-  interviewedAt?: Date | null
+  @ApiProperty()
+  interview?: RecruitInterviewSlotModel
 
   static fromEntity(
     entity: RecruitApplicantEntity,
@@ -51,9 +46,10 @@ export class RecruitApplicantModel {
               ),
           )
           .sort((a, b) => a.selectedPriority! - b.selectedPriority!) ?? [],
-      interviewSlotStart: entity.interviewSlots?.at(0)?.startWhen ?? null,
-      interviewSlotEnd: entity.interviewSlots?.at(0)?.endWhen ?? null,
-      interviewedAt: entity.interviewSlots?.at(0)?.interviewAt ?? null,
+      interview: entity.interviewSlots
+        ?.slice(0)
+        .map((el) => RecruitInterviewSlotModel.fromEntity(el))
+        ?.at(0),
     })
   }
 }

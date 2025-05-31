@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
-import { DataSource, Repository } from 'typeorm'
+import { DataSource, IsNull, Repository } from 'typeorm'
 
 @Injectable()
 export class RecruitRoleService {
@@ -28,6 +28,14 @@ export class RecruitRoleService {
         collectionId: true,
       },
     })
+  }
+
+  async getMandatoryInterviewRoleIds(recruitId: string): Promise<string[]> {
+    const roles = await this.roleRepostory.find({
+      where: { recruitId, mandatory: true, collectionId: IsNull() },
+      select: { id: true },
+    })
+    return roles.map((el) => el.id)
   }
 
   selectRoles(applicantId: string, roleIds: string[]): Promise<void> {

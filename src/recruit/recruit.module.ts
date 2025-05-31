@@ -5,6 +5,7 @@ import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applica
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
+import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-moderator.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
@@ -13,6 +14,8 @@ import { RecruitApplicantV1Controller } from './applicant/recruit-applicant.v1.c
 import { RecruitContextMiddleware } from './context/recruit-context.middleware'
 import { RecruitFormService } from './form/recruit-form.service'
 import { RecruitFormV1Controller } from './form/recruit-form.v1.controller'
+import { RecruitInterviewService } from './interview/recruit-interview.service'
+import { RecruitInterviewV1Controller } from './interview/recruit-interview.v1.controller'
 import { RecruitModeratorService } from './moderator/recruit-moderator.service'
 import { RecruitModeratorV1Controller } from './moderator/recruit-moderator.v1.controller'
 import { RecruitV1Controller } from './recruit.v1.controller'
@@ -30,6 +33,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
       RecruitSettingEntity,
       RecruitRoleModeratorEntity,
       RecruitRoleEntity,
+      RecruitInterviewSlotEntity,
       RecruitApplicantRoleEntity,
     ]),
     AccountsModule,
@@ -39,6 +43,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
     RecruitApplicantV1Controller,
     RecruitFormV1Controller,
     RecruitRoleV1Controller,
+    RecruitInterviewV1Controller,
     RecruitModeratorV1Controller,
     RecruitSettingV1Controller,
   ],
@@ -47,6 +52,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
     RecruitApplicantService,
     RecruitFormService,
     RecruitRoleService,
+    RecruitInterviewService,
     RecruitModeratorService,
   ],
 })
@@ -59,6 +65,7 @@ export class RecruitModule {
         RecruitApplicantV1Controller,
         RecruitFormV1Controller,
         RecruitRoleV1Controller,
+        RecruitInterviewV1Controller,
         RecruitSettingV1Controller,
       )
   }

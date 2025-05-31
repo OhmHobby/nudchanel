@@ -21,13 +21,13 @@ export class RecruitRoleModel {
   @ApiPropertyOptional()
   selectedPriority?: number
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String })
   collectionId?: string | null
 
   @ApiPropertyOptional()
   isCompleted?: boolean
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String })
   isMandatory?: boolean | null
 
   withSelectedPriority(selectedPriority?: number) {

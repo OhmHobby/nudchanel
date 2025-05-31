@@ -5,7 +5,7 @@ import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answe
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
-import { DataSource, In, Repository } from 'typeorm'
+import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
 
@@ -32,7 +32,7 @@ export class RecruitFormService {
   @Span()
   async getMandatoryCollections(recruitId: string) {
     const roles = await this.roleRepostory.find({
-      where: { recruitId, mandatory: true },
+      where: { recruitId, mandatory: true, collection: Not(IsNull()) },
       relations: { collection: true },
       select: { id: true, collection: { id: true, title: true } },
     })
