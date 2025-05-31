@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsUUID } from 'class-validator'
 
-export class UuidsBodyDto {
+export class SelectRecruitRolesDto {
   @ApiProperty()
   @IsUUID(undefined, { each: true })
   @IsArray()
-  ids: string[]
+  roleIds: string[]
 }

@@ -1,13 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
+import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
-import { Repository } from 'typeorm'
+import { DataSource, Repository } from 'typeorm'
 
 @Injectable()
 export class RecruitRoleService {
   private readonly logger = new Logger(RecruitRoleService.name)
 
   constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     @InjectRepository(RecruitRoleEntity)
     private readonly roleRepostory: Repository<RecruitRoleEntity>,
   ) {}
@@ -24,6 +27,27 @@ export class RecruitRoleService {
         mandatory: includeMandatory,
         collectionId: true,
       },
+    })
+  }
+
+  selectRoles(applicantId: string, roleIds: string[]): Promise<void> {
+    return this.dataSource.transaction(async (manager) => {
+      const selectedRoles = await manager.getRepository(RecruitApplicantRoleEntity).find({
+        where: { applicantId },
+        order: { rank: 'asc' },
+      })
+      const updatedRoles = roleIds.map((roleId, rank) => {
+        const role = selectedRoles.at(rank) ?? new RecruitApplicantRoleEntity()
+        role.rank = rank
+        role.applicantId = applicantId
+        role.roleId = roleId
+        return role
+      })
+      const toRemoveRoles = selectedRoles.slice(roleIds.length).map((role) => ({ id: role.id }))
+      await Promise.all([
+        updatedRoles.length ? manager.save(updatedRoles) : Promise.resolve(),
+        toRemoveRoles.length ? manager.delete(RecruitApplicantRoleEntity, toRemoveRoles) : Promise.resolve(),
+      ])
     })
   }
 }

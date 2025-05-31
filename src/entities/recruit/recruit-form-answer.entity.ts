@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
@@ -13,6 +14,10 @@ import { RecruitApplicantEntity } from './recruit-applicant.entity'
 import { RecruitFormQuestionEntity } from './recruit-form-question.entity'
 
 @Entity('recruit_form_answers')
+@Unique('UNIQUE_RECRUIT_FORM_ANSWER_APPLICANT_QUESTION', (entity: RecruitFormAnswerEntity) => [
+  entity.applicantId,
+  entity.questionId,
+])
 export class RecruitFormAnswerEntity extends BaseEntity {
   constructor(entity?: DeepPartial<RecruitFormAnswerEntity>) {
     super()

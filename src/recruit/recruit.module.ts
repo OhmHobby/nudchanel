@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from 'src/accounts/accounts.module'
+import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
@@ -29,6 +30,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
       RecruitSettingEntity,
       RecruitRoleModeratorEntity,
       RecruitRoleEntity,
+      RecruitApplicantRoleEntity,
     ]),
     AccountsModule,
   ],

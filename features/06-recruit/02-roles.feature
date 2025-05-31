@@ -40,3 +40,9 @@ Feature: Recruit roles
       | 0190ea38-9880-75eb-a79f-f290ad5876f4 | Warehouse Manager   | 7    | false       | null                                 |
       | 0190d09c-fe20-7a9c-ac5a-faa9192bb325 | Web Developer       | 8    | false       | null                                 |
       | 0190f4a1-5848-71cf-af15-1e9fdb2747a7 | Interview slot      | 9    | true        | null                                 |
+
+  Scenario: Select role
+    Given user profileId 61e308efa4d9680019bc343c
+    And recruit applicant selected roles = "0190d09c-fe20-7a9c-ac5a-faa9192bb325"
+    When PUT /api/v1/recruit/roles
+    Then HTTP response status should be NO_CONTENT

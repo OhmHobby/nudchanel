@@ -1,9 +1,11 @@
-import { Controller, Get, Query } from '@nestjs/common'
-import { ApiHeader, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, HttpCode, HttpStatus, Put, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiCookieAuth, ApiHeader, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { GetRecruitRoleDto } from '../dto/get-recruit-role.dto'
+import { SelectRecruitRolesDto } from '../dto/select-recruit-roles.dto'
 import { RecruitRoleModel } from '../models/recruit-role.model'
 import { RecruitRolesModel } from '../models/recruit-roles.model'
 import { RecruitRoleService } from './recruit-role.service'
@@ -22,5 +24,19 @@ export class RecruitRoleV1Controller {
   ): Promise<RecruitRolesModel> {
     const roles = await this.recruitRoleService.getByRecruitId(ctx.currentSettingId, all)
     return new RecruitRolesModel({ roles: roles.map((role) => RecruitRoleModel.fromEntity(role)) })
+  }
+
+  @Put()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiNoContentResponse()
+  async selectRecruitRoles(
+    @Body() { roleIds }: SelectRecruitRolesDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ): Promise<void> {
+    await this.recruitRoleService.selectRoles(ctx.applicantIdOrThrow, roleIds)
   }
 }
