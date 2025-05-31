@@ -24,7 +24,7 @@ default:
 .node:
   image: node:20-alpine
   variables:
-    PNPM_VERSION: 9
+    PNPM_VERSION: 10
 
 lint:
   stage: lint
