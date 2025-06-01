@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - argon2
+  - highlight.js
+  - msgpackr-extract
+  - protobufjs
+  - sharp
