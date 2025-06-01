@@ -91,7 +91,7 @@ export class GalleryPhotoV1Controller {
   }
 
   @Patch(':id/reset-approvals')
-  @AuthGroups('it')
+  @AuthGroups('it', 'pr')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiCookieAuth()
