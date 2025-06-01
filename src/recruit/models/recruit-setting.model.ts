@@ -23,6 +23,12 @@ export class RecruitSettingModel {
   @ApiProperty()
   closeWhen: Date
 
+  @ApiPropertyOptional()
+  interviewStart?: Date
+
+  @ApiPropertyOptional()
+  interviewEnd?: Date
+
   @ApiProperty()
   announceWhen: Date
 
@@ -39,6 +45,12 @@ export class RecruitSettingModel {
     this.collections = entities?.map((entity) =>
       RecruitFormCollectionModel.fromEntity(entity).withIsCompleted(completionMap?.get(entity.id)),
     )
+    return this
+  }
+
+  withInterviewRange(range?: { start: Date; end: Date }) {
+    this.interviewStart = range?.start
+    this.interviewEnd = range?.end
     return this
   }
 

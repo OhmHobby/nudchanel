@@ -38,6 +38,8 @@ export class RecruitSteps extends CommonSteps {
       name: setting.name,
       openWhen: setting.openWhen,
       closeWhen: setting.closeWhen,
+      interviewStart: String(setting.interviewStart),
+      interviewEnd: String(setting.interviewEnd),
       announceWhen: setting.announceWhen,
       maximumRole: String(setting.maximumRole),
       isActive: String(setting.isActive),

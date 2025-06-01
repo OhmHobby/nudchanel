@@ -6,6 +6,7 @@ import {
   ApiHeader,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
@@ -22,19 +23,15 @@ import { RecruitInterviewService } from './recruit-interview.service'
 export class RecruitInterviewV1Controller {
   constructor(private readonly recruitInterviewService: RecruitInterviewService) {}
 
-  @Get('range')
-  @ApiHeader({ name: RECRUIT_SETTING_ID })
-  @ApiOkResponse({ type: RecruitInterviewSlotDetailModel })
-  async getRecruitInterviewRange(@RecruitCtx() ctx: RecruitContext): Promise<RecruitInterviewSlotDetailModel> {
-    const [start, end] = await this.recruitInterviewService.getRange(ctx.currentSettingId)
-    return new RecruitInterviewSlotDetailModel({ start, end })
-  }
-
   @Get('slots')
   @AuthGroups()
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({
+    summary: `List interview slots`,
+    description: `With applicant data will show availability and selection. Moderator can see slot's roles and applicants`,
+  })
   @ApiOkResponse({ type: RecruitInterviewSlotDetailModel, isArray: true })
   async getRecruitInterviewSlots(@RecruitCtx() ctx: RecruitContext): Promise<RecruitInterviewSlotDetailModel[]> {
     return await this.recruitInterviewService.getSlots(
@@ -50,7 +47,12 @@ export class RecruitInterviewV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({
+    summary: `Book the interview slot`,
+    description: `Will automatically cancel the selected slot and book a new one.`,
+  })
   @ApiNoContentResponse()
+  @ApiConflictResponse({ description: 'No available slot' })
   async bookRecruitInterviewSlot(@Param() { refId }: BookRecruitInterviewSlotDto, @RecruitCtx() ctx: RecruitContext) {
     const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
     await this.recruitInterviewService.bookSlot(ctx.currentSettingId, ctx.applicantIdOrThrow, start, end)
@@ -62,6 +64,7 @@ export class RecruitInterviewV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Explicitly cancel the booking` })
   @ApiNoContentResponse()
   @ApiConflictResponse()
   async cancelRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext) {

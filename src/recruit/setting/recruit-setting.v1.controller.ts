@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
 import { RecruitCtx } from '../context/recruit-context.decorator'
@@ -9,7 +9,7 @@ import { RecruitSettingModel } from '../models/recruit-setting.model'
 import { RecruitSettingService } from './recruit-setting.service'
 
 @Controller({ path: 'recruit/settings', version: '1' })
-@ApiTags('RecruitSettingV1')
+@ApiTags('RecruitV1')
 export class RecruitSettingV1Controller {
   constructor(private readonly recruitSettingService: RecruitSettingService) {}
 
@@ -17,6 +17,7 @@ export class RecruitSettingV1Controller {
   @AuthGroups('nudch')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `List all recruit applications` })
   @ApiOkResponse({ type: [RecruitSettingModel] })
   async getRecruitSettings(
     @Query() { all }: GetRecruitSettingsDto,
@@ -31,6 +32,7 @@ export class RecruitSettingV1Controller {
   @AuthGroups('nudch')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `Get the specific recruit application setting` })
   @ApiOkResponse({ type: RecruitSettingModel })
   async getRecruitSetting(@Param() { id }: UuidParamDto): Promise<RecruitSettingModel> {
     const setting = await this.recruitSettingService.getById(id)

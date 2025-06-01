@@ -1,5 +1,12 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger'
 import { ProfileIdDto } from 'src/accounts/dto/profile-id.dto'
 import { ProfileNameResponseModel } from 'src/accounts/models/profile-name.response.model'
 import { AuditLog } from 'src/audit-log/audit-log.decorator'
@@ -17,6 +24,7 @@ export class RecruitModeratorV1Controller {
   @AuthGroups('it')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `List recruit's roles the user is able to view/manage` })
   @ApiOkResponse({ type: RecruitRoleModel, isArray: true })
   async getRecruitModeratorRoles(@Param() { profileId }: ProfileIdDto): Promise<RecruitRoleModel[]> {
     const roles = await this.recruitModeratorService.getModeratorRoles(profileId.uuid)
@@ -27,6 +35,7 @@ export class RecruitModeratorV1Controller {
   @AuthGroups('it')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `List users who have permission to the given recruit's role` })
   @ApiOkResponse({ type: ProfileNameResponseModel, isArray: true })
   async getRecruitRoleModerator(@Param() { id }: UuidParamDto): Promise<ProfileNameResponseModel[]> {
     const profiles = await this.recruitModeratorService.getRoleModerators(id)
@@ -38,6 +47,7 @@ export class RecruitModeratorV1Controller {
   @AuthGroups('it')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `Grant user permission to the role` })
   @ApiNoContentResponse()
   @AuditLog(RecruitModeratorV1Controller.prototype.addRecruitRoleModerator.name)
   async addRecruitRoleModerator(@Param() { id }: UuidParamDto, @Body() { profileId }: ProfileIdDto): Promise<void> {
@@ -49,6 +59,7 @@ export class RecruitModeratorV1Controller {
   @AuthGroups('it')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `Revoke user permission to the role` })
   @ApiNoContentResponse()
   @AuditLog(RecruitModeratorV1Controller.prototype.addRecruitRoleModerator.name)
   async removeRecruitRoleModerator(@Param() { id }: UuidParamDto, @Body() { profileId }: ProfileIdDto): Promise<void> {

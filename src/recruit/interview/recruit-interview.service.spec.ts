@@ -3,6 +3,7 @@ import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
+import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 import { RecruitRoleService } from '../role/recruit-role.service'
 import { RecruitInterviewService } from './recruit-interview.service'
 
@@ -64,6 +65,11 @@ describe(RecruitInterviewService.name, () => {
       interviewAt: new Date('2024-07-30T16:30:00.000Z'),
     }),
   ]
+  const applicants = [
+    new RecruitApplicantModel({
+      id: 'applicant-1',
+    }),
+  ]
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -90,6 +96,7 @@ describe(RecruitInterviewService.name, () => {
       service.isSelectedSlot = jest.fn()
       service.isSlotAvailable = jest.fn()
       roleService.getMandatoryInterviewRoleIds = jest.fn().mockResolvedValue(['1'])
+      applicantService.getRecruitApplicantModels = jest.fn().mockResolvedValue(applicants)
     })
 
     it('should group the slot correctly', async () => {
@@ -97,6 +104,7 @@ describe(RecruitInterviewService.name, () => {
       const result = await service.getSlots('')
       expect(roleService.getMandatoryInterviewRoleIds).not.toHaveBeenCalled()
       expect(service.isSelectedSlot).not.toHaveBeenCalled()
+      expect(applicantService.getRecruitApplicantModels).not.toHaveBeenCalled()
       expect(result).toEqual([
         {
           start: new Date('2024-07-29T15:00:00.000Z'),
@@ -105,6 +113,7 @@ describe(RecruitInterviewService.name, () => {
           interviewedAt: undefined,
           isAvailable: undefined,
           isSelected: undefined,
+          applicants: undefined,
         },
         {
           start: new Date('2024-07-29T16:00:00.000Z'),
@@ -113,25 +122,39 @@ describe(RecruitInterviewService.name, () => {
           interviewedAt: undefined,
           isAvailable: undefined,
           isSelected: undefined,
+          applicants: undefined,
         },
       ])
     })
 
-    it('should return detail when request', async () => {
+    it('should return detail (roles and occupied applicants) when request', async () => {
       interviewSlotRepostory.find.mockResolvedValue(
         slots.map((el) => ({ ...el, role: new RecruitRoleEntity({ id: el.roleId! }) })),
       )
       const result = await service.getSlots('', undefined, true)
       expect(roleService.getMandatoryInterviewRoleIds).not.toHaveBeenCalled()
       expect(service.isSelectedSlot).not.toHaveBeenCalled()
-      expect(result).toContainEqual({
-        start: new Date('2024-07-29T16:00:00.000Z'),
-        end: new Date('2024-07-29T16:30:00.000Z'),
-        roles: [expect.objectContaining({ id: '9' })],
-        interviewedAt: new Date('2024-07-30T16:30:00.000Z'),
-        isAvailable: undefined,
-        isSelected: undefined,
-      })
+      expect(applicantService.getRecruitApplicantModels).toHaveBeenCalled()
+      expect(result).toEqual([
+        {
+          start: new Date('2024-07-29T15:00:00.000Z'),
+          end: new Date('2024-07-29T15:30:00.000Z'),
+          roles: expect.arrayContaining([expect.objectContaining({ id: '1' })]),
+          interviewedAt: undefined,
+          isAvailable: undefined,
+          isSelected: undefined,
+          applicants: [applicants[0]],
+        },
+        {
+          start: new Date('2024-07-29T16:00:00.000Z'),
+          end: new Date('2024-07-29T16:30:00.000Z'),
+          roles: [expect.objectContaining({ id: '9' })],
+          interviewedAt: new Date('2024-07-30T16:30:00.000Z'),
+          isAvailable: undefined,
+          isSelected: undefined,
+          applicants: [],
+        },
+      ])
     })
 
     it('should return applicant data when applicant id exist', async () => {
@@ -143,6 +166,7 @@ describe(RecruitInterviewService.name, () => {
       expect(roleService.getMandatoryInterviewRoleIds).toHaveBeenCalled()
       expect(service.isSlotAvailable).toHaveBeenCalledWith(expect.anything(), ['2', '1'])
       expect(service.isSelectedSlot).toHaveBeenCalledWith(expect.anything(), 'applicant-1')
+      expect(applicantService.getRecruitApplicantModels).not.toHaveBeenCalled()
       expect(result).toContainEqual({
         start: new Date('2024-07-29T16:00:00.000Z'),
         end: new Date('2024-07-29T16:30:00.000Z'),
@@ -150,6 +174,7 @@ describe(RecruitInterviewService.name, () => {
         interviewedAt: undefined,
         isAvailable: false,
         isSelected: false,
+        applicants: undefined,
       })
     })
   })
