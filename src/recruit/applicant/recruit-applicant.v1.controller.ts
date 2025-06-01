@@ -6,6 +6,7 @@ import {
   ApiForbiddenResponse,
   ApiHeader,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
@@ -34,18 +35,16 @@ export class RecruitApplicantV1Controller {
   ) {}
 
   @Get()
-  @AuthGroups()
+  @AuthGroups('nudch')
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: 'List applicants' })
   @ApiOkResponse({ type: RecruitApplicantModel, isArray: true })
+  @ApiForbiddenResponse()
   async getRecruitApplicants(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantModel[]> {
-    const applicants = await this.recruitApplicantService.find(undefined, ctx.currentSettingId, undefined)
-    const profileNameMap = await this.profileNameService.getProfilesNameMap(
-      applicants.map((el) => ObjectIdUuidConverter.toObjectId(el.profileId)),
-      'th',
-    )
-    return applicants.map((applicant) => RecruitApplicantModel.fromEntity(applicant, profileNameMap))
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    return await this.recruitApplicantService.getRecruitApplicantModels(undefined, ctx.currentSettingId, undefined)
   }
 
   @Post()
@@ -53,6 +52,7 @@ export class RecruitApplicantV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: 'Create applicant', description: 'Create applicant data when TC accepted' })
   @ApiOkResponse({ type: RecruitApplicantModel })
   @ApiConflictResponse({ description: 'Already created' })
   async createRecruitApplicant(
@@ -71,6 +71,7 @@ export class RecruitApplicantV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Get current user's applicant info` })
   @ApiOkResponse({ type: RecruitApplicantModel })
   @ApiForbiddenResponse({ description: 'No registration found' })
   async getMyRecruitApplicantInfo(
@@ -95,7 +96,9 @@ export class RecruitApplicantV1Controller {
   @AuthGroups('nudch')
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get applicant info by applicant id' })
   @ApiOkResponse({ type: RecruitApplicantModel })
+  @ApiForbiddenResponse({ description: 'No permission to view applicant' })
   async getRecruitApplicantInfo(@Param() { id }: UuidParamDto, @UserCtx() user: User): Promise<RecruitApplicantModel> {
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(ObjectIdUuidConverter.toUuid(user.id!), id)
     const applicant = await this.recruitApplicantService.findOne(id)

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { RecruitApplicantModel } from './recruit-applicant.model'
 import { RecruitInterviewSlotModel } from './recruit-interview-slot.model'
 import { RecruitRoleModel } from './recruit-role.model'
 
@@ -16,4 +17,7 @@ export class RecruitInterviewSlotDetailModel extends RecruitInterviewSlotModel {
 
   @ApiPropertyOptional()
   isSelected?: Boolean
+
+  @ApiPropertyOptional({ type: RecruitApplicantModel, isArray: true })
+  applicants?: RecruitApplicantModel[]
 }

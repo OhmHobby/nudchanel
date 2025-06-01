@@ -1,5 +1,13 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Put, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiHeader, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiHeader,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { RecruitCtx } from '../context/recruit-context.decorator'
@@ -17,6 +25,10 @@ export class RecruitRoleV1Controller {
 
   @Get()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({
+    summary: `Get all open roles`,
+    description: `Applicant shouldn't see the mandatory (hidden) roles. Moderator requests with 'all' to see mandatory roles`,
+  })
   @ApiOkResponse({ type: RecruitRolesModel })
   async getRecruitRoles(
     @Query() { all }: GetRecruitRoleDto,
@@ -31,6 +43,10 @@ export class RecruitRoleV1Controller {
   @AuthGroups()
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({
+    summary: `Update the selected roles`,
+    description: 'Only selectable roles. Do not send mandatory roles',
+  })
   @ApiHeader({ name: RECRUIT_SETTING_ID })
   @ApiNoContentResponse()
   async selectRecruitRoles(

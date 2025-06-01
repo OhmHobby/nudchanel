@@ -17,6 +17,7 @@ import {
   ApiHeader,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
@@ -48,6 +49,7 @@ export class RecruitFormV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: 'Get form questions (and answers) by collection id' })
   @ApiOkResponse({ type: RecruitFormCollectionModel })
   @ApiForbiddenResponse({ description: 'Has not yet registered or no permission to view the applicant' })
   async getRecruitFormCollection(
@@ -79,6 +81,7 @@ export class RecruitFormV1Controller {
   @AuthGroups()
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiOperation({ summary: `Update applicant's answers` })
   @ApiHeader({ name: RECRUIT_SETTING_ID })
   @ApiNoContentResponse()
   async answerRecruitFormQuestions(

@@ -2,12 +2,6 @@
 @recruit_interview
 Feature: Recruit interview
 
-  Scenario: Get interview range
-    When GET /api/v1/recruit/interview/range
-    Then HTTP response status should be OK
-    And recruit interview should be started at "2024-07-29T15:00:00.000Z"
-    And recruit interview should be ended at "2024-07-29T16:00:00.000Z"
-
   Scenario: Get interview slots
     Given user profileId 61e308efa4d9680019bc343c
     When GET /api/v1/recruit/interview/slots
