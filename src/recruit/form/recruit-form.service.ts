@@ -48,7 +48,7 @@ export class RecruitFormService {
     const roles = await this.applicantRoleRepostory.find({
       where: { applicantId },
       relations: { role: { collection: true } },
-      select: { id: true, role: { collection: { id: true, title: true } } },
+      select: { id: true, role: { id: true, collection: { id: true, title: true } } },
     })
     return roles.map((el) => el.role?.collection).filter((el) => el !== undefined)
   }
