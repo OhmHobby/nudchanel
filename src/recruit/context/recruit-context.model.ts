@@ -1,11 +1,16 @@
 import { ForbiddenException } from '@nestjs/common'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 
 export class RecruitContext {
   constructor(
     public readonly currentSettingId: string,
-    public readonly applicantId: string | null,
+    public readonly applicant: RecruitApplicantEntity | null,
     public readonly manageableRecruitId: string[],
   ) {}
+
+  get applicantId(): string | null {
+    return this.applicant?.id ?? null
+  }
 
   hasPermissionOrThrow(settingId?: string) {
     if (!settingId || this.manageableRecruitId.includes(settingId)) return true

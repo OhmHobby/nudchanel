@@ -36,7 +36,7 @@ export class RecruitApplicantEntity extends BaseEntity {
   @JoinColumn({ name: 'recruit_id' })
   recruit?: RecruitSettingEntity
 
-  @Column({ name: 'recruit_id', type: 'uuid', select: false })
+  @Column({ name: 'recruit_id', type: 'uuid' })
   recruitId: string
 
   @OneToMany(() => RecruitApplicantRoleEntity, (role: RecruitApplicantRoleEntity) => role.applicant)

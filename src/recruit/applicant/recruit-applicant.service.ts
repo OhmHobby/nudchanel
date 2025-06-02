@@ -21,13 +21,12 @@ export class RecruitApplicantService {
   ) {}
 
   @Span()
-  async getIdBySettingProfileId(settingId: string, profileId?: string): Promise<string | null> {
+  async getApplicantBySettingProfileId(settingId: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
     if (!profileId) return null
     const applicant = await this.applicantRepostory.findOne({
       where: { recruitId: settingId, profileId },
-      select: { id: true },
     })
-    return applicant?.id ?? null
+    return applicant
   }
 
   async findOne(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
@@ -63,9 +62,9 @@ export class RecruitApplicantService {
   }
 
   async createApplicant(settingId: string, profileId: string): Promise<RecruitApplicantEntity> {
-    const currentApplicantId = await this.getIdBySettingProfileId(settingId, profileId)
-    this.logger.log(`Creating applicant for profile ${profileId} recruit ${settingId} (${!!currentApplicantId})`)
-    if (currentApplicantId) throw new ConflictException()
+    const currentApplicant = await this.getApplicantBySettingProfileId(settingId, profileId)
+    this.logger.log(`Creating applicant for profile ${profileId} recruit ${settingId} (${!!currentApplicant})`)
+    if (currentApplicant) throw new ConflictException()
     const applicant = new RecruitApplicantEntity({ profileId, recruitId: settingId })
     await this.applicantRepostory.insert(applicant)
     return applicant
