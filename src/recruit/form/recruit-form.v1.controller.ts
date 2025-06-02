@@ -60,10 +60,7 @@ export class RecruitFormV1Controller {
   ): Promise<RecruitFormCollectionModel> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
-    applicantId =
-      applicantId ??
-      (await this.recruitApplicantService.getIdBySettingProfileId(ctx.currentSettingId, profileUid)) ??
-      undefined
+    applicantId = applicantId ?? ctx.applicantId ?? undefined
     if (!applicantId) throw new ForbiddenException(`User has not yet registered`)
     const [collection, questions, completionMap] = await Promise.all([
       this.recruitFormService.getCollectionById(id),

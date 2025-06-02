@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
+import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answer.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
+import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
 
 @Injectable()
@@ -22,6 +25,8 @@ export class RecruitFormService {
     private readonly collectionRepostory: Repository<RecruitFormCollectionEntity>,
     @InjectRepository(RecruitFormQuestionEntity)
     private readonly questionRepostory: Repository<RecruitFormQuestionEntity>,
+    @InjectRepository(RecruitApplicantRoleEntity)
+    private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
   ) {}
 
   @Span()
@@ -30,13 +35,22 @@ export class RecruitFormService {
   }
 
   @Span()
-  async getMandatoryCollections(recruitId: string) {
+  async getMandatoryCollections(recruitId: string): Promise<RecruitFormCollectionEntity[]> {
     const roles = await this.roleRepostory.find({
       where: { recruitId, mandatory: true, collection: Not(IsNull()) },
       relations: { collection: true },
       select: { id: true, collection: { id: true, title: true } },
     })
     return roles.filter((el) => el.collection).map((el) => el.collection!)
+  }
+
+  async getApplicantSelectedRoleFormCollections(applicantId: string): Promise<RecruitFormCollectionEntity[]> {
+    const roles = await this.applicantRoleRepostory.find({
+      where: { applicantId },
+      relations: { role: { collection: true } },
+      select: { id: true, role: { collection: { id: true, title: true } } },
+    })
+    return roles.map((el) => el.role?.collection).filter((el) => el !== undefined)
   }
 
   @Span()
@@ -78,6 +92,23 @@ export class RecruitFormService {
       .groupBy('rfq.collection_id')
       .getRawMany()
     return new Map(rows.map((row) => [row.collection_id, row.is_completed]))
+  }
+
+  async getApplicantFormCollectionWithCompletions(
+    applicant: RecruitApplicantEntity,
+  ): Promise<RecruitFormCollectionModel[]> {
+    const unflattenCollections = await Promise.all([
+      this.getMandatoryCollections(applicant.recruitId),
+      this.getApplicantSelectedRoleFormCollections(applicant.id),
+    ])
+    const collections = unflattenCollections.flat()
+    const completionMap = await this.getCompletionMap(
+      applicant.id,
+      collections?.map((el) => el.id),
+    )
+    return collections?.map((collection) =>
+      RecruitFormCollectionModel.fromEntity(collection).withIsCompleted(completionMap?.get(collection.id)),
+    )
   }
 
   updateFormAnswers(applicantId: string, questionAnswers: AnswerRecruitFormQuestionDto[]): Promise<void> {
