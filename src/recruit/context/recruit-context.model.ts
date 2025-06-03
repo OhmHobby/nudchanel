@@ -17,6 +17,11 @@ export class RecruitContext {
     else throw new ForbiddenException()
   }
 
+  get applicantOrThrow(): RecruitApplicantEntity {
+    if (this.applicant) return this.applicant
+    else throw new ForbiddenException('The applicant has not been created')
+  }
+
   get applicantIdOrThrow(): string {
     if (this.applicantId) return this.applicantId
     else throw new ForbiddenException('The applicant has not been created')

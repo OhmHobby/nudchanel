@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  HttpCode,
-  HttpStatus,
-  NotFoundException,
-  Param,
-  Patch,
-  Query,
-} from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Patch, Query } from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -26,7 +15,6 @@ import { UserCtx } from 'src/auth/user.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
-import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { AnswerRecruitFormQuestionsDto } from '../dto/answer-recruit-form-questions.dto'
@@ -39,7 +27,6 @@ import { RecruitFormService } from './recruit-form.service'
 @ApiTags('RecruitFormV1')
 export class RecruitFormV1Controller {
   constructor(
-    private readonly recruitApplicantService: RecruitApplicantService,
     private readonly recruitModeratorService: RecruitModeratorService,
     private readonly recruitFormService: RecruitFormService,
   ) {}
@@ -60,17 +47,13 @@ export class RecruitFormV1Controller {
   ): Promise<RecruitFormCollectionModel> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
-    applicantId = applicantId ?? ctx.applicantId ?? undefined
-    if (!applicantId) throw new ForbiddenException(`User has not yet registered`)
-    const [collection, questions, completionMap] = await Promise.all([
-      this.recruitFormService.getCollectionById(id),
+    applicantId = applicantId ?? ctx.applicantIdOrThrow
+    const [[collection], questions] = await Promise.all([
+      this.recruitFormService.getApplicantFormCollectionWithCompletions(applicantId, ctx.currentSettingId, [id]),
       this.recruitFormService.getQAByCollectionId(id, applicantId),
-      this.recruitFormService.getCompletionMap(applicantId, [id]),
     ])
     if (!collection) throw new NotFoundException()
-    return RecruitFormCollectionModel.fromEntity(collection)
-      .withIsCompleted(completionMap?.get(id) ?? false)
-      .withQuestions(questions)
+    return collection.withQuestions(questions)
   }
 
   @Patch('answers')

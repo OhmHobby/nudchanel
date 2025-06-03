@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
-import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answer.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
@@ -30,8 +29,8 @@ export class RecruitFormService {
   ) {}
 
   @Span()
-  async getCollectionById(collectionId: string) {
-    return await this.collectionRepostory.findOneBy({ id: collectionId })
+  async getCollections(collectionIds: string[]): Promise<RecruitFormCollectionEntity[]> {
+    return await this.collectionRepostory.find({ where: { id: In(collectionIds) }, select: { id: true, title: true } })
   }
 
   @Span()
@@ -95,15 +94,19 @@ export class RecruitFormService {
   }
 
   async getApplicantFormCollectionWithCompletions(
-    applicant: RecruitApplicantEntity,
+    applicantId: string,
+    recruitId: string,
+    collectionIds?: string[],
   ): Promise<RecruitFormCollectionModel[]> {
-    const unflattenCollections = await Promise.all([
-      this.getMandatoryCollections(applicant.recruitId),
-      this.getApplicantSelectedRoleFormCollections(applicant.id),
-    ])
+    const unflattenCollections = collectionIds
+      ? [await this.getCollections(collectionIds)]
+      : await Promise.all([
+          this.getMandatoryCollections(recruitId),
+          this.getApplicantSelectedRoleFormCollections(applicantId),
+        ])
     const collections = unflattenCollections.flat()
     const completionMap = await this.getCompletionMap(
-      applicant.id,
+      applicantId,
       collections?.map((el) => el.id),
     )
     return collections?.map((collection) =>
