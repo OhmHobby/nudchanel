@@ -26,8 +26,11 @@ export class RecruitV1Controller {
   async getCurrentRecruitSetting(@RecruitCtx() ctx: RecruitContext): Promise<RecruitSettingModel> {
     const [entity, collections, interviewRange] = await Promise.all([
       this.recruitSettingService.getById(ctx.currentSettingId),
-      ctx.applicant
-        ? this.recruitFormService.getApplicantFormCollectionWithCompletions(ctx.applicant)
+      ctx.applicantId
+        ? this.recruitFormService.getApplicantFormCollectionWithCompletions(
+            ctx.applicantIdOrThrow,
+            ctx.currentSettingId,
+          )
         : Promise.resolve(undefined),
       this.recruitInterviewService.getRange(ctx.currentSettingId),
     ])

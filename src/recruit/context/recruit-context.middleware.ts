@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common'
 import { NextFunction, Response } from 'express'
+import { Span } from 'nestjs-otel'
 import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { RequestWithCtx } from 'src/interfaces/request.interface'
@@ -7,7 +8,6 @@ import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitSettingService } from '../setting/recruit-setting.service'
 import { RecruitContext } from './recruit-context.model'
-import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class RecruitContextMiddleware implements NestMiddleware {
@@ -26,7 +26,7 @@ export class RecruitContextMiddleware implements NestMiddleware {
       this.moderatorService.getManageableRecruitId(profileId),
     ])
     if (!settingId) throw new InternalServerErrorException('No active recruitment')
-    const applicant = await this.applicantService.getApplicantBySettingProfileId(settingId, profileId)
+    const applicant = await this.applicantService.findOne(undefined, settingId, profileId)
     req.recruit = new RecruitContext(settingId, applicant, manageableRecruitId)
     req.recruit.hasPermissionOrThrow(settingIdFromHeader)
     nextFunction()

@@ -6,6 +6,7 @@ import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applica
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { Repository } from 'typeorm'
+import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 
 @Injectable()
@@ -18,23 +19,16 @@ export class RecruitApplicantService {
     @InjectRepository(RecruitApplicantRoleEntity)
     private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
     private readonly profileNameService: ProfileNameService,
+    private readonly recruitFormService: RecruitFormService,
   ) {}
 
-  @Span()
-  async getApplicantBySettingProfileId(settingId: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
-    if (!profileId) return null
-    const applicant = await this.applicantRepostory.findOne({
-      where: { recruitId: settingId, profileId },
-    })
-    return applicant
-  }
-
   async findOne(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
-    if (!applicantId && !settingId && !profileId) return null
+    if (!applicantId && !(settingId && profileId)) return null
     const result = await this.find(applicantId, settingId, profileId)
     return result.at(0) ?? null
   }
 
+  @Span()
   async find(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity[]> {
     return await this.applicantRepostory.find({
       where: { id: applicantId, recruitId: settingId, profileId },
@@ -61,8 +55,19 @@ export class RecruitApplicantService {
     return applicants.map((applicant) => RecruitApplicantModel.fromEntity(applicant, profileNameMap))
   }
 
+  async getRecruitApplicantModelWithInfo(applicant: RecruitApplicantEntity): Promise<RecruitApplicantModel> {
+    const [completionMap, profileNameMap] = await Promise.all([
+      this.recruitFormService.getCompletionMap(
+        applicant.id,
+        applicant.roles?.map((role) => role.role?.collectionId).filter((el) => typeof el === 'string'),
+      ),
+      this.profileNameService.getProfilesNameMap([ObjectIdUuidConverter.toObjectId(applicant.profileId)], 'th'),
+    ])
+    return RecruitApplicantModel.fromEntity(applicant, profileNameMap, completionMap)
+  }
+
   async createApplicant(settingId: string, profileId: string): Promise<RecruitApplicantEntity> {
-    const currentApplicant = await this.getApplicantBySettingProfileId(settingId, profileId)
+    const currentApplicant = await this.findOne(settingId, profileId)
     this.logger.log(`Creating applicant for profile ${profileId} recruit ${settingId} (${!!currentApplicant})`)
     if (currentApplicant) throw new ConflictException()
     const applicant = new RecruitApplicantEntity({ profileId, recruitId: settingId })
