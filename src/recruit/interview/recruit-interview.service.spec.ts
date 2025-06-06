@@ -1,19 +1,25 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
+import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 import { RecruitRoleService } from '../role/recruit-role.service'
 import { RecruitInterviewService } from './recruit-interview.service'
 
 jest.mock('../applicant/recruit-applicant.service')
 jest.mock('../role/recruit-role.service')
+jest.mock('../form/recruit-form.service')
 
 describe(RecruitInterviewService.name, () => {
   let service: RecruitInterviewService
   let applicantService: RecruitApplicantService
   let roleService: RecruitRoleService
+  let configService: ConfigService
+  let formService: RecruitFormService
+
   const dataSource = {
     transaction: jest.fn(),
   }
@@ -77,14 +83,18 @@ describe(RecruitInterviewService.name, () => {
         RecruitInterviewService,
         { provide: getDataSourceToken(), useValue: dataSource },
         { provide: getRepositoryToken(RecruitInterviewSlotEntity), useValue: interviewSlotRepostory },
+        ConfigService,
         RecruitApplicantService,
         RecruitRoleService,
+        RecruitFormService,
       ],
     }).compile()
 
     service = module.get<RecruitInterviewService>(RecruitInterviewService)
+    configService = module.get(ConfigService)
     applicantService = module.get(RecruitApplicantService)
     roleService = module.get(RecruitRoleService)
+    formService = module.get(RecruitFormService)
   })
 
   it('should be defined', () => {
@@ -192,9 +202,19 @@ describe(RecruitInterviewService.name, () => {
   })
 
   describe(RecruitInterviewService.prototype.isSlotAvailable.name, () => {
+    beforeEach(() => {
+      service.isValidLeadTime = jest.fn().mockReturnValue(true)
+    })
+
     it('should return true when all roles are available', () => {
       const result = service.isSlotAvailable(slots, ['1', '2'])
       expect(result).toBe(true)
+    })
+
+    it('should return true when all roles are available but ', () => {
+      service.isValidLeadTime = jest.fn().mockReturnValue(false)
+      const result = service.isSlotAvailable(slots, ['1', '2'])
+      expect(result).toBe(false)
     })
 
     it('should return false when some roles are not available', () => {
@@ -205,6 +225,125 @@ describe(RecruitInterviewService.name, () => {
     it('should return false when some roles are not available', () => {
       const result = service.isSlotAvailable(slots, ['3'])
       expect(result).toBe(false)
+    })
+  })
+
+  describe(RecruitInterviewService.prototype.isValidLeadTime.name, () => {
+    beforeEach(() => {
+      configService.getOrThrow = jest.fn().mockReturnValue(24)
+    })
+
+    it('should return true when lead time more than configuration', () => {
+      const result = service.isValidLeadTime(new Date('2025-07-14T21:00:00.000Z'), new Date('2025-07-13T21:00:00.000Z'))
+      expect(result).toBe(true)
+    })
+
+    it('should return false when lead time less than configuration', () => {
+      const result = service.isValidLeadTime(new Date('2025-07-14T21:00:00.000Z'), new Date('2025-07-13T21:00:01.000Z'))
+      expect(result).toBe(false)
+    })
+  })
+
+  describe(RecruitInterviewService.prototype.applicantBookingPrecheck.name, () => {
+    beforeEach(() => {
+      service.isValidLeadTime = jest.fn().mockReturnValue(true)
+    })
+
+    it('should now throw when all criteria met', () => {
+      expect(() => service.applicantBookingPrecheck(true, 1, new Date('2025-07-14T21:00:00.000Z'))).not.toThrow()
+    })
+
+    it('should throw when 0 selected roles', () => {
+      expect(() => service.applicantBookingPrecheck(true, 0, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
+    })
+
+    it('should throw when form has not completed', () => {
+      expect(() => service.applicantBookingPrecheck(false, 1, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
+    })
+
+    it('should throw when less lead time', () => {
+      service.isValidLeadTime = jest.fn().mockReturnValue(false)
+      expect(() => service.applicantBookingPrecheck(true, 1, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
+    })
+  })
+
+  describe(RecruitInterviewService.prototype.isRebookSameSlot.name, () => {
+    const startWhen = new Date('2025-07-14T21:00:00.000Z')
+    const endWhen = new Date('2025-07-14T21:30:00.000Z')
+    const roleId1 = 'role-1'
+    const roleId2 = 'role-2'
+    const roleId3 = 'role-3'
+    const slots = [
+      new RecruitInterviewSlotEntity({ startWhen, endWhen, roleId: roleId1 }),
+      new RecruitInterviewSlotEntity({ startWhen, endWhen, roleId: roleId2 }),
+    ]
+
+    it('should return false when no roles selected', () => {
+      expect(service.isRebookSameSlot([], [], startWhen, endWhen)).toBe(false)
+    })
+
+    it('should return true when book the same slot', () => {
+      expect(service.isRebookSameSlot(slots, [roleId1, roleId2], startWhen, endWhen)).toBe(true)
+    })
+
+    it('should return false when change roles', () => {
+      expect(service.isRebookSameSlot(slots, [roleId1, roleId3], startWhen, endWhen)).toBe(false)
+    })
+
+    it('should return false when deselect roles', () => {
+      expect(service.isRebookSameSlot(slots, [roleId1], startWhen, endWhen)).toBe(false)
+    })
+
+    it('should return false when select more roles', () => {
+      expect(service.isRebookSameSlot(slots, [roleId1, roleId2, roleId3], startWhen, endWhen)).toBe(false)
+    })
+
+    it('should return false when change slot time', () => {
+      expect(service.isRebookSameSlot(slots, [roleId1, roleId2], new Date(), new Date())).toBe(false)
+    })
+  })
+
+  describe(RecruitInterviewService.prototype.bookSlot.name, () => {
+    const recruitId = 'recruitId'
+    const applicantId = 'applicant-id'
+    const startWhen = new Date('2025-07-14T21:00:00.000Z')
+    const endWhen = new Date('2025-07-14T21:30:00.000Z')
+    const selectedSlots = [
+      new RecruitInterviewSlotEntity({ startWhen, endWhen, roleId: 'role-0' }),
+      new RecruitInterviewSlotEntity({ startWhen, endWhen, roleId: 'role-1' }),
+    ]
+
+    beforeEach(() => {
+      service.getSelectedSlots = jest.fn().mockResolvedValue([])
+      formService.isApplicantFormCompleted = jest.fn().mockResolvedValue(true)
+      applicantService.getSelectedRoleIds = jest.fn().mockResolvedValue(['role-1'])
+      roleService.getMandatoryInterviewRoleIds = jest.fn().mockResolvedValue(['role-0'])
+      service.isRebookSameSlot = jest.fn().mockReturnValue(false)
+      service.applicantBookingPrecheck = jest.fn()
+    })
+
+    it('should book successfully', async () => {
+      await service.bookSlot(recruitId, applicantId, startWhen, endWhen)
+      expect(service.isRebookSameSlot).toHaveBeenCalledWith([], ['role-0', 'role-1'], startWhen, endWhen)
+      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1, startWhen)
+      expect(dataSource.transaction).toHaveBeenCalled()
+    })
+
+    it('should re-book successfully', async () => {
+      service.getSelectedSlots = jest.fn().mockResolvedValue(selectedSlots)
+      await service.bookSlot(recruitId, applicantId)
+      expect(service.isRebookSameSlot).toHaveBeenCalledWith(selectedSlots, ['role-0', 'role-1'], startWhen, endWhen)
+      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1, startWhen)
+      expect(dataSource.transaction).toHaveBeenCalled()
+    })
+
+    it('throw when missing start or end when no selected roles', async () => {
+      await expect(service.bookSlot(recruitId, applicantId)).rejects.toThrow()
+      await expect(service.bookSlot(recruitId, applicantId, startWhen)).rejects.toThrow()
+      await expect(service.bookSlot(recruitId, applicantId, undefined, endWhen)).rejects.toThrow()
+      expect(service.isRebookSameSlot).not.toHaveBeenCalled()
+      expect(service.applicantBookingPrecheck).not.toHaveBeenCalled()
+      expect(dataSource.transaction).not.toHaveBeenCalled()
     })
   })
 })

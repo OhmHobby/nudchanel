@@ -14,12 +14,13 @@ export class RecruitSettingService {
   ) {}
 
   @Span()
-  async getCurrentId(): Promise<string | undefined> {
-    const setting = await this.settingRepostory.findOne({ where: { isActive: true }, select: { id: true } })
-    return setting?.id
+  async getCurrentSetting(): Promise<RecruitSettingEntity | null> {
+    const setting = await this.settingRepostory.findOne({ where: { isActive: true } })
+    return setting
   }
 
-  async getById(id: string) {
+  @Span()
+  async getById(id: string): Promise<RecruitSettingEntity | null> {
     return await this.settingRepostory.findOne({ where: { id } })
   }
 

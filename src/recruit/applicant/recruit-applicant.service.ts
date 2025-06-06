@@ -36,6 +36,7 @@ export class RecruitApplicantService {
       select: {
         id: true,
         profileId: true,
+        recruitId: true,
         roles: { id: true, role: { id: true, name: true, collectionId: true }, rank: true },
         interviewSlots: { id: true, startWhen: true, endWhen: true, interviewAt: true },
       },

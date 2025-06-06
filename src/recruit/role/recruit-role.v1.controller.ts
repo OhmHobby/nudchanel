@@ -53,6 +53,7 @@ export class RecruitRoleV1Controller {
     @Body() { roleIds }: SelectRecruitRolesDto,
     @RecruitCtx() ctx: RecruitContext,
   ): Promise<void> {
-    await this.recruitRoleService.selectRoles(ctx.applicantIdOrThrow, roleIds)
+    ctx.isRegistrationOpenOrThrow()
+    await this.recruitRoleService.selectRoles(ctx.applicantOrThrow, roleIds)
   }
 }

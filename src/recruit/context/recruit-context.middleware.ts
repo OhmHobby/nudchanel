@@ -21,13 +21,13 @@ export class RecruitContextMiddleware implements NestMiddleware {
   async use(req: RequestWithCtx, res: Response, nextFunction: NextFunction) {
     const settingIdFromHeader = req.headers[RECRUIT_SETTING_ID]?.toString()
     const profileId = ProfileIdModel.fromObjectId(req.user.id)?.uuid
-    const [settingId, manageableRecruitId] = await Promise.all([
-      settingIdFromHeader ? Promise.resolve(settingIdFromHeader) : this.settingService.getCurrentId(),
+    const [setting, manageableRecruitId] = await Promise.all([
+      settingIdFromHeader ? this.settingService.getById(settingIdFromHeader) : this.settingService.getCurrentSetting(),
       this.moderatorService.getManageableRecruitId(profileId),
     ])
-    if (!settingId) throw new InternalServerErrorException('No active recruitment')
-    const applicant = await this.applicantService.findOne(undefined, settingId, profileId)
-    req.recruit = new RecruitContext(settingId, applicant, manageableRecruitId)
+    if (!setting) throw new InternalServerErrorException('No active recruitment')
+    const applicant = await this.applicantService.findOne(undefined, setting.id, profileId)
+    req.recruit = new RecruitContext(setting, applicant, manageableRecruitId)
     req.recruit.hasPermissionOrThrow(settingIdFromHeader)
     nextFunction()
   }

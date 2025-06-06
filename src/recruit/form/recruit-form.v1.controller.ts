@@ -68,6 +68,7 @@ export class RecruitFormV1Controller {
     @Body() body: AnswerRecruitFormQuestionsDto,
     @RecruitCtx() ctx: RecruitContext,
   ): Promise<void> {
-    await this.recruitFormService.updateFormAnswers(ctx.applicantIdOrThrow, body.items)
+    ctx.isRegistrationOpenOrThrow()
+    await this.recruitFormService.updateFormAnswers(ctx.applicantOrThrow, body.items)
   }
 }

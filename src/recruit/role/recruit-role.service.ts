@@ -1,8 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { DataSource, IsNull, Repository } from 'typeorm'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
 
 @Injectable()
 export class RecruitRoleService {
@@ -13,6 +15,8 @@ export class RecruitRoleService {
     private readonly dataSource: DataSource,
     @InjectRepository(RecruitRoleEntity)
     private readonly roleRepostory: Repository<RecruitRoleEntity>,
+    @Inject(forwardRef(() => RecruitInterviewService))
+    private readonly interviewService: RecruitInterviewService,
   ) {}
 
   async getByRecruitId(recruitId: string, includeMandatory?: boolean): Promise<RecruitRoleEntity[]> {
@@ -38,8 +42,9 @@ export class RecruitRoleService {
     return roles.map((el) => el.id)
   }
 
-  selectRoles(applicantId: string, roleIds: string[]): Promise<void> {
-    return this.dataSource.transaction(async (manager) => {
+  async selectRoles(applicant: RecruitApplicantEntity, roleIds: string[]): Promise<void> {
+    const applicantId = applicant.id
+    await this.dataSource.transaction(async (manager) => {
       const selectedRoles = await manager.getRepository(RecruitApplicantRoleEntity).find({
         where: { applicantId },
         order: { rank: 'asc' },
@@ -57,5 +62,6 @@ export class RecruitRoleService {
         toRemoveRoles.length ? manager.delete(RecruitApplicantRoleEntity, toRemoveRoles) : Promise.resolve(),
       ])
     })
+    await this.interviewService.rebookSlot(applicant.recruitId, applicantId)
   }
 }

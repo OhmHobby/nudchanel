@@ -140,3 +140,7 @@ delivery:
     secure:
     username:
     password:
+
+recruit:
+  interview:
+    minimumBookingLeadTimeHours: 24
