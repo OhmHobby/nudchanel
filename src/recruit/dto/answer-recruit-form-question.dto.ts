@@ -4,6 +4,10 @@ import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answe
 import { uuidv7 } from 'uuidv7'
 
 export class AnswerRecruitFormQuestionDto {
+  constructor(dto?: Partial<AnswerRecruitFormQuestionDto>) {
+    Object.assign(this, dto)
+  }
+
   @ApiProperty()
   @IsUUID()
   questionId: string

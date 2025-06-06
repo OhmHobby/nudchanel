@@ -1,13 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitFormAnswerEntity } from 'src/entities/recruit/recruit-form-answer.entity'
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
 
@@ -26,6 +28,8 @@ export class RecruitFormService {
     private readonly questionRepostory: Repository<RecruitFormQuestionEntity>,
     @InjectRepository(RecruitApplicantRoleEntity)
     private readonly applicantRoleRepostory: Repository<RecruitApplicantRoleEntity>,
+    @Inject(forwardRef(() => RecruitInterviewService))
+    private readonly interviewService: RecruitInterviewService,
   ) {}
 
   @Span()
@@ -49,7 +53,7 @@ export class RecruitFormService {
       relations: { role: { collection: true } },
       select: { id: true, role: { id: true, collection: { id: true, title: true } } },
     })
-    return roles.map((el) => el.role?.collection).filter((el) => el !== undefined)
+    return roles.map((el) => el.role?.collection).filter((el) => el?.id) as RecruitFormCollectionEntity[]
   }
 
   @Span()
@@ -114,17 +118,41 @@ export class RecruitFormService {
     )
   }
 
-  updateFormAnswers(applicantId: string, questionAnswers: AnswerRecruitFormQuestionDto[]): Promise<void> {
-    return this.dataSource.transaction(async (manager) => {
+  async isApplicantFormCompleted(applicantId: string, recruitId: string): Promise<boolean> {
+    const formCollections = await this.getApplicantFormCollectionWithCompletions(applicantId, recruitId)
+    return formCollections.every((el) => el.isCompleted)
+  }
+
+  shouldAnswerBeDeleted(answer?: string): boolean {
+    const trimmed = answer?.trim()
+    const cleaned = trimmed?.replaceAll(trimmed?.at(0) ?? '', '')
+    return !cleaned?.length
+  }
+
+  async updateFormAnswers(
+    applicant: RecruitApplicantEntity,
+    questionAnswers: AnswerRecruitFormQuestionDto[],
+  ): Promise<void> {
+    const applicantId = applicant.id
+    await this.dataSource.transaction(async (manager) => {
       const existingAnswers = await manager.getRepository(RecruitFormAnswerEntity).find({
         where: { applicantId, questionId: In(questionAnswers.map((el) => el.questionId)) },
         select: { id: true, questionId: true },
       })
       const questionIdAnswerIdMap = Object.fromEntries(existingAnswers.map((el) => [el.questionId, el.id]))
-      await manager.getRepository(RecruitFormAnswerEntity).upsert(
-        questionAnswers.map((el) => el.toEntity(applicantId, questionIdAnswerIdMap[el.questionId])),
-        { conflictPaths: ['applicantId', 'questionId'] },
-      )
+      const groupedAnswers = Object.groupBy(questionAnswers, (el) => String(this.shouldAnswerBeDeleted(el.answer)))
+      const toBeDeletedIds = groupedAnswers[String(true)]?.map((el) => questionIdAnswerIdMap[el.questionId]) ?? []
+      const toBeUpserted = groupedAnswers[String(false)] ?? []
+      await Promise.all([
+        toBeUpserted.length
+          ? await manager.getRepository(RecruitFormAnswerEntity).upsert(
+              toBeUpserted.map((el) => el.toEntity(applicantId, questionIdAnswerIdMap[el.questionId])),
+              { conflictPaths: ['applicantId', 'questionId'] },
+            )
+          : undefined,
+        toBeDeletedIds.length ? await manager.getRepository(RecruitFormAnswerEntity).delete(toBeDeletedIds) : undefined,
+      ])
     })
+    await this.interviewService.rebookSlot(applicant.recruitId, applicantId)
   }
 }

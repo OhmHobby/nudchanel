@@ -79,4 +79,5 @@ export enum Config {
   DELIVERY_SMTP_SECURE = 'delivery.smtp.secure',
   DELIVERY_SMTP_USERNAME = 'delivery.smtp.username',
   DELIVERY_SMTP_PASSWORD = 'delivery.smtp.password',
+  RECRUIT_INTERVIEW_MINIMUM_BOOKING_LEAD_TIME_HOURS = 'recruit.interview.minimumBookingLeadTimeHours',
 }

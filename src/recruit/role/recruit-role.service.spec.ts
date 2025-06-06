@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
+import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
-import { uuidv7 } from 'uuidv7'
 import { RecruitRoleService } from './recruit-role.service'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
+
+jest.mock('../interview/recruit-interview.service')
 
 describe(RecruitRoleService.name, () => {
   let service: RecruitRoleService
@@ -20,6 +23,7 @@ describe(RecruitRoleService.name, () => {
         RecruitRoleService,
         { provide: getDataSourceToken(), useValue: dataSource },
         { provide: getRepositoryToken(RecruitRoleEntity), useValue: recruitRoleRepository },
+        RecruitInterviewService,
       ],
     }).compile()
 
@@ -38,7 +42,8 @@ describe(RecruitRoleService.name, () => {
       jest.resetAllMocks()
     })
 
-    const applicantId = uuidv7()
+    const applicant = new RecruitApplicantEntity()
+    const applicantId = applicant.id
     const role1 = 'role-1'
     const role2 = 'role-2'
 
@@ -52,7 +57,7 @@ describe(RecruitRoleService.name, () => {
           }),
         ),
       )
-      await service.selectRoles(applicantId, [])
+      await service.selectRoles(applicant, [])
       expect(dataSourceSave).not.toHaveBeenCalled()
       expect(dataSourceDelete).not.toHaveBeenCalled()
     })
@@ -67,7 +72,7 @@ describe(RecruitRoleService.name, () => {
           }),
         ),
       )
-      await service.selectRoles(applicantId, [role1, role2])
+      await service.selectRoles(applicant, [role1, role2])
       expect(dataSourceSave).toHaveBeenCalledWith([
         expect.objectContaining({ rank: 0, applicantId, roleId: role1 }),
         expect.objectContaining({ rank: 1, applicantId, roleId: role2 }),
@@ -88,7 +93,7 @@ describe(RecruitRoleService.name, () => {
           }),
         ),
       )
-      await service.selectRoles(applicantId, [role1])
+      await service.selectRoles(applicant, [role1])
       expect(dataSourceSave).toHaveBeenCalledWith([
         expect.objectContaining({ id: selectedRoles[0].id, rank: 0, applicantId, roleId: role1 }),
       ])
@@ -108,7 +113,7 @@ describe(RecruitRoleService.name, () => {
           }),
         ),
       )
-      await service.selectRoles(applicantId, [role2])
+      await service.selectRoles(applicant, [role2])
       expect(dataSourceSave).toHaveBeenCalledWith([
         expect.objectContaining({ id: selectedRoles[0].id, rank: 0, applicantId, roleId: role2 }),
       ])
@@ -131,7 +136,7 @@ describe(RecruitRoleService.name, () => {
           }),
         ),
       )
-      await service.selectRoles(applicantId, [role2])
+      await service.selectRoles(applicant, [role2])
       expect(dataSourceSave).toHaveBeenCalledWith([
         expect.objectContaining({ id: selectedRoles[0].id, rank: 0, applicantId, roleId: role2 }),
       ])

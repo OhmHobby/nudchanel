@@ -1,9 +1,21 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common'
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnprocessableEntityException,
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
+import dayjs from 'dayjs'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
+import { Config } from 'src/enums/config.enum'
 import { DataSource, In, IsNull, Repository } from 'typeorm'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
+import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 import { RecruitInterviewSlotDetailModel } from '../models/recruit-interview-slot-detail.model'
 import { RecruitInterviewSlotModel } from '../models/recruit-interview-slot.model'
@@ -19,8 +31,13 @@ export class RecruitInterviewService {
     private readonly dataSource: DataSource,
     @InjectRepository(RecruitInterviewSlotEntity)
     private readonly interviewSlotRepostory: Repository<RecruitInterviewSlotEntity>,
+    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RecruitApplicantService))
     private readonly applicantService: RecruitApplicantService,
+    @Inject(forwardRef(() => RecruitRoleService))
     private readonly roleService: RecruitRoleService,
+    @Inject(forwardRef(() => RecruitFormService))
+    private readonly formService: RecruitFormService,
   ) {}
 
   async getRange(recruitId: string): Promise<{ start: Date; end: Date } | undefined> {
@@ -70,21 +87,66 @@ export class RecruitInterviewService {
     return mergedSlots
   }
 
+  getSelectedSlots(applicantId: string) {
+    return this.interviewSlotRepostory.find({
+      where: { applicantId },
+    })
+  }
+
   isSelectedSlot(sameGroupSlots: RecruitInterviewSlotEntity[], applicantId: string): boolean {
     return sameGroupSlots.some((el) => el.applicantId === applicantId)
   }
 
   isSlotAvailable(sameGroupSlots: RecruitInterviewSlotEntity[], requestRoleIds?: string[]): boolean | undefined {
     const availableRoleId = new Set(sameGroupSlots.filter((slot) => !slot.applicantId).map((el) => el.roleId))
-    return requestRoleIds?.every((reqRoleIds) => availableRoleId.has(reqRoleIds))
+    return (
+      this.isValidLeadTime(sameGroupSlots[0]?.startWhen) &&
+      requestRoleIds?.every((reqRoleIds) => availableRoleId.has(reqRoleIds))
+    )
   }
 
-  async bookSlot(recruitId: string, applicantId: string, startWhen: Date, endWhen: Date) {
-    const [selectedRoleIds, mandatoryRoleIds] = await Promise.all([
-      this.applicantService.getSelectedRoleIds(applicantId),
+  isValidLeadTime(slotStartTime: Date, currentTime = new Date()) {
+    return (
+      dayjs(slotStartTime).diff(currentTime, 'hours') >=
+      +this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_MINIMUM_BOOKING_LEAD_TIME_HOURS)
+    )
+  }
+
+  applicantBookingPrecheck(isFormCompleted: boolean, numberOfApplyRoles: number, slotStartTime: Date) {
+    if (!numberOfApplyRoles) {
+      throw new UnprocessableEntityException('No selected roles')
+    }
+    if (!isFormCompleted) {
+      throw new UnprocessableEntityException('Forms are not completed')
+    }
+    if (!this.isValidLeadTime(slotStartTime)) {
+      throw new ConflictException()
+    }
+  }
+
+  isRebookSameSlot(slots: RecruitInterviewSlotEntity[], roleIds: string[], startWhen: Date, endWhen: Date): boolean {
+    return (
+      slots.at(0)?.startWhen === startWhen &&
+      slots.at(0)?.endWhen === endWhen &&
+      !!roleIds.length &&
+      slots.length === roleIds.length &&
+      slots.every((el) => roleIds.includes(el.roleId!))
+    )
+  }
+
+  async bookSlot(recruitId: string, applicantId: string, startWhen?: Date, endWhen?: Date) {
+    const [selectedSlots, isFormCompleted, mandatoryRoleIds, selectedRoleIds] = await Promise.all([
+      this.getSelectedSlots(applicantId),
+      this.formService.isApplicantFormCompleted(applicantId, recruitId),
       this.roleService.getMandatoryInterviewRoleIds(recruitId),
+      this.applicantService.getSelectedRoleIds(applicantId),
     ])
-    const roleIds = [selectedRoleIds, mandatoryRoleIds].flat()
+    const roleIds = [mandatoryRoleIds, selectedRoleIds].flat()
+    startWhen = startWhen ?? selectedSlots?.at(0)?.startWhen
+    endWhen = endWhen ?? selectedSlots?.at(0)?.endWhen
+    if (!startWhen || !endWhen) throw new InternalServerErrorException(`Missing slot's start/end time`)
+    if (this.isRebookSameSlot(selectedSlots, roleIds, startWhen, endWhen)) return
+    this.applicantBookingPrecheck(isFormCompleted, selectedRoleIds.length, startWhen)
     return this.dataSource.transaction(async (manager) => {
       await this.cancelSlot(applicantId, manager.getRepository(RecruitInterviewSlotEntity))
       const result = await manager.getRepository(RecruitInterviewSlotEntity).update(
@@ -104,6 +166,15 @@ export class RecruitInterviewService {
         throw new ConflictException()
       }
     })
+  }
+
+  async rebookSlot(recruitId: string, applicantId: string) {
+    try {
+      await this.bookSlot(recruitId, applicantId)
+    } catch (err) {
+      this.logger.error(`Failed to rebook slot for ${applicantId}`, err)
+      await this.cancelSlot(applicantId)
+    }
   }
 
   async cancelSlot(applicantId: string, repository?: Repository<RecruitInterviewSlotEntity>) {
