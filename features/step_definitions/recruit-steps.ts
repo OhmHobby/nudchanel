@@ -10,6 +10,11 @@ export class RecruitSteps extends CommonSteps {
     super(workspace)
   }
 
+  @given('recruit id {string}')
+  givenRecruitId(id: string) {
+    this.workspace.requestHeaders['nc-recruit-id'] = id
+  }
+
   @given('recruit applicant selected roles = {string}')
   givenRecruitApplicantSelectedRoles(rolesString: string) {
     this.workspace.requestBody = { roleIds: rolesString.split(',') }

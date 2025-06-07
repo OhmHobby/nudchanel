@@ -28,7 +28,6 @@ export class RecruitContextMiddleware implements NestMiddleware {
     if (!setting) throw new InternalServerErrorException('No active recruitment')
     const applicant = await this.applicantService.findOne(undefined, setting.id, profileId)
     req.recruit = new RecruitContext(setting, applicant, manageableRecruitId)
-    req.recruit.hasPermissionOrThrow(settingIdFromHeader)
     nextFunction()
   }
 }
