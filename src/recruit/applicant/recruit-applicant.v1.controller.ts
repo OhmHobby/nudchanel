@@ -18,6 +18,7 @@ import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
+import { RecruitApplicantsModel } from '../models/recruit-applicants.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
 
@@ -35,11 +36,16 @@ export class RecruitApplicantV1Controller {
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
   @ApiOperation({ summary: 'List applicants' })
-  @ApiOkResponse({ type: RecruitApplicantModel, isArray: true })
+  @ApiOkResponse({ type: RecruitApplicantsModel, isArray: true })
   @ApiForbiddenResponse()
-  async getRecruitApplicants(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantModel[]> {
+  async getRecruitApplicants(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantsModel> {
     ctx.hasPermissionOrThrow(ctx.currentSettingId)
-    return await this.recruitApplicantService.getRecruitApplicantModels(undefined, ctx.currentSettingId, undefined)
+    const applicants = await this.recruitApplicantService.getRecruitApplicantModels(
+      undefined,
+      ctx.currentSettingId,
+      undefined,
+    )
+    return new RecruitApplicantsModel({ applicants })
   }
 
   @Post()
