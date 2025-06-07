@@ -27,7 +27,7 @@ export class RecruitRoleModel {
   @ApiPropertyOptional()
   isCompleted?: boolean
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({ type: Boolean })
   isMandatory?: boolean | null
 
   withSelectedPriority(selectedPriority?: number) {
