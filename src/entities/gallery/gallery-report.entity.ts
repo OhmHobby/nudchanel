@@ -1,6 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { GalleryReportState } from 'src/enums/gallery-report-state.enum'
-import { GALLERY_REPORT_EMAIL_LENGTH } from 'src/constants/gallery.constant'
 
 @Entity('gallery_reports')
 export class GalleryReportEntity extends BaseEntity {
@@ -27,7 +26,7 @@ export class GalleryReportEntity extends BaseEntity {
   @Column({ name: 'report_by_id', default: null, type: 'uuid', nullable: true })
   reportById: string | null = null
 
-  @Column({ name: 'email', type: 'varchar', length: GALLERY_REPORT_EMAIL_LENGTH, nullable: true, default: null })
+  @Column({ name: 'email', type: 'text', nullable: true, default: null })
   email: string | null = null
 
   @CreateDateColumn({ name: 'created_at' })
