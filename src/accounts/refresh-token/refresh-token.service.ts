@@ -84,6 +84,10 @@ export class RefreshTokenService {
       return currentRefreshToken
     }
 
+    if (!this.shouldReIssue(currentRefreshToken)) {
+      return currentRefreshToken
+    }
+
     const isSessionToken = this.isSessionToken(currentRefreshToken.createdAt, currentRefreshToken.expiresAt)
 
     const profileId = currentRefreshToken.profileId
@@ -101,6 +105,13 @@ export class RefreshTokenService {
 
   tokenCookieExpires(refreshToken: RefreshTokenEntity): Date | undefined {
     return this.isSessionToken(refreshToken.createdAt, refreshToken.expiresAt) ? undefined : this.refreshTokenExpires()
+  }
+
+  shouldReIssue(refreshToken: RefreshTokenEntity, now = new Date()): boolean {
+    return (
+      now.getTime() - refreshToken.createdAt.getTime() >=
+      SESSION_REFRESH_TOKEN_DURATION.subtract({ hours: 1 }).asMilliseconds()
+    )
   }
 
   setHttpRefreshTokenCookie(response: Pick<Response, 'cookie'>, refreshToken: string, expires?: Date) {
