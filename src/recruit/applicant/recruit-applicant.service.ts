@@ -22,14 +22,24 @@ export class RecruitApplicantService {
     private readonly recruitFormService: RecruitFormService,
   ) {}
 
-  async findOne(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity | null> {
+  async findOne(
+    applicantId?: string,
+    settingId?: string,
+    profileId?: string,
+    isAnnounce = false,
+  ): Promise<RecruitApplicantEntity | null> {
     if (!applicantId && !(settingId && profileId)) return null
-    const result = await this.find(applicantId, settingId, profileId)
+    const result = await this.find(applicantId, settingId, profileId, isAnnounce)
     return result.at(0) ?? null
   }
 
   @Span()
-  async find(applicantId?: string, settingId?: string, profileId?: string): Promise<RecruitApplicantEntity[]> {
+  async find(
+    applicantId?: string,
+    settingId?: string,
+    profileId?: string,
+    isAnnounce = false,
+  ): Promise<RecruitApplicantEntity[]> {
     return await this.applicantRepostory.find({
       where: { id: applicantId, recruitId: settingId, profileId },
       relations: { roles: { role: true }, interviewSlots: true },
@@ -37,7 +47,14 @@ export class RecruitApplicantService {
         id: true,
         profileId: true,
         recruitId: true,
-        roles: { id: true, role: { id: true, name: true, collectionId: true }, rank: true },
+        roles: {
+          id: true,
+          role: { id: true, name: true, collectionId: true },
+          rank: true,
+          offerAccepted: isAnnounce,
+          offerExpireAt: isAnnounce,
+          offerResponseAt: isAnnounce,
+        },
         interviewSlots: { id: true, startWhen: true, endWhen: true, interviewAt: true },
       },
     })
@@ -47,8 +64,9 @@ export class RecruitApplicantService {
     applicantId?: string,
     settingId?: string,
     profileId?: string,
+    isAnnounce = false,
   ): Promise<RecruitApplicantModel[]> {
-    const applicants = await this.find(applicantId, settingId, profileId)
+    const applicants = await this.find(applicantId, settingId, profileId, isAnnounce)
     const profileNameMap = await this.profileNameService.getProfilesNameMap(
       applicants.map((el) => ObjectIdUuidConverter.toObjectId(el.profileId)),
       'th',

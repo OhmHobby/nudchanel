@@ -37,4 +37,8 @@ export class RecruitSettingEntity extends BaseEntity {
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date
+
+  isAnnounced(now = new Date()) {
+    return now.getTime() >= this.announceWhen.getTime()
+  }
 }

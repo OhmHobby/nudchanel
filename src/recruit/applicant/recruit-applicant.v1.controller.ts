@@ -44,6 +44,7 @@ export class RecruitApplicantV1Controller {
       undefined,
       ctx.currentSettingId,
       undefined,
+      ctx.currentSetting.isAnnounced() || ctx.isModerator,
     )
     return new RecruitApplicantsModel({ applicants })
   }
@@ -86,9 +87,18 @@ export class RecruitApplicantV1Controller {
   @ApiOperation({ summary: 'Get applicant info by applicant id' })
   @ApiOkResponse({ type: RecruitApplicantModel })
   @ApiForbiddenResponse({ description: 'No permission to view applicant' })
-  async getRecruitApplicantInfo(@Param() { id }: UuidParamDto, @UserCtx() user: User): Promise<RecruitApplicantModel> {
+  async getRecruitApplicantInfo(
+    @Param() { id }: UuidParamDto,
+    @RecruitCtx() ctx: RecruitContext,
+    @UserCtx() user: User,
+  ): Promise<RecruitApplicantModel> {
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(ObjectIdUuidConverter.toUuid(user.id!), id)
-    const applicant = await this.recruitApplicantService.findOne(id)
+    const applicant = await this.recruitApplicantService.findOne(
+      id,
+      undefined,
+      undefined,
+      ctx.currentSetting.isAnnounced() || ctx.isModerator,
+    )
     if (!applicant) throw new NotFoundException()
     return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(applicant)
   }

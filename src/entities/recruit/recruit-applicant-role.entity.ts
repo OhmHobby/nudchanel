@@ -1,3 +1,4 @@
+import { RecruitOfferResponseEnum } from 'src/enums/recruit-offer-response.enum'
 import {
   BaseEntity,
   Column,
@@ -50,4 +51,16 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date
+
+  determineOfferResponse(now = new Date()): RecruitOfferResponseEnum {
+    if (
+      this.offerResponseAt ||
+      this.offerAccepted ||
+      (this.offerExpireAt && now.getTime() >= this.offerExpireAt.getTime())
+    ) {
+      return this.offerAccepted ? RecruitOfferResponseEnum.accepted : RecruitOfferResponseEnum.declined
+    } else if (this.offerAccepted === false) {
+      return this.offerExpireAt ? RecruitOfferResponseEnum.pending : RecruitOfferResponseEnum.rejected
+    } else return RecruitOfferResponseEnum.tba
+  }
 }

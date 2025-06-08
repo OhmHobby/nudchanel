@@ -3,8 +3,8 @@ import { ProfileNameResponseModel } from 'src/accounts/models/profile-name.respo
 import { ProfileNameMap } from 'src/accounts/types/profile-name-map.type'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { RecruitApplicantRoleModel } from './recruit-applicant-role.model'
 import { RecruitInterviewSlotModel } from './recruit-interview-slot.model'
-import { RecruitRoleModel } from './recruit-role.model'
 
 export class RecruitApplicantModel {
   constructor(model?: Partial<RecruitApplicantModel>) {
@@ -20,8 +20,8 @@ export class RecruitApplicantModel {
   @ApiPropertyOptional({ type: ProfileNameResponseModel })
   profileName?: ProfileNameResponseModel
 
-  @ApiProperty({ type: RecruitRoleModel, isArray: true })
-  roles: RecruitRoleModel[]
+  @ApiProperty({ type: RecruitApplicantRoleModel, isArray: true })
+  roles: RecruitApplicantRoleModel[]
 
   @ApiProperty()
   interview?: RecruitInterviewSlotModel
@@ -39,7 +39,7 @@ export class RecruitApplicantModel {
       roles:
         entity.roles
           ?.map((role) =>
-            RecruitRoleModel.fromEntity(role.role!)
+            RecruitApplicantRoleModel.fromEntity(role)
               .withSelectedPriority(role.rank)
               .withIsCompleted(
                 role.role?.collectionId ? (completionMap?.get(role.role?.collectionId) ?? false) : undefined,

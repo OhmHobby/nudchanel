@@ -18,27 +18,11 @@ export class RecruitRoleModel {
   @ApiPropertyOptional()
   rank?: number
 
-  @ApiPropertyOptional()
-  selectedPriority?: number
-
   @ApiPropertyOptional({ type: String })
   collectionId?: string | null
 
-  @ApiPropertyOptional()
-  isCompleted?: boolean
-
   @ApiPropertyOptional({ type: Boolean })
   isMandatory?: boolean | null
-
-  withSelectedPriority(selectedPriority?: number) {
-    this.selectedPriority = selectedPriority
-    return this
-  }
-
-  withIsCompleted(isCompleted?: boolean) {
-    this.isCompleted = isCompleted
-    return this
-  }
 
   static fromEntity(entity: RecruitRoleEntity) {
     return new RecruitRoleModel({
