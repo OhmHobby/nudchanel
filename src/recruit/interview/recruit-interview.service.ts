@@ -112,15 +112,18 @@ export class RecruitInterviewService {
     )
   }
 
-  applicantBookingPrecheck(isFormCompleted: boolean, numberOfApplyRoles: number, slotStartTime: Date) {
+  leadTimePrecheck(slotStartTime: Date) {
+    if (!this.isValidLeadTime(slotStartTime)) {
+      throw new ConflictException()
+    }
+  }
+
+  applicantBookingPrecheck(isFormCompleted: boolean, numberOfApplyRoles: number) {
     if (!numberOfApplyRoles) {
       throw new UnprocessableEntityException('No selected roles')
     }
     if (!isFormCompleted) {
       throw new UnprocessableEntityException('Forms are not completed')
-    }
-    if (!this.isValidLeadTime(slotStartTime)) {
-      throw new ConflictException()
     }
   }
 
@@ -145,8 +148,9 @@ export class RecruitInterviewService {
     startWhen = startWhen ?? selectedSlots?.at(0)?.startWhen
     endWhen = endWhen ?? selectedSlots?.at(0)?.endWhen
     if (!startWhen || !endWhen) throw new InternalServerErrorException(`Missing slot's start/end time`)
+    this.applicantBookingPrecheck(isFormCompleted, selectedRoleIds.length)
     if (this.isRebookSameSlot(selectedSlots, roleIds, startWhen, endWhen)) return
-    this.applicantBookingPrecheck(isFormCompleted, selectedRoleIds.length, startWhen)
+    this.leadTimePrecheck(startWhen)
     return this.dataSource.transaction(async (manager) => {
       await this.cancelSlot(applicantId, manager.getRepository(RecruitInterviewSlotEntity))
       const result = await manager.getRepository(RecruitInterviewSlotEntity).update(

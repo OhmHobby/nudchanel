@@ -250,20 +250,15 @@ describe(RecruitInterviewService.name, () => {
     })
 
     it('should now throw when all criteria met', () => {
-      expect(() => service.applicantBookingPrecheck(true, 1, new Date('2025-07-14T21:00:00.000Z'))).not.toThrow()
+      expect(() => service.applicantBookingPrecheck(true, 1)).not.toThrow()
     })
 
     it('should throw when 0 selected roles', () => {
-      expect(() => service.applicantBookingPrecheck(true, 0, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
+      expect(() => service.applicantBookingPrecheck(true, 0)).toThrow()
     })
 
     it('should throw when form has not completed', () => {
-      expect(() => service.applicantBookingPrecheck(false, 1, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
-    })
-
-    it('should throw when less lead time', () => {
-      service.isValidLeadTime = jest.fn().mockReturnValue(false)
-      expect(() => service.applicantBookingPrecheck(true, 1, new Date('2025-07-14T21:00:00.000Z'))).toThrow()
+      expect(() => service.applicantBookingPrecheck(false, 1)).toThrow()
     })
   })
 
@@ -320,21 +315,35 @@ describe(RecruitInterviewService.name, () => {
       roleService.getMandatoryInterviewRoleIds = jest.fn().mockResolvedValue(['role-0'])
       service.isRebookSameSlot = jest.fn().mockReturnValue(false)
       service.applicantBookingPrecheck = jest.fn()
+      service.leadTimePrecheck = jest.fn()
     })
 
     it('should book successfully', async () => {
       await service.bookSlot(recruitId, applicantId, startWhen, endWhen)
       expect(service.isRebookSameSlot).toHaveBeenCalledWith([], ['role-0', 'role-1'], startWhen, endWhen)
-      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1, startWhen)
+      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1)
       expect(dataSource.transaction).toHaveBeenCalled()
     })
 
     it('should re-book successfully', async () => {
       service.getSelectedSlots = jest.fn().mockResolvedValue(selectedSlots)
+      service.isRebookSameSlot = jest.fn().mockReturnValue(true)
       await service.bookSlot(recruitId, applicantId)
       expect(service.isRebookSameSlot).toHaveBeenCalledWith(selectedSlots, ['role-0', 'role-1'], startWhen, endWhen)
-      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1, startWhen)
-      expect(dataSource.transaction).toHaveBeenCalled()
+      expect(service.leadTimePrecheck).not.toHaveBeenCalled()
+      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1)
+      expect(dataSource.transaction).not.toHaveBeenCalled()
+    })
+
+    it('should re-book with fail precheck should be failed', async () => {
+      service.getSelectedSlots = jest.fn().mockResolvedValue(selectedSlots)
+      service.applicantBookingPrecheck = jest.fn().mockImplementation(() => {
+        throw new Error()
+      })
+      await expect(service.bookSlot(recruitId, applicantId)).rejects.toThrow()
+      expect(service.applicantBookingPrecheck).toHaveBeenCalledWith(true, 1)
+      expect(service.isRebookSameSlot).not.toHaveBeenCalled()
+      expect(dataSource.transaction).not.toHaveBeenCalled()
     })
 
     it('throw when missing start or end when no selected roles', async () => {
