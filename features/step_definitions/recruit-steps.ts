@@ -79,6 +79,7 @@ export class RecruitSteps extends CommonSteps {
       ['roles.id']: applicant.roles.map((el) => el.id).join(','),
       ['roles.name']: applicant.roles.map((el) => el.name).join(','),
       ['roles.selectedPriority']: applicant.roles.map((el) => el.selectedPriority).join(','),
+      ['roles.offerResponse']: applicant.roles.map((el) => el.offerResponse).join(','),
       ['interview.start']: String(applicant.interview?.start),
     }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
