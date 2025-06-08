@@ -76,12 +76,25 @@ describe(RefreshTokenService.name, () => {
 
     it('should create new refresh token when token valid without having been issue', async () => {
       const newRefreshToken = TestData.aValidRefreshToken().withUuid().build()
+      service.shouldReIssue = jest.fn().mockReturnValue(true)
       service.find = jest.fn().mockResolvedValue(TestData.aValidRefreshToken().build())
       service.create = jest.fn().mockResolvedValue(newRefreshToken)
       service.revokeToken = jest.fn()
       const result = await service.use('refresh-token')
       expect(result?.id).toEqual(newRefreshToken.id)
       expect(service.revokeToken).toHaveBeenCalled()
+    })
+
+    it('should skip creating new refresh token when should re issue is false', async () => {
+      const currentRefreshToken = TestData.aValidRefreshToken().withUuid().build()
+      service.shouldReIssue = jest.fn().mockReturnValue(false)
+      service.find = jest.fn().mockResolvedValue(currentRefreshToken)
+      service.create = jest.fn()
+      service.revokeToken = jest.fn()
+      const result = await service.use('refresh-token')
+      expect(result).toEqual(currentRefreshToken)
+      expect(service.create).not.toHaveBeenCalled()
+      expect(service.revokeToken).not.toHaveBeenCalled()
     })
 
     it('should return issued token when token already use in given period', async () => {
@@ -122,5 +135,19 @@ describe(RefreshTokenService.name, () => {
         expect(result).toBe(false)
       },
     )
+  })
+
+  describe('shouldReIssue', () => {
+    it('should return true when token has been issued more than 7 hour ago', () => {
+      const token = new RefreshTokenEntity({ createdAt: new Date('2025-06-03T07:00:00.000Z') })
+      const result = service.shouldReIssue(token, new Date('2025-06-03T14:00:01.000Z'))
+      expect(result).toBe(true)
+    })
+
+    it('should return false when token has been issued less than 7 hour ago', () => {
+      const token = new RefreshTokenEntity({ createdAt: new Date('2025-06-03T07:00:00.000Z') })
+      const result = service.shouldReIssue(token, new Date('2025-06-03T13:59:59.000Z'))
+      expect(result).toBe(false)
+    })
   })
 })
