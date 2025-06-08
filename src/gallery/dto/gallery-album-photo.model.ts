@@ -75,6 +75,9 @@ export class GalleryAlbumPhotoModel {
   @ApiPropertyOptional()
   flowProgress?: number
 
+  @ApiPropertyOptional()
+  albumId?: string
+
   @Exclude()
   isProcessed: boolean = false
 
@@ -97,6 +100,7 @@ export class GalleryAlbumPhotoModel {
       errorMessage: entity.errorMessage ?? undefined,
       isProcessed: !!entity.processedAt,
       flowProgress: this.computeFlowProgress(entity),
+      albumId: entity.albumId ?? undefined,
     })
   }
 
