@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryActivityService } from './gallery-activity.service'
 
 describe(GalleryActivityService.name, () => {
@@ -12,6 +13,7 @@ describe(GalleryActivityService.name, () => {
         GalleryActivityService,
         { provide: getDataSourceToken(), useValue: jest.fn() },
         { provide: getRepositoryToken(GalleryActivityEntity), useValue: jest.fn() },
+        { provide: getRepositoryToken(GalleryAlbumEntity), useValue: jest.fn() },
       ],
     }).compile()
 

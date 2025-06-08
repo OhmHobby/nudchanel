@@ -9,6 +9,7 @@ import { configuration } from 'src/configs/configuration'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryActivityService } from 'src/gallery/activity/gallery-activity.service'
 
 describe('Gallery activity', () => {
@@ -26,7 +27,7 @@ describe('Gallery activity', () => {
         ClsModule.forRootAsync({ global: true, useFactory: clsConfigFactory }),
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
-        TypeOrmModule.forFeature([GalleryActivityEntity]),
+        TypeOrmModule.forFeature([GalleryActivityEntity, GalleryAlbumEntity]),
       ],
       providers: [GalleryActivityService],
     }).compile()
