@@ -58,6 +58,17 @@ Feature: Gallery activities
       | EiFyGSO | โครงการปัจฉิมนิเทศ​ ประจำปีการศึกษา 2563 | 2021-03-03T06:00:20.675Z | 37d38066-12a1-44cb-af35-a55a36580157 | https://photos.nudchannel.com/photos/cover/37d38066-12a1-44cb-af35-a55a36580157.jpg |
 
   @query
+  Scenario: Search activities with album keyword
+    Given activities before "2022-08-12T00:00:22.263Z"
+    And activities limit to 10
+    And activities search "บาสเกตบอล"
+    When GET /api/v1/gallery/activities
+    Then HTTP response status should be OK
+    And activities should be
+      | id      | title                              | time                     | cover                                | coverUrl                                                                            |
+      | KsUYTdP | กล้าเสลาเกมส์ ประจำปีการศึกษา 2565 | 2022-08-11T00:00:22.263Z | ccb3f745-c7a9-4803-ae83-9c375f183a65 | https://photos.nudchannel.com/photos/cover/ccb3f745-c7a9-4803-ae83-9c375f183a65.jpg |
+
+  @query
   Scenario: Search activities with short keyword
     Given activities before "2021-11-02T00:00:04.682Z"
     And activities limit to 1

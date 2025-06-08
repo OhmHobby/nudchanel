@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import { Span } from 'nestjs-otel'
 import { GALLERY_ID_LENGTH } from 'src/constants/gallery.constant'
 import { GalleryActivityEntity } from 'src/entities/gallery/gallery-activity.entity'
+import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import { mergeObject } from 'src/helpers/merge-object.helper'
 import {
@@ -27,6 +28,8 @@ export class GalleryActivityService {
     private readonly dataSource: DataSource,
     @InjectRepository(GalleryActivityEntity)
     private readonly activityRepository: Repository<GalleryActivityEntity>,
+    @InjectRepository(GalleryAlbumEntity)
+    private readonly albumRepository: Repository<GalleryAlbumEntity>,
   ) {}
 
   @Span()
@@ -72,11 +75,13 @@ export class GalleryActivityService {
       // Will use cron and ignore publishedAt in the future
       publishedAt: includesUnpublished ? undefined : LessThanOrEqual(new Date()),
     }
+    const activityIds = await this.findFromAlbumTitle(keywords)
     const activities = await this.activityRepository.find({
       where: keywords?.length
         ? [
             { title: keywords ? ILike(`%${keywords.join('%')}%`) : undefined, ...baseCondition },
             { tags: keywords ? { title: In(keywords) } : undefined, ...baseCondition },
+            { id: activityIds.length ? In(activityIds) : undefined, ...baseCondition },
           ]
         : baseCondition,
       order: { time: 'desc' },
@@ -84,6 +89,15 @@ export class GalleryActivityService {
       relations: { tags: true },
     })
     return activities
+  }
+
+  async findFromAlbumTitle(keywords?: string[]): Promise<string[]> {
+    if (!keywords?.length) return []
+    const result = await this.albumRepository.find({
+      where: { title: ILike(`%${keywords.join('%')}%`) },
+      select: { activityId: true },
+    })
+    return result.map(({ activityId }) => activityId).filter((id): id is string => id !== null)
   }
 
   selectEailerDate(a?: Date, b?: Date): Date | undefined {
