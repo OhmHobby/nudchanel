@@ -2,9 +2,35 @@
 @recruit_interview
 Feature: Recruit interview
 
-  Scenario: Get interview slots
+  Scenario: Incomplete form
     Given user profileId 61e308efa4d9680019bc343c
-    When GET /api/v1/recruit/interview/slots
+    And recruit applicant form answers
+      | questionId                           | answer |
+      | 0190f4b3-51d8-70be-a31c-321ce2abe712 | x      |
+    When PATCH /api/v1/recruit/forms/answers
+    And GET /api/v1/recruit/interview/slots
+    Then HTTP response status should be OK
+    And recruit interview slots should contain
+      | refId         | start                    | end                      | isAvailable | isSelected |
+      | 14kp50-14kp5u | 2099-07-29T15:00:00.000Z | 2099-07-29T15:30:00.000Z | true        | false      |
+      | 14kp5u-14kp6o | 2099-07-29T15:30:00.000Z | 2099-07-29T16:00:00.000Z | true        | false      |
+
+  Scenario: Book slot
+    Given user profileId 61e308efa4d9680019bc343c
+    And recruit applicant form answers
+      | questionId                           | answer   |
+      | 0190f4b3-51d8-70be-a31c-321ce2abe712 | E2E Test |
+    When PATCH /api/v1/recruit/forms/answers
+    And PUT /api/v1/recruit/interview/slots/14kp50-14kp5u/book
+    Then HTTP response status should be NO_CONTENT
+
+  Scenario: Update form should not reject timeslot
+    Given user profileId 61e308efa4d9680019bc343c
+    And recruit applicant form answers
+      | questionId                           | answer   |
+      | 0190f4b3-51d8-70be-a31c-321ce2abe712 | E2E Test |
+    When PATCH /api/v1/recruit/forms/answers
+    And GET /api/v1/recruit/interview/slots
     Then HTTP response status should be OK
     And recruit interview slots should contain
       | refId         | start                    | end                      | isAvailable | isSelected |

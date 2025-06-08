@@ -141,7 +141,8 @@ export class RecruitFormService {
       })
       const questionIdAnswerIdMap = Object.fromEntries(existingAnswers.map((el) => [el.questionId, el.id]))
       const groupedAnswers = Object.groupBy(questionAnswers, (el) => String(this.shouldAnswerBeDeleted(el.answer)))
-      const toBeDeletedIds = groupedAnswers[String(true)]?.map((el) => questionIdAnswerIdMap[el.questionId]) ?? []
+      const toBeDeletedIds =
+        groupedAnswers[String(true)]?.map((el) => questionIdAnswerIdMap[el.questionId]).filter((el) => !!el) ?? []
       const toBeUpserted = groupedAnswers[String(false)] ?? []
       await Promise.all([
         toBeUpserted.length
