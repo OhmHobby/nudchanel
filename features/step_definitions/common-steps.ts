@@ -37,6 +37,8 @@ export class CommonSteps {
         this._workspace.response = await test.put(requestEndpoint).query(query).send(body)
       } else if (method === 'PATCH') {
         this._workspace.response = await test.patch(requestEndpoint).query(query).send(body)
+      } else if (method === 'DELETE') {
+        this._workspace.response = await test.delete(requestEndpoint).query(query)
       } else {
         throw new Error('Unknown method ' + method)
       }
