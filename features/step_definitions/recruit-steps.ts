@@ -1,5 +1,5 @@
 import { DataTable } from '@cucumber/cucumber'
-import { binding, given, then } from 'cucumber-tsflow'
+import { binding, given, then, when } from 'cucumber-tsflow'
 import expect from 'expect'
 import { CommonSteps } from './common-steps'
 import { Workspace } from './workspace'
@@ -23,6 +23,37 @@ export class RecruitSteps extends CommonSteps {
   @given('recruit applicant form answers')
   givenRecruitApplicantFormAnswers(dataTable: DataTable) {
     this.workspace.requestBody = { items: dataTable.hashes() }
+  }
+
+  @given('recruit note body {string}')
+  givenRecruitNoteBody(body: string) {
+    this.workspace.requestBody.note = body
+  }
+
+  @given(/recruit note onlyMe (true|false)/)
+  givenRecruitNoteOnlyMe(onlyMe: 'true' | 'false') {
+    this.workspace.requestBody.onlyMe = onlyMe === 'true'
+  }
+
+  @when('Update latest recruit applicant {string} note')
+  async whenUpdateLatestRecruitApplicantNote(applicantId: string) {
+    await this.httpRequest('GET', `/api/v1/recruit/applicants/${applicantId}/notes`)
+    const notes = this.workspace.response?.body.notes
+    const note = notes.at(-1)
+    await this.httpRequest(
+      'PUT',
+      `/api/v1/recruit/applicants/${applicantId}/notes/${note.id}`,
+      undefined,
+      this.workspace.requestBody,
+    )
+  }
+
+  @when('Delete latest recruit applicant {string} note')
+  async whenDeleteLatestRecruitApplicantNote(applicantId: string) {
+    await this.httpRequest('GET', `/api/v1/recruit/applicants/${applicantId}/notes`)
+    const notes = this.workspace.response?.body.notes
+    const note = notes.at(-1)
+    await this.httpRequest('DELETE', `/api/v1/recruit/applicants/${applicantId}/notes/${note.id}`)
   }
 
   @then('recruit collection title should be {string}')
@@ -110,6 +141,18 @@ export class RecruitSteps extends CommonSteps {
       isAvailable: String(slot.isAvailable),
       isSelected: String(slot.isSelected),
     }))
+    dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
+  }
+
+  @then('recruit applicant notes response should contain')
+  thenRecruitApplicantNotesResponseShouldContain(dataTable: DataTable) {
+    const normalizedResponse = [this.workspace.response?.body?.notes ?? this.workspace.response?.body]
+      .flat()
+      .map((note) => ({
+        note: note.note,
+        onlyMe: String(note.onlyMe),
+        isFromMe: String(note.isFromMe),
+      }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
   }
 

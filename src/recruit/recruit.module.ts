@@ -6,6 +6,7 @@ import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.e
 import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-question.entity'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
+import { RecruitNoteEntity } from 'src/entities/recruit/recruit-note.entity'
 import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-moderator.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
@@ -18,6 +19,7 @@ import { RecruitInterviewService } from './interview/recruit-interview.service'
 import { RecruitInterviewV1Controller } from './interview/recruit-interview.v1.controller'
 import { RecruitModeratorService } from './moderator/recruit-moderator.service'
 import { RecruitModeratorV1Controller } from './moderator/recruit-moderator.v1.controller'
+import { RecruitNoteService } from './note/recruit-note.service'
 import { RecruitV1Controller } from './recruit.v1.controller'
 import { RecruitRoleService } from './role/recruit-role.service'
 import { RecruitRoleV1Controller } from './role/recruit-role.v1.controller'
@@ -35,6 +37,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
       RecruitRoleEntity,
       RecruitInterviewSlotEntity,
       RecruitApplicantRoleEntity,
+      RecruitNoteEntity,
     ]),
     AccountsModule,
   ],
@@ -54,6 +57,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
     RecruitRoleService,
     RecruitInterviewService,
     RecruitModeratorService,
+    RecruitNoteService,
   ],
 })
 export class RecruitModule {
