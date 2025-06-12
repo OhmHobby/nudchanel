@@ -10,9 +10,13 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import dayjs from 'dayjs'
+import { calendar_v3 } from 'googleapis'
+import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { Config } from 'src/enums/config.enum'
+import { GoogleCalendarService } from 'src/google/google-calendar.service'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { DataSource, In, IsNull, Repository } from 'typeorm'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitFormService } from '../form/recruit-form.service'
@@ -20,6 +24,7 @@ import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 import { RecruitInterviewSlotDetailModel } from '../models/recruit-interview-slot-detail.model'
 import { RecruitInterviewSlotModel } from '../models/recruit-interview-slot.model'
 import { RecruitRoleModel } from '../models/recruit-role.model'
+import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitRoleService } from '../role/recruit-role.service'
 
 @Injectable()
@@ -38,6 +43,9 @@ export class RecruitInterviewService {
     private readonly roleService: RecruitRoleService,
     @Inject(forwardRef(() => RecruitFormService))
     private readonly formService: RecruitFormService,
+    private readonly googleCalendarService: GoogleCalendarService,
+    private readonly recruitModeratorService: RecruitModeratorService,
+    private readonly profileService: ProfileService,
   ) {}
 
   async getRange(recruitId: string): Promise<{ start: Date; end: Date } | undefined> {
@@ -151,7 +159,7 @@ export class RecruitInterviewService {
     this.applicantBookingPrecheck(isFormCompleted, selectedRoleIds.length)
     if (this.isRebookSameSlot(selectedSlots, roleIds, startWhen, endWhen)) return
     this.leadTimePrecheck(startWhen)
-    return this.dataSource.transaction(async (manager) => {
+    const event = await this.dataSource.transaction(async (manager) => {
       await this.cancelSlot(applicantId, manager.getRepository(RecruitInterviewSlotEntity))
       const result = await manager.getRepository(RecruitInterviewSlotEntity).update(
         {
@@ -169,7 +177,18 @@ export class RecruitInterviewService {
         })
         throw new ConflictException()
       }
+      return await this.createCalendarEvent(applicantId, startWhen, endWhen, roleIds)
     })
+    if (event?.id) {
+      try {
+        await this.interviewSlotRepostory.update(
+          { applicantId },
+          { googleCalendarEventId: event.id, conferenceUri: event.conferenceData?.entryPoints?.at(0)?.uri ?? null },
+        )
+      } catch (err) {
+        this.logger.error(`Failed to update interview slot for ${applicantId}`, err)
+      }
+    }
   }
 
   async rebookSlot(recruitId: string, applicantId: string) {
@@ -182,11 +201,63 @@ export class RecruitInterviewService {
   }
 
   async cancelSlot(applicantId: string, repository?: Repository<RecruitInterviewSlotEntity>) {
+    await this.cancelCalendarEvent(applicantId)
     const result = await (repository ?? this.interviewSlotRepostory).update(
       { applicantId, interviewAt: IsNull() },
-      { applicantId: null },
+      { applicantId: null, googleCalendarEventId: null, conferenceUri: null },
     )
     this.logger.debug(`Canceled interview slot for ${applicantId}: ${result.affected}`)
     return !!result.affected
+  }
+
+  async createCalendarEvent(
+    applicantId: string,
+    startWhen: Date,
+    endWhen: Date,
+    roleIds: string[],
+  ): Promise<calendar_v3.Schema$Event | undefined> {
+    const createCalendar = this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_CALENDAR_CREATE)
+    if (!createCalendar) return
+    const [applicants, roleModerators] = await Promise.all([
+      this.applicantService.getRecruitApplicantModels(applicantId),
+      this.recruitModeratorService.getRolesModeratorProfileIds(roleIds),
+    ])
+    const applicant = applicants.at(0)
+    if (!applicant) throw new InternalServerErrorException(`Applicant not found: ${applicantId}`)
+    const applicantProfileId = ObjectIdUuidConverter.toObjectId(applicant.profileId)
+    const profileIds = [applicantProfileId, ...roleModerators]
+    const attendeeEmails = await this.profileService.emailsFromProfileIds(profileIds)
+    const applicantFullName = applicant.profileName?.fullname || undefined
+    const createWithMeet = this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_CALENDAR_MEET)
+    const event = await this.googleCalendarService.create(
+      startWhen,
+      endWhen,
+      this.getCalendarEventTitle(applicantFullName),
+      this.getCalendarEventDescription(),
+      attendeeEmails,
+      createWithMeet,
+    )
+    return event
+  }
+
+  async cancelCalendarEvent(applicantId: string) {
+    try {
+      const slot = await this.interviewSlotRepostory.findOne({ where: { applicantId } })
+      if (slot?.googleCalendarEventId) {
+        await this.googleCalendarService.remove(slot.googleCalendarEventId)
+      }
+    } catch (err) {
+      this.logger.error(`Failed to cancel calendar event for ${applicantId}`, err)
+    }
+  }
+
+  getCalendarEventTitle(applicantFullName?: string) {
+    const title = this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_CALENDAR_TITLE)
+    return applicantFullName ? `${title} (${applicantFullName})` : title
+  }
+
+  getCalendarEventDescription() {
+    const description = this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_CALENDAR_DESCRIPTION)
+    return description
   }
 }

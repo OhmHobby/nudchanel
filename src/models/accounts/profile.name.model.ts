@@ -27,4 +27,8 @@ export class ProfileNameModel {
 
   @Prop({ type: String, index: true })
   nickname?: string
+
+  get fullname() {
+    return `${this.firstname} ${this.lastname}`.trim()
+  }
 }

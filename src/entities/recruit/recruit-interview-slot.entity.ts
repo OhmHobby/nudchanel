@@ -48,6 +48,12 @@ export class RecruitInterviewSlotEntity extends BaseEntity {
   @Column({ name: 'applicant_id', type: 'uuid', nullable: true })
   applicantId: string | null
 
+  @Column({ name: 'google_calendar_event_id', type: 'text', nullable: true })
+  googleCalendarEventId: string | null
+
+  @Column({ name: 'conference_uri', type: 'text', nullable: true })
+  conferenceUri: string | null
+
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date
 }

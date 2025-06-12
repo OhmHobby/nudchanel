@@ -37,6 +37,15 @@ export class ProfileService {
     return profiles.flatMap((profile) => (profile.discord_ids ?? []).slice(0, 1))
   }
 
+  async emailsFromProfileIds(profileIds: ProfileId[]): Promise<string[]> {
+    const profiles = await this.profileModel
+      .find({ _id: { $in: profileIds } })
+      .select('emails')
+      .lean()
+      .exec()
+    return profiles.flatMap((profile) => profile.emails ?? [])
+  }
+
   create(profile: Partial<ProfileModel>): Promise<ProfileModel> {
     return this.profileModel.create(profile)
   }

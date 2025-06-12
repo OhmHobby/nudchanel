@@ -20,12 +20,15 @@ export class ProfileNameResponseModel {
   @ApiPropertyOptional()
   nickname?: string
 
+  fullname?: string
+
   static fromModel(name?: ProfileNameModel) {
     return new ProfileNameResponseModel({
       profileId: isDocument(name?.profile) ? name.profile._id.toString() : name?.profile?.toString(),
       firstname: name?.firstname,
       lastname: name?.lastname,
       nickname: name?.nickname,
+      fullname: name?.fullname,
     })
   }
 
