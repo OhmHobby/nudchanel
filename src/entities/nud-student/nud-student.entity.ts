@@ -1,6 +1,7 @@
-import { BaseEntity, Column, DeepPartial, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { BaseEntity, Column, DeepPartial, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm'
 
 @Entity('nud_students')
+@Unique('UNIQUE_STUDENT_PROFILE_YEAR', ['studentId', 'profileId', 'academicYear'])
 export class NudStudentEntity extends BaseEntity {
   constructor(entity?: DeepPartial<NudStudentEntity>) {
     super()
