@@ -6,4 +6,5 @@ export enum DataMigration {
   Recruit = 'Recruit',
   ProfilePhoto = 'ProfilePhoto',
   PhotoUploadTask = 'PhotoUploadTask',
+  NudStudent = 'NudStudent',
 }

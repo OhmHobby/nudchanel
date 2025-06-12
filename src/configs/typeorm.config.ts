@@ -10,6 +10,7 @@ import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { GalleryTagEntity } from 'src/entities/gallery/gallery-tag.entity'
 import { GalleryYouTubeVideoEntity } from 'src/entities/gallery/gallery-youtube-video.entity'
+import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
@@ -35,6 +36,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     GalleryPhotoEntity,
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
+    NudStudentEntity,
     RecruitApplicantEntity,
     RecruitApplicantRoleEntity,
     RecruitFormAnswerEntity,
