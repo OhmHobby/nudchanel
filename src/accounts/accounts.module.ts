@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { REST } from 'discord.js'
 import { Auth, google } from 'googleapis'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
+import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { Config } from 'src/enums/config.enum'
@@ -25,6 +26,8 @@ import { ProfileModel } from '../models/accounts/profile.model'
 import { ProfileNameModel } from '../models/accounts/profile.name.model'
 import { AccessTokenService } from './access-token/access-token.service'
 import { GroupService } from './group/group.service'
+import { NudStudentService } from './nud-student/nud-student.service'
+import { NudStudentV1Controller } from './nud-student/nud-student.v1.controller'
 import { ProfileNameService } from './profile/profile-name.service'
 import { ProfilePhotoService } from './profile/profile-photo.service'
 import { ProfileService } from './profile/profile.service'
@@ -64,7 +67,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
       ],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity]),
+    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, NudStudentEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     PhotoModule,
@@ -83,6 +86,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
     GroupService,
     SignInService,
     RegistrationService,
+    NudStudentService,
     { provide: ServiceProvider.DISCORD_REST, useValue: () => new REST({ authPrefix: 'Bearer' }) },
     {
       provide: ServiceProvider.DISCORD_OAUTH2_API,
@@ -115,6 +119,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
     TeamMemberV1Controller,
     LocalUserV1Controller,
     RegistrationV1Controller,
+    NudStudentV1Controller,
   ],
   exports: [
     ProfileService,
