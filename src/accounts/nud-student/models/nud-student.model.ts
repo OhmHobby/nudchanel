@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 
 export class NudStudentModel {
   @ApiPropertyOptional()
@@ -22,7 +23,7 @@ export class NudStudentModel {
 
   static fromEntity(entity: NudStudentEntity): NudStudentModel {
     return {
-      profileId: entity.profileId ?? undefined,
+      profileId: entity.profileId ? ObjectIdUuidConverter.toHexString(entity.profileId) : undefined,
       studentId: entity.studentId,
       academicYear: entity.academicYear,
       classYear: entity.classYear,
