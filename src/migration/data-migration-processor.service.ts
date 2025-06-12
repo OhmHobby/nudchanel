@@ -6,9 +6,13 @@ import { ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bullmq'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
+import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { AlbumPhotoUploadRule } from 'src/gallery/photo/rules/album-photo-upload-rule'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { StudentInformationModel } from 'src/models/accounts/student-information.model'
+import { StudentProfileModel } from 'src/models/accounts/student-profile.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataSource } from 'typeorm'
 
@@ -22,6 +26,10 @@ export class DataMigrationProcessorService extends WorkerHost {
     private readonly dataSource: DataSource,
     @InjectModel(UploadTaskModel)
     private readonly uploadTaskModel: ReturnModelType<typeof UploadTaskModel>,
+    @InjectModel(StudentInformationModel)
+    private readonly studentInformationModel: ReturnModelType<typeof StudentInformationModel>,
+    @InjectModel(StudentProfileModel)
+    private readonly studentProfileModel: ReturnModelType<typeof StudentProfileModel>,
   ) {
     super()
   }
@@ -30,6 +38,8 @@ export class DataMigrationProcessorService extends WorkerHost {
     try {
       if (job.name === DataMigration.PhotoUploadTask) {
         return this.migratePhotoUploadTask()
+      } else if (job.name === DataMigration.NudStudent) {
+        return this.migrateNudStudent()
       }
       throw new Error(`${job.name} not found`)
     } catch (err) {
@@ -78,6 +88,32 @@ export class DataMigrationProcessorService extends WorkerHost {
         return manager.save(album)
       })
       await Promise.all(promises)
+    })
+  }
+
+  private migrateNudStudent() {
+    return this.dataSource.transaction(async (manager) => {
+      const nudStudentRepository = manager.getRepository(NudStudentEntity)
+      await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.NudStudent }), {
+        conflictPaths: ['id'],
+      })
+      const studentProfiles = await this.studentProfileModel.find().exec()
+      for (const studentDoc of studentProfiles) {
+        if (!studentDoc.profile) continue
+        const students = await this.studentInformationModel.find({ student_id: studentDoc._id.toString() }).exec()
+        for (const student of students) {
+          const studentEntity = new NudStudentEntity({
+            studentId: studentDoc._id.toString(),
+            profileId: ObjectIdUuidConverter.toUuid(studentDoc.profile.toString()),
+            academicYear: student.year,
+            classYear: student.level,
+            className: student.room?.toString(),
+            rank: student.number,
+          })
+          await nudStudentRepository.save(studentEntity)
+          this.logger.log({ message: `Migrated student ${studentDoc._id}`, studentEntity })
+        }
+      }
     })
   }
 }
