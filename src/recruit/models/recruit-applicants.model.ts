@@ -6,6 +6,6 @@ export class RecruitApplicantsModel {
     Object.assign(this, model)
   }
 
-  @ApiProperty({ type: RecruitApplicantsModel, isArray: true })
+  @ApiProperty({ type: RecruitApplicantModel, isArray: true })
   applicants: RecruitApplicantModel[]
 }
