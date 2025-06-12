@@ -40,6 +40,7 @@ import { MongoConnection } from './enums/mongo-connection.enum'
 import { GalleryModule } from './gallery/gallery.module'
 import { GalleryWorkerModule } from './gallery/gallery.worker.module'
 import { GoogleModule } from './google/google.module'
+import { GoogleWorkerModule } from './google/google.worker.module'
 import { HttpLoggingInterceptor } from './helpers/http-logging.interceptor'
 import { LdapServerModule } from './ldap-server/ldap-server.module'
 import { MigrationWorkerModule } from './migration/migration.worker.module'
@@ -74,20 +75,21 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     BullBoardModule,
     StorageModule,
     ConditionalModule.registerWhen(AccountsModule, isRegisterWebServer),
-    ConditionalModule.registerWhen(GalleryModule, isRegisterWebServer),
     ConditionalModule.registerWhen(ApiKeyModule, isRegisterWebServer),
     ConditionalModule.registerWhen(AuditLogModule, isRegisterWebServer),
     ConditionalModule.registerWhen(DeliveryModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(GalleryModule, isRegisterWebServer),
     ConditionalModule.registerWhen(GoogleModule, isRegisterWebServer),
     ConditionalModule.registerWhen(RecruitModule, isRegisterWebServer),
     ConditionalModule.registerWhen(LdapServerModule, isRegisterLdapServer),
     ConditionalModule.registerWhen(AccountsWorkerModule, isRegisterWorker),
-    ConditionalModule.registerWhen(GalleryWorkerModule, isRegisterWorker),
-    ConditionalModule.registerWhen(PhotoWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(DeliveryWorkerModule, isRegisterWorker),
-    ConditionalModule.registerWhen(MigrationWorkerModule, isRegisterWorker),
-    ConditionalModule.registerWhen(SchedulerModule, isRegisterWorker),
     ConditionalModule.registerWhen(DiscordWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(GalleryWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(GoogleWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(MigrationWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(PhotoWorkerModule, isRegisterWorker),
+    ConditionalModule.registerWhen(SchedulerModule, isRegisterWorker),
   ],
   controllers: [AppController, BaseV1Controller],
   providers: [

@@ -1,17 +1,23 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
+import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
+import { GoogleCalendarService } from 'src/google/google-calendar.service'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
+import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitRoleService } from '../role/recruit-role.service'
 import { RecruitInterviewService } from './recruit-interview.service'
 
 jest.mock('../applicant/recruit-applicant.service')
 jest.mock('../role/recruit-role.service')
 jest.mock('../form/recruit-form.service')
+jest.mock('src/google/google-calendar.service')
+jest.mock('../moderator/recruit-moderator.service')
+jest.mock('src/accounts/profile/profile.service')
 
 describe(RecruitInterviewService.name, () => {
   let service: RecruitInterviewService
@@ -87,6 +93,9 @@ describe(RecruitInterviewService.name, () => {
         RecruitApplicantService,
         RecruitRoleService,
         RecruitFormService,
+        GoogleCalendarService,
+        ProfileService,
+        RecruitModeratorService,
       ],
     }).compile()
 

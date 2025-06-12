@@ -10,6 +10,7 @@ import { RecruitNoteEntity } from 'src/entities/recruit/recruit-note.entity'
 import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-moderator.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
+import { GoogleModule } from 'src/google/google.module'
 import { RecruitApplicantService } from './applicant/recruit-applicant.service'
 import { RecruitApplicantV1Controller } from './applicant/recruit-applicant.v1.controller'
 import { RecruitContextMiddleware } from './context/recruit-context.middleware'
@@ -40,6 +41,7 @@ import { RecruitSettingV1Controller } from './setting/recruit-setting.v1.control
       RecruitNoteEntity,
     ]),
     AccountsModule,
+    GoogleModule,
   ],
   controllers: [
     RecruitV1Controller,

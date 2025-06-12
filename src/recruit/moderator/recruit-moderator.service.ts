@@ -7,7 +7,8 @@ import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-mo
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
-import { Repository } from 'typeorm'
+import { ProfileId } from 'src/models/types'
+import { In, Repository } from 'typeorm'
 
 @Injectable()
 export class RecruitModeratorService {
@@ -53,6 +54,14 @@ export class RecruitModeratorService {
       mods.map((mod) => ObjectIdUuidConverter.toObjectId(mod.profileId)),
     )
     return profiles
+  }
+
+  async getRolesModeratorProfileIds(roleIds: string[]): Promise<ProfileId[]> {
+    const mods = await this.roleModeratorRepository.find({
+      where: { roleId: In(roleIds) },
+      select: { profileId: true },
+    })
+    return mods.map((mod) => ObjectIdUuidConverter.toObjectId(mod.profileId))
   }
 
   async getModeratorRoles(profileId: string): Promise<RecruitRoleEntity[]> {

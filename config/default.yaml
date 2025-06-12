@@ -144,3 +144,8 @@ delivery:
 recruit:
   interview:
     minimumBookingLeadTimeHours: 24
+    calendar:
+      create: false
+      meet: false
+      title: "NUD Channel: Interview"
+      description: ""
