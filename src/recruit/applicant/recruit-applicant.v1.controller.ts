@@ -55,7 +55,7 @@ export class RecruitApplicantV1Controller {
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
   @ApiOperation({ summary: 'List applicants' })
-  @ApiOkResponse({ type: RecruitApplicantsModel, isArray: true })
+  @ApiOkResponse({ type: RecruitApplicantsModel })
   @ApiForbiddenResponse()
   async getRecruitApplicants(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantsModel> {
     ctx.hasPermissionOrThrow(ctx.currentSettingId)
