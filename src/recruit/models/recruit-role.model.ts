@@ -16,6 +16,9 @@ export class RecruitRoleModel {
   description?: string
 
   @ApiPropertyOptional()
+  icon?: string | null
+
+  @ApiPropertyOptional()
   rank?: number
 
   @ApiPropertyOptional({ type: String })
@@ -29,6 +32,7 @@ export class RecruitRoleModel {
       id: entity.id,
       name: entity.name,
       description: entity.description,
+      icon: entity.icon,
       rank: entity.rank,
       collectionId: entity.collectionId,
       isMandatory: entity.mandatory,

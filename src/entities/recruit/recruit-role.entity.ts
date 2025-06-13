@@ -31,6 +31,9 @@ export class RecruitRoleEntity extends BaseEntity {
   @Column({ type: 'text' })
   description: string
 
+  @Column({ type: 'text', nullable: true })
+  icon: string | null
+
   @Column({ type: 'smallint', default: 0 })
   rank: number
 

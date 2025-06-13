@@ -49,7 +49,7 @@ export class RecruitApplicantService {
         recruitId: true,
         roles: {
           id: true,
-          role: { id: true, name: true, collectionId: true },
+          role: { id: true, name: true, icon: true, collectionId: true },
           rank: true,
           offerAccepted: isAnnounce,
           offerExpireAt: isAnnounce,
