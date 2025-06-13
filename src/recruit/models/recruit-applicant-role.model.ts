@@ -14,6 +14,9 @@ export class RecruitApplicantRoleModel {
   name: string
 
   @ApiPropertyOptional()
+  icon?: string | null
+
+  @ApiPropertyOptional()
   selectedPriority?: number
 
   @ApiPropertyOptional()
@@ -39,6 +42,7 @@ export class RecruitApplicantRoleModel {
     return new RecruitApplicantRoleModel({
       id: entity.role?.id,
       name: entity.role?.name,
+      icon: entity.role?.icon,
       offerResponse: entity.determineOfferResponse(),
       offerExpireAt: entity.offerExpireAt ?? undefined,
     })
