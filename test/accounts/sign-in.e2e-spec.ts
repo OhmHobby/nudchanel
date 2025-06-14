@@ -105,13 +105,13 @@ describe('Accounts - sign-in', () => {
     expect(result.body).toContainEqual(
       new AuthProviderResponseModel({
         provider: OidcProvider.Google,
-        url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=email&redirect_uri=http%3A%2F%2Ffe-main.dev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fgoogle%2Fcallback&response_type=code&client_id=1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com',
+        url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=email&redirect_uri=https%3A%2F%2Ffe-main.dev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fgoogle%2Fcallback%3FbaseUrl%3Dhttps%253A%252F%252Ffe-main.dev.nudchannel.com&response_type=code&client_id=1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com',
       }),
     )
     expect(result.body).toContainEqual(
       new AuthProviderResponseModel({
         provider: OidcProvider.Discord,
-        url: 'https://discord.com/api/v10/oauth2/authorize?client_id=1095379875226988664&response_type=code&scope=identify+email&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fdiscord%2Fcallback',
+        url: 'https://discord.com/api/v10/oauth2/authorize?client_id=1095379875226988664&response_type=code&scope=identify+email&redirect_uri=https%3A%2F%2Ffe-main.dev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fdiscord%2Fcallback%3FbaseUrl%3Dhttps%253A%252F%252Ffe-main.dev.nudchannel.com',
       }),
     )
   })
