@@ -28,7 +28,7 @@ export abstract class ExternalOauth2ProviderService<T> {
 
   getProviderInfo(headerBaseUrl: string, customBaseUrl?: string) {
     return new AuthProviderResponseModel({
-      provider: OidcProvider.Discord,
+      provider: this.providerName,
       url: this.generateSignInUrl(this.redirectUri(headerBaseUrl, customBaseUrl)),
     })
   }
