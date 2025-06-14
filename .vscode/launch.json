@@ -18,6 +18,22 @@
         "NODE_ENV": "development"
       },
       "restart": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "runtimeVersion": "24",
+      "name": "Debug Nest (Docker)",
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/node_modules/@nestjs/cli/bin/nest.js",
+      "args": ["start", "--watch"],
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development",
+        "NODE_APP_INSTANCE": "docker"
+      },
+      "restart": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { uuidv7 } from 'uuidv7'
@@ -14,6 +15,7 @@ import { RecruitApplicantEntity } from './recruit-applicant.entity'
 import { RecruitRoleEntity } from './recruit-role.entity'
 
 @Entity('recruit_applicant_roles')
+@Unique('applicant_role_unique', ['applicantId', 'roleId'])
 export class RecruitApplicantRoleEntity extends BaseEntity {
   constructor(entity?: DeepPartial<RecruitApplicantRoleEntity>) {
     super()
@@ -43,7 +45,7 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
   @Column({ name: 'offer_response_at', type: 'timestamptz', nullable: true })
   offerResponseAt: Date | null
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name: 'offer_accepted', type: 'boolean', default: false })
   offerAccepted: boolean
 
   @Column({ name: 'offer_expire_at', type: 'timestamptz', nullable: true })

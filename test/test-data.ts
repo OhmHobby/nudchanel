@@ -11,6 +11,10 @@ import { ConsumeMessageBuilder } from './builder/consume-message.builder'
 import { GalleryYouTubeVideoBuilder } from './builder/gallery-youtube-video-builder'
 import { ProfileBuilder } from './builder/profile-builder'
 import { GalleryPhotoBuilder } from './builder/gallery-photo-builder'
+import { RecruitApplicantBuilder } from './builder/recruit/recruit-applicant.builder'
+import { RecruitApplicantRoleBuilder } from './builder/recruit/recruit-applicant-roles.builder'
+import { RecruitRoleBuilder } from './builder/recruit/recruit-role.builder'
+import { RecruitSettingBuilder } from './builder/recruit/recruit-settings.builder'
 
 export class TestData {
   static anExpiredAccessToken =
@@ -39,6 +43,14 @@ export class TestData {
   static aValidSupertestCookies = () => new SupertestCookiesBuilder()
 
   static aValidConsumeMessage = () => new ConsumeMessageBuilder()
+
+  static aValidRecruitApplicantRole = () => new RecruitApplicantRoleBuilder()
+
+  static aValidRecruitApplicant = () => new RecruitApplicantBuilder()
+
+  static aValidRecruitRole = () => new RecruitRoleBuilder()
+
+  static aValidRecruitSetting = () => new RecruitSettingBuilder()
 
   static aValidApp = () => new AppBuilder().withDefaultMockModules()
 }
