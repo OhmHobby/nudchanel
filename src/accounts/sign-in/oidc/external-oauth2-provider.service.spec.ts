@@ -10,7 +10,7 @@ import { ExternalOauth2ProviderService } from './external-oauth2-provider.servic
 jest.mock('src/accounts/registration/registration.service')
 
 class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
-  protected providerName: OidcProvider
+  protected readonly providerName: OidcProvider = OidcProvider.Discord
 
   constructor(registrationService: RegistrationService) {
     super(registrationService)
