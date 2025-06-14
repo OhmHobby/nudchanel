@@ -97,6 +97,25 @@ describe('Accounts - sign-in', () => {
     )
   })
 
+  test('GET /api/v1/accounts/sign-in/providers?baseUrl=https://fe-main.dev.nudchannel.com', async () => {
+    const result = await request(app.getHttpServer())
+      .get('/api/v1/accounts/sign-in/providers?baseUrl=https://fe-main.dev.nudchannel.com')
+      .set('Host', 'webservice.dev.nudchannel.com')
+    console.log(result.body)
+    expect(result.body).toContainEqual(
+      new AuthProviderResponseModel({
+        provider: OidcProvider.Google,
+        url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=email&redirect_uri=http%3A%2F%2Ffe-main.dev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fgoogle%2Fcallback&response_type=code&client_id=1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com',
+      }),
+    )
+    expect(result.body).toContainEqual(
+      new AuthProviderResponseModel({
+        provider: OidcProvider.Discord,
+        url: 'https://discord.com/api/v10/oauth2/authorize?client_id=1095379875226988664&response_type=code&scope=identify+email&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fdiscord%2Fcallback',
+      }),
+    )
+  })
+
   test('GET /api/v1/accounts/sign-in/discord/callback (sign-in)', async () => {
     mockProfileModel.findOne = jest.fn().mockReturnValue({
       findOne: jest.fn().mockReturnThis(),

@@ -44,10 +44,13 @@ export class SignInV1Controller {
   @Get('providers')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: [AuthProviderResponseModel] })
-  getProviders(@Req() { headers }: Pick<Request, 'headers'>): AuthProviderResponseModel[] {
+  getProviders(
+    @Req() { headers }: Pick<Request, 'headers'>,
+    @Query() { baseUrl }: SignInProviderDto,
+  ): AuthProviderResponseModel[] {
     return [
-      this.googleOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
-      this.discordOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
+      this.googleOauth2ProviderService.getProviderInfo(baseUrl ?? this.getBaseUrl(headers.host)),
+      this.discordOauth2ProviderService.getProviderInfo(baseUrl ?? this.getBaseUrl(headers.host)),
     ]
   }
 
