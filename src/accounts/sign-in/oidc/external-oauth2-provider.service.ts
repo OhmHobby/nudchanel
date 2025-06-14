@@ -20,11 +20,20 @@ export abstract class ExternalOauth2ProviderService<T> {
     }
   }
 
-  redirectUri(baseUrl: string) {
-    return new URL(`/api/v1/accounts/sign-in/${this.providerName}/callback`, baseUrl).href
+  redirectUri(headerBaseUrl: string, customBaseUrl?: string) {
+    const baseUrl = customBaseUrl ?? headerBaseUrl
+    const query = customBaseUrl ? `?baseUrl=${encodeURIComponent(customBaseUrl)}` : ''
+    return new URL(`/api/v1/accounts/sign-in/${this.providerName}/callback${query}`, baseUrl).href
   }
 
-  abstract getProviderInfo(baseUrl: string): AuthProviderResponseModel
+  getProviderInfo(headerBaseUrl: string, customBaseUrl?: string) {
+    return new AuthProviderResponseModel({
+      provider: OidcProvider.Discord,
+      url: this.generateSignInUrl(this.redirectUri(headerBaseUrl, customBaseUrl)),
+    })
+  }
+
+  protected abstract generateSignInUrl(redirectUri: string): string
 
   abstract getProviderUser(code: string, redirectUri: string): Promise<T>
 

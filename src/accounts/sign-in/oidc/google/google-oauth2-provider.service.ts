@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common'
 import { Auth, oauth2_v2 } from 'googleapis'
-import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
@@ -24,13 +23,6 @@ export class GoogleOauth2ProviderService extends ExternalOauth2ProviderService<o
     private readonly oauth2: UnintializedGoogleOauth2,
   ) {
     super(registrationService)
-  }
-
-  getProviderInfo(baseUrl: string) {
-    return new AuthProviderResponseModel({
-      provider: OidcProvider.Google,
-      url: this.generateSignInUrl(this.redirectUri(baseUrl)),
-    })
   }
 
   async findProfileId(user: oauth2_v2.Schema$Userinfo): Promise<ProfileId | undefined> {
@@ -57,7 +49,7 @@ export class GoogleOauth2ProviderService extends ExternalOauth2ProviderService<o
     return registrationDoc._id
   }
 
-  private generateSignInUrl(redirectUri: string): string {
+  protected generateSignInUrl(redirectUri: string): string {
     return this.oauth2Client(redirectUri).generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',

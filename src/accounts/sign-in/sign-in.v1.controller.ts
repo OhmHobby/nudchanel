@@ -49,8 +49,8 @@ export class SignInV1Controller {
     @Query() { baseUrl }: SignInProviderDto,
   ): AuthProviderResponseModel[] {
     return [
-      this.googleOauth2ProviderService.getProviderInfo(baseUrl ?? this.getBaseUrl(headers.host)),
-      this.discordOauth2ProviderService.getProviderInfo(baseUrl ?? this.getBaseUrl(headers.host)),
+      this.googleOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host), baseUrl),
+      this.discordOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host), baseUrl),
     ]
   }
 

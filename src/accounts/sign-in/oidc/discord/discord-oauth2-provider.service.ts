@@ -2,7 +2,6 @@ import { APIUser, OAuth2API, UsersAPI } from '@discordjs/core'
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { REST } from 'discord.js'
-import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { Config } from 'src/enums/config.enum'
@@ -35,13 +34,6 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
     this.clientSecret = configService.getOrThrow(Config.DISCORD_CLIENT_SECRET)
   }
 
-  getProviderInfo(baseUrl: string) {
-    return new AuthProviderResponseModel({
-      provider: OidcProvider.Discord,
-      url: this.generateSignInUrl(this.redirectUri(baseUrl)),
-    })
-  }
-
   async getProviderUser(code: string, redirectUri: string): Promise<APIUser> {
     const restClient = await this.getRestClientFromCode(code, redirectUri)
     const user = await new UsersAPI(restClient).getCurrent()
@@ -64,7 +56,7 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
     return registrationDoc._id
   }
 
-  private generateSignInUrl(redirectUri: string): string {
+  protected generateSignInUrl(redirectUri: string): string {
     return this.oauth2Client.generateAuthorizationURL({
       client_id: this.clientId,
       response_type: 'code',

@@ -16,8 +16,8 @@ class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
     super(registrationService)
   }
 
-  getProviderInfo(): AuthProviderResponseModel {
-    return new AuthProviderResponseModel()
+  generateSignInUrl(redirectUri: string): string {
+    return redirectUri
   }
 
   getProviderUser(): Promise<APIUser> {
@@ -60,6 +60,28 @@ describe(ExternalOauth2ProviderService.name, () => {
       registrationService.redirectToAppRegistrationUrl = jest.fn().mockReturnValue(registrationUrl)
       const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
       expect(result).toBe(registrationUrl)
+    })
+  })
+
+  describe(ExternalOauth2ProviderService.prototype.getProviderInfo.name, () => {
+    it('should generate sign in url correctly', () => {
+      const result = cut.getProviderInfo('http://dev.nudchannel.com')
+      expect(result).toEqual(
+        new AuthProviderResponseModel({
+          provider: OidcProvider.Discord,
+          url: 'http://dev.nudchannel.com/api/v1/accounts/sign-in/discord/callback',
+        }),
+      )
+    })
+
+    it('should generate sign in url correctly with custom base url', () => {
+      const result = cut.getProviderInfo('http://dev.nudchannel.com', 'https://fe-main.dev.nudchannel.com')
+      expect(result).toEqual(
+        new AuthProviderResponseModel({
+          provider: OidcProvider.Discord,
+          url: 'http://dev.nudchannel.com/api/v1/accounts/sign-in/discord/callback?baseUrl=https%3A%2F%2Ffe-main.dev.nudchannel.com',
+        }),
+      )
     })
   })
 })
