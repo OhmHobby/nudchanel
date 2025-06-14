@@ -5,6 +5,7 @@ import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applica
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitFormService } from '../form/recruit-form.service'
+import dayjs from 'dayjs'
 
 jest.mock('src/accounts/profile/profile-name.service')
 jest.mock('../form/recruit-form.service')
@@ -64,6 +65,38 @@ describe(RecruitApplicantService.name, () => {
       const result = await service.findOne('applicant-id')
       expect(service.find).toHaveBeenCalled()
       expect(result).toBeNull()
+    })
+  })
+
+  describe(RecruitApplicantService.prototype.checkApplicantOfferOrThrow.name, () => {
+    it('should throw error if offerExpireAt is in the past', () => {
+      const pastDate = new Date(Date.now() - 1000)
+      expect(() => service.checkApplicantOfferOrThrow(pastDate)).toThrow('Offer expired')
+    })
+
+    it('should return current date if offerExpireAt is in the period', () => {
+      const futureDate = dayjs().add(1, 'day').toDate()
+      const now = new Date()
+      const result = service.checkApplicantOfferOrThrow(futureDate, now)
+      expect(result).toBeInstanceOf(Date)
+      expect(+result).toEqual(+now)
+    })
+
+    it("should throw error if offerExpireAt is null (don't have offer)", () => {
+      expect(() => service.checkApplicantOfferOrThrow(null)).toThrow('Offer not available')
+    })
+  })
+  describe(RecruitApplicantService.prototype.checkApplicantReadyToAcceptOfferOrThrow.name, () => {
+    it('should throw error if applicant has accepted an offer', async () => {
+      service.isApplicantAcceptAnyOffer = jest.fn().mockResolvedValue(true)
+      await expect(service.checkApplicantReadyToAcceptOfferOrThrow('applicant-id')).rejects.toThrow(
+        'Applicant already accepted an offer',
+      )
+    })
+
+    it('should not throw error if applicant has not accepted any offer', async () => {
+      service.isApplicantAcceptAnyOffer = jest.fn().mockResolvedValue(false)
+      await expect(service.checkApplicantReadyToAcceptOfferOrThrow('applicant-id')).resolves.not.toThrow()
     })
   })
 })

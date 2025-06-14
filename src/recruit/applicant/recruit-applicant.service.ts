@@ -1,11 +1,11 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common'
+import { ConflictException, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
-import { Repository } from 'typeorm'
+import { Repository, UpdateResult } from 'typeorm'
 import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
 
@@ -100,5 +100,53 @@ export class RecruitApplicantService {
       select: { id: true, roleId: true },
     })
     return roles.map((el) => el.roleId)
+  }
+
+  async getApplicationRole(applicantId: string, roleId: string) {
+    return await this.applicantRoleRepostory.findOne({
+      where: {
+        applicantId,
+        roleId,
+      },
+    })
+  }
+
+  async isApplicantAcceptAnyOffer(applicantId: string): Promise<boolean> {
+    const roles = await this.applicantRoleRepostory.countBy({ applicantId, offerAccepted: true })
+    return roles > 0
+  }
+
+  async checkApplicantReadyToAcceptOfferOrThrow(applicantId: string): Promise<void> {
+    const isApplicantAcceptOffer = await this.isApplicantAcceptAnyOffer(applicantId)
+    if (isApplicantAcceptOffer) {
+      throw new ConflictException('Applicant already accepted an offer')
+    }
+  }
+
+  checkApplicantOfferOrThrow(offerExpireAt: Date | null, today = new Date()): Date {
+    if (!offerExpireAt) {
+      throw new UnprocessableEntityException('Offer not available')
+    }
+
+    if (offerExpireAt < today) {
+      throw new UnprocessableEntityException('Offer expired')
+    }
+
+    return today
+  }
+
+  async decideOffer(applicantRoleId: string, offerAccepted: boolean, offerDate = new Date()): Promise<UpdateResult> {
+    return await this.applicantRoleRepostory.update(applicantRoleId, {
+      offerAccepted: offerAccepted,
+      offerResponseAt: offerDate,
+    })
+  }
+
+  async offerApplicantRole(applicantRoleId: string, offerExpireAt: Date | null = null): Promise<UpdateResult> {
+    return await this.applicantRoleRepostory.update(applicantRoleId, {
+      offerExpireAt,
+      offerResponseAt: null,
+      offerAccepted: false,
+    })
   }
 }

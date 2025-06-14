@@ -35,6 +35,22 @@ export class RecruitSteps extends CommonSteps {
     this.workspace.requestBody.onlyMe = onlyMe === 'true'
   }
 
+  @given('recruit offer applicant at role id {string}')
+  givenRecruitOfferApplicantAtRole(roleId: string) {
+    this.workspace.requestBody.roleId = roleId
+  }
+
+  @given('recruit offer applicant expires at {string}')
+  givenRecruitOfferApplicantExpiresAt(expireAt: string) {
+    this.workspace.requestBody.offerExpireAt = new Date(expireAt)
+  }
+
+  @given(/recruit applicant (accept|decline) offer at role id (.+)/)
+  givenRecruitApplicantOfferResponse(res: 'accept' | 'decline', roleId: string) {
+    this.workspace.requestBody.isAccepted = res === 'accept'
+    this.workspace.requestBody.roleId = roleId
+  }
+
   @when('Update latest recruit applicant {string} note')
   async whenUpdateLatestRecruitApplicantNote(applicantId: string) {
     await this.httpRequest('GET', `/api/v1/recruit/applicants/${applicantId}/notes`)
@@ -154,6 +170,24 @@ export class RecruitSteps extends CommonSteps {
         isFromMe: String(note.isFromMe),
       }))
     dataTable.hashes().map((row) => expect(normalizedResponse).toContainEqual(expect.objectContaining(row)))
+  }
+
+  @then('recruit applicant offer at role {string} should have offerExpired at {string}')
+  thenRecruitApplicantRolesShouldHaveOfferExpired(applicantRoleId: string, offerExpireAt: string) {
+    const roles = this.workspace.response?.body?.roles
+    expect(roles).toBeDefined()
+    const role = (<any[]>roles).find((el) => el.id === applicantRoleId)
+    expect(role).toBeDefined()
+    expect(role.offerExpireAt).toBe(offerExpireAt)
+  }
+
+  @then('recruit applicant offer at role {string} should not have offerExpired')
+  thenRecruitApplicantRolesShouldNotHaveOfferExpired(applicantRoleId: string) {
+    const roles = this.workspace.response?.body?.roles
+    expect(roles).toBeDefined()
+    const role = (<any[]>roles).find((el) => el.id === applicantRoleId)
+    expect(role).toBeDefined()
+    expect(role.offerExpireAt).toBeUndefined()
   }
 
   @then('recruit interview should be started at {string}')

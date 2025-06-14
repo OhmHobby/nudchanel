@@ -2,13 +2,16 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
+  UnprocessableEntityException,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -18,9 +21,11 @@ import {
   ApiForbiddenResponse,
   ApiHeader,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
@@ -39,6 +44,8 @@ import { RecruitApplicantsModel } from '../models/recruit-applicants.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitNoteService } from '../note/recruit-note.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
+import { ApplicantOfferResponseDto } from '../dto/applicant-offer-response-dto'
+import { ApplicantOfferDto } from '../dto/applicant-offer.dto'
 
 @Controller({ path: 'recruit/applicants', version: '1' })
 @ApiTags('RecruitApplicantV1')
@@ -87,6 +94,65 @@ export class RecruitApplicantV1Controller {
     return RecruitApplicantModel.fromEntity(applicant)
   }
 
+  @Patch('me/offer')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Accept or decline offer` })
+  @ApiNoContentResponse({ description: 'Offer updated successfully' })
+  @ApiConflictResponse({ description: 'Applicant already accepted an offer' })
+  @ApiUnprocessableEntityResponse({ description: 'Offer expired or not available or not have announcement' })
+  @ApiNotFoundResponse({ description: 'Applicant role not found' })
+  async decideRecruitApplicantOffer(
+    @Body() { isAccepted, roleId }: ApplicantOfferResponseDto,
+    @RecruitCtx() recruitCtx: RecruitContext,
+  ) {
+    if (!recruitCtx.currentSetting.isAnnounced()) {
+      throw new UnprocessableEntityException('Please wait the announcement')
+    }
+
+    if (isAccepted) {
+      await this.recruitApplicantService.checkApplicantReadyToAcceptOfferOrThrow(recruitCtx.applicantIdOrThrow)
+    }
+
+    const applicantRole = await this.recruitApplicantService.getApplicationRole(recruitCtx.applicantIdOrThrow, roleId)
+    if (!applicantRole) {
+      throw new NotFoundException('Applicant role not found')
+    }
+
+    const now = this.recruitApplicantService.checkApplicantOfferOrThrow(applicantRole.offerExpireAt)
+
+    await this.recruitApplicantService.decideOffer(applicantRole.id, isAccepted, now)
+  }
+
+  @Patch(':id/offer')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups('head')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Offer or reset-offer by applicant id (not send offerExpireAt for cancel offer)' })
+  @ApiNoContentResponse({ description: 'Offer sucessfully' })
+  @ApiForbiddenResponse({ description: 'No permission to offer this applicant' })
+  @ApiNotFoundResponse({ description: 'Applicant role not found' })
+  async offerApplicant(
+    @Param() { id: applicantId }: UuidParamDto,
+    @Body() { roleId, offerExpireAt }: ApplicantOfferDto,
+    @UserCtx() user: User,
+  ) {
+    const profileUid = ObjectIdUuidConverter.toUuid(user.id)
+    if (!profileUid) {
+      throw new ForbiddenException('User profile not found')
+    }
+    await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
+    const applicantRole = await this.recruitApplicantService.getApplicationRole(applicantId, roleId)
+    if (!applicantRole) {
+      throw new NotFoundException('Applicant role not found')
+    }
+    await this.recruitApplicantService.offerApplicantRole(applicantRole.id, offerExpireAt)
+  }
+
   @Get('me')
   @AuthGroups()
   @ApiBearerAuth()
@@ -112,6 +178,7 @@ export class RecruitApplicantV1Controller {
     @UserCtx() user: User,
   ): Promise<RecruitApplicantModel> {
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(ObjectIdUuidConverter.toUuid(user.id!), id)
+
     const applicant = await this.recruitApplicantService.findOne(
       id,
       undefined,
