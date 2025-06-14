@@ -24,6 +24,7 @@ import { SignInLocalUserRequestDto } from './dto/sign-in-local-user-request.dto'
 import { SignInLocalUserResponseDto, SignInStatus } from './dto/sign-in-local-user-response.dto'
 import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
 import { SignInProviderDto } from './dto/sign-in-provider.dto'
+import { SignInProvidersDto } from './dto/sign-in-providers.dto'
 import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
 import { SignInService } from './sign-in.service'
@@ -46,7 +47,7 @@ export class SignInV1Controller {
   @ApiOkResponse({ type: [AuthProviderResponseModel] })
   getProviders(
     @Req() { headers }: Pick<Request, 'headers'>,
-    @Query() { baseUrl }: SignInProviderDto,
+    @Query() { baseUrl }: SignInProvidersDto,
   ): AuthProviderResponseModel[] {
     return [
       this.googleOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host), baseUrl),

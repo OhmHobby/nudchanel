@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsEnum, IsOptional, IsString } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsEnum } from 'class-validator'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 
 export class SignInProviderDto {
@@ -10,12 +10,4 @@ export class SignInProviderDto {
   @ApiProperty({ enum: OidcProvider })
   @IsEnum(OidcProvider)
   provider: OidcProvider
-
-  @ApiPropertyOptional({
-    description: 'Override baseUrl. Useful for development',
-    example: 'https://change-me.dev.nudchannel.com',
-  })
-  @IsString()
-  @IsOptional()
-  baseUrl?: string
 }
