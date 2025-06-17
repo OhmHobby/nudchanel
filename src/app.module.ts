@@ -33,6 +33,7 @@ import { TypeormConfigService } from './configs/typeorm.config'
 import { WinstonConfig } from './configs/winston.config'
 import { DeliveryModule } from './delivery/delivery.module'
 import { DeliveryWorkerModule } from './delivery/delivery.worker.module'
+import { DevtoolsModule } from './devtools/devtools.module'
 import { DiscordWorkerModule } from './discord/discord-worker.module'
 import { AppRunMode } from './enums/app-run-mode.enum'
 import { Config } from './enums/config.enum'
@@ -81,6 +82,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     ConditionalModule.registerWhen(GalleryModule, isRegisterWebServer),
     ConditionalModule.registerWhen(GoogleModule, isRegisterWebServer),
     ConditionalModule.registerWhen(RecruitModule, isRegisterWebServer),
+    ConditionalModule.registerWhen(DevtoolsModule, isRegisterWebServer),
     ConditionalModule.registerWhen(LdapServerModule, isRegisterLdapServer),
     ConditionalModule.registerWhen(AccountsWorkerModule, isRegisterWorker),
     ConditionalModule.registerWhen(DeliveryWorkerModule, isRegisterWorker),

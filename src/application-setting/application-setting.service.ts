@@ -10,6 +10,8 @@ import { Repository } from 'typeorm'
 export class ApplicationSettingService extends Encryption {
   private readonly googleCredential = 'google_credential'
 
+  private readonly devToolsEnabled = 'is_devtools_enabled'
+
   constructor(
     @InjectRepository(ApplicationSettingEntity)
     private readonly repository: Repository<ApplicationSettingEntity>,
@@ -29,11 +31,19 @@ export class ApplicationSettingService extends Encryption {
     await this.repository.upsert(entity, { conflictPaths: { id: true } })
   }
 
+  protected async del(key: string): Promise<void> {
+    await this.repository.delete({ id: key })
+  }
+
   getGoogleCredential() {
     return this.get(this.googleCredential)
   }
 
   setGoogleCredential(value: string) {
     return this.set(this.googleCredential, value)
+  }
+
+  getIsDevToolsEnabled() {
+    return this.get(this.devToolsEnabled)
   }
 }
