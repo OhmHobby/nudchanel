@@ -10,5 +10,5 @@ export class GenerateDevTokenDto {
   @ApiProperty({ type: [String], description: 'User groups', example: ['nudch'] })
   @IsArray()
   @IsString({ each: true })
-  groups: string[]
+  groups: string[] = []
 }
