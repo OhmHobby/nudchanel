@@ -32,7 +32,7 @@ describe('Swagger', () => {
     await request(app.getHttpServer()).get('/swagger').expect(HttpStatus.UNAUTHORIZED)
   })
 
-  afterAll(() => {
-    app.close()
+  afterAll(async () => {
+    await app.close()
   })
 })

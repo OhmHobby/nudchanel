@@ -116,7 +116,7 @@ export class AppBuilder {
     app.useGlobalPipes(new ValidationPipe({ transform: true }))
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
     useContainer(app.select(AppModule), { fallbackOnErrors: true })
-    await app.get(SwaggerConfigBuilder).build(app)
+    app.get(SwaggerConfigBuilder).build(app)
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     await app.init()
     return app
