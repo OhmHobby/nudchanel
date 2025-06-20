@@ -7,12 +7,22 @@ export class UpdateProfileNameDto {
   @ApiProperty({ description: 'English name' })
   @Type(() => ProfileNameDto)
   @ValidateNested()
-  @Transform(({ value }: { value: ProfileNameDto }) => (value.lang = 'en'))
+  @Transform(({ value }: { value: ProfileNameDto }) => {
+    if (value && typeof value === 'object') {
+      value.lang = 'en'
+    }
+    return value
+  })
   name: ProfileNameDto
 
   @ApiProperty()
   @Type(() => ProfileNameDto)
   @ValidateNested()
-  @Transform(({ value }: { value: ProfileNameDto }) => (value.lang = 'th'))
+  @Transform(({ value }: { value: ProfileNameDto }) => {
+    if (value && typeof value === 'object') {
+      value.lang = 'th'
+    }
+    return value
+  })
   localName: ProfileNameDto
 }
