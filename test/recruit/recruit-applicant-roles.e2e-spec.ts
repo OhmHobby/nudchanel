@@ -6,9 +6,11 @@ import { RecruitRoleModeratorEntity } from 'src/entities/recruit/recruit-role-mo
 import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
 import { mockQueryBuilder } from 'test/helpers/mock-query-builder'
 import { TestData } from 'test/test-data'
-import { Repository } from 'typeorm'
+import { Types } from 'mongoose'
+import { Repository, UpdateResult } from 'typeorm'
 import request from 'supertest'
 import { RecruitApplicantEntity } from 'src/entities/recruit/recruit-applicant.entity'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 
 describe('Recruit Applicant Role', () => {
   let app: INestApplication
@@ -114,6 +116,82 @@ describe('Recruit Applicant Role', () => {
         offerExpireAt: null,
         offerResponseAt: null,
         offerAccepted: false,
+      })
+    })
+  })
+
+  describe('PATCH /api/v1/recruit/applicants/me/offer', () => {
+    const mockSetting = TestData.aValidRecruitSetting().withOpen(true).withClose(true).withAnnounce(true).build()
+
+    const mockRole = TestData.aValidRecruitRole().withId('01976dc9-c80b-7aac-aca6-883671a236a1').build()
+
+    const mockApplicantProfileId = new Types.ObjectId('6852ff85358f875a12f6a2fa')
+
+    const mockApplicant = TestData.aValidRecruitApplicant()
+      .withId('01976d89-0982-7aac-aca6-77ee02d11382')
+      .withRecruitId(mockSetting.id)
+      .withProfileId(ObjectIdUuidConverter.toUuid(mockApplicantProfileId))
+      .build()
+
+    let applicantCookie: string[]
+
+    beforeAll(async () => {
+      applicantCookie = TestData.aValidSupertestCookies()
+        .withAccessToken(await TestData.aValidAccessToken().withProfileId(mockApplicantProfileId.toHexString()).build())
+        .build()
+    })
+
+    it('accept', async () => {
+      mockRecruitSettingRepository.findOne = jest.fn().mockResolvedValue(mockSetting)
+      mockRecruitApplicantRoleRepository.countBy = jest.fn().mockResolvedValue(0)
+      const mockApplicantRole = TestData.aValidRecruitApplicantRole()
+        .withAccepted(false)
+        .withApplicantId(mockApplicant.id)
+        .withRoleId(mockRole.id)
+        .withOffer(dayjs().add(1, 'days').toDate())
+        .withResponseAt(null)
+        .build()
+
+      mockRecruitApplicantRoleRepository.findOne = jest.fn().mockResolvedValue(mockApplicantRole)
+      mockRecruitApplicantRoleRepository.update = jest
+        .fn()
+        .mockResolvedValue({ affected: 1 } satisfies Partial<UpdateResult>)
+
+      const result = await request(app.getHttpServer())
+        .patch('/api/v1/recruit/applicants/me/offer')
+        .set('Cookie', applicantCookie)
+        .send({ isAccepted: true, roleId: mockRole.id })
+      expect(result.status).toBe(HttpStatus.NO_CONTENT)
+      expect(mockRecruitApplicantRoleRepository.update).toHaveBeenCalledWith(mockApplicantRole.id, {
+        offerAccepted: true,
+        offerResponseAt: expect.any(Date),
+      })
+    })
+
+    it('decline', async () => {
+      mockRecruitSettingRepository.findOne = jest.fn().mockResolvedValue(mockSetting)
+      mockRecruitApplicantRoleRepository.countBy = jest.fn().mockResolvedValue(0)
+      const mockApplicantRole = TestData.aValidRecruitApplicantRole()
+        .withAccepted(true)
+        .withApplicantId(mockApplicant.id)
+        .withRoleId(mockRole.id)
+        .withOffer(dayjs().add(1, 'days').toDate())
+        .withResponseAt(new Date())
+        .build()
+
+      mockRecruitApplicantRoleRepository.findOne = jest.fn().mockResolvedValue(mockApplicantRole)
+      mockRecruitApplicantRoleRepository.update = jest
+        .fn()
+        .mockResolvedValue({ affected: 1 } satisfies Partial<UpdateResult>)
+
+      const result = await request(app.getHttpServer())
+        .patch('/api/v1/recruit/applicants/me/offer')
+        .set('Cookie', applicantCookie)
+        .send({ isAccepted: false, roleId: mockRole.id })
+      expect(result.status).toBe(HttpStatus.NO_CONTENT)
+      expect(mockRecruitApplicantRoleRepository.update).toHaveBeenCalledWith(mockApplicantRole.id, {
+        offerAccepted: false,
+        offerResponseAt: expect.any(Date),
       })
     })
   })

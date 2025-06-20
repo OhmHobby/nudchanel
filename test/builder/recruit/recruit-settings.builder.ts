@@ -29,7 +29,7 @@ export class RecruitSettingBuilder {
   }
 
   withClose(isClosed: boolean) {
-    this.entity.closeWhen = isClosed ? dayjs().add(1, 'day').toDate() : INFINITE_DATE
+    this.entity.closeWhen = isClosed ? dayjs().subtract(1, 'day').toDate() : INFINITE_DATE
     return this
   }
 
