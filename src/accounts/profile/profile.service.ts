@@ -49,4 +49,18 @@ export class ProfileService {
   create(profile: Partial<ProfileModel>): Promise<ProfileModel> {
     return this.profileModel.create(profile)
   }
+
+  updateContactInfo(id: ProfileId, contactInfo: { emails?: string[]; tels?: string[] }): Promise<ProfileModel | null> {
+    const updateData: Partial<ProfileModel> = {}
+
+    if (contactInfo.emails !== undefined) {
+      updateData.emails = contactInfo.emails
+    }
+
+    if (contactInfo.tels !== undefined) {
+      updateData.tels = contactInfo.tels
+    }
+
+    return this.profileModel.findByIdAndUpdate(id, updateData, { new: true }).exec()
+  }
 }
