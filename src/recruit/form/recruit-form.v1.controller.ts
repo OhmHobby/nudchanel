@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Patch, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -18,7 +30,9 @@ import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { AnswerRecruitFormQuestionsDto } from '../dto/answer-recruit-form-questions.dto'
+import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
 import { GetRecruitFormCollectionDto } from '../dto/get-recruit-form-collection.dto'
+import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitFormService } from './recruit-form.service'
@@ -70,5 +84,30 @@ export class RecruitFormV1Controller {
   ): Promise<void> {
     ctx.isRegistrationOpenOrThrow()
     await this.recruitFormService.updateFormAnswers(ctx.applicantOrThrow, body.items)
+  }
+
+  @Post('collections')
+  @AuthGroups('pr')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Create a new form collection' })
+  @ApiOkResponse({ type: RecruitFormCollectionModel })
+  async createRecruitFormCollection(@Body() body: CreateRecruitFormCollectionDto): Promise<RecruitFormCollectionModel> {
+    const collection = await this.recruitFormService.createCollection(body)
+    return RecruitFormCollectionModel.fromEntity(collection)
+  }
+
+  @Put('collections/:id')
+  @AuthGroups('pr')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Update a form collection' })
+  @ApiOkResponse({ type: RecruitFormCollectionModel })
+  async updateRecruitFormCollection(
+    @Param() { id }: UuidParamDto,
+    @Body() body: UpdateRecruitFormCollectionDto,
+  ): Promise<RecruitFormCollectionModel> {
+    const collection = await this.recruitFormService.updateCollection(id, body)
+    return RecruitFormCollectionModel.fromEntity(collection)
   }
 }

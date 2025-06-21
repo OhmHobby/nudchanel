@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import { Span } from 'nestjs-otel'
 import { RecruitApplicantRoleEntity } from 'src/entities/recruit/recruit-applicant-role.entity'
@@ -12,6 +12,8 @@ import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-questio
 import { RecruitInterviewService } from '../interview/recruit-interview.service'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
+import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
+import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
 
 @Injectable()
 export class RecruitFormService {
@@ -155,5 +157,28 @@ export class RecruitFormService {
       ])
     })
     await this.interviewService.rebookSlot(applicant.recruitId, applicantId)
+  }
+
+  async createCollection(createCollectionDto: CreateRecruitFormCollectionDto): Promise<RecruitFormCollectionEntity> {
+    const collection = new RecruitFormCollectionEntity({
+      title: createCollectionDto.title,
+      recruitId: createCollectionDto.recruitId,
+    })
+    return await this.collectionRepostory.save(collection)
+  }
+
+  async updateCollection(
+    collectionId: string,
+    updateCollectionDto: UpdateRecruitFormCollectionDto,
+  ): Promise<RecruitFormCollectionEntity> {
+    await this.collectionRepostory.update(collectionId, {
+      ...(updateCollectionDto.title !== undefined && { title: updateCollectionDto.title }),
+    })
+
+    const updatedCollection = await this.collectionRepostory.findOne({ where: { id: collectionId } })
+    if (!updatedCollection) {
+      throw new NotFoundException('Collection not found')
+    }
+    return updatedCollection
   }
 }
