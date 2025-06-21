@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, Put } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, NotFoundException, Param, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { Types } from 'mongoose'
@@ -7,7 +7,9 @@ import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
 import { ImportProfilePhotoDto } from '../dto/import-profile-photo.dto'
 import { ProfileIdDto } from '../dto/profile-id.dto'
+import { UpdateProfileContactDto } from '../dto/update-profile-contact.dto'
 import { UpdateProfileNameDto } from '../dto/update-profile-name.dto'
+import { ProfileContactResponseModel } from '../models/profile-contact.response.model'
 import { ProfilePhotoResponseModel } from '../models/profile-photo.response-model'
 import { ProfileResponseModel } from '../models/profile.response.model'
 import { ProfileNameService } from './profile-name.service'
@@ -26,14 +28,39 @@ export class ProfileV1Controller {
   ) {}
 
   @Get('me')
+  @AuthGroups()
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: ProfileResponseModel })
   @ApiBearerAuth()
   @ApiCookieAuth()
-  @AuthGroups()
   async getMyProfile(@UserCtx() user: User): Promise<ProfileResponseModel> {
     const doc = await this.profileService.findByIdPopulated(new Types.ObjectId(user.id!))
-    return ProfileResponseModel.fromModel(doc!)
+    if (!doc) throw new NotFoundException('Profile not found')
+    return ProfileResponseModel.fromModel(doc)
+  }
+
+  @Get('me/contacts')
+  @AuthGroups()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: ProfileContactResponseModel })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  async getMyContacts(@UserCtx() user: User): Promise<ProfileContactResponseModel> {
+    const doc = await this.profileService.findById(new Types.ObjectId(user.id!))
+    if (!doc) throw new NotFoundException('Profile not found')
+    return ProfileContactResponseModel.fromModel(doc)
+  }
+
+  @Put('me/contacts')
+  @AuthGroups()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  async updateMyContacts(@Body() dto: UpdateProfileContactDto, @UserCtx() user: User): Promise<void> {
+    const profileId = new Types.ObjectId(user.id!)
+    const updatedProfile = await this.profileService.updateContactInfo(profileId, dto)
+    if (!updatedProfile) throw new NotFoundException('Profile not found')
   }
 
   @Put('me/name')
@@ -47,6 +74,32 @@ export class ProfileV1Controller {
       this.profileNameService.upsert('en', profileId, dto.name.toModel()),
       this.profileNameService.upsert('th', profileId, dto.localName.toModel()),
     ])
+  }
+
+  @Get(':profileId/contacts')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: ProfileContactResponseModel })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups('nudch')
+  async getProfileContacts(@Param() { profileId }: ProfileIdDto): Promise<ProfileContactResponseModel> {
+    const doc = await this.profileService.findById(profileId.objectId)
+    if (!doc) throw new NotFoundException('Profile not found')
+    return ProfileContactResponseModel.fromModel(doc)
+  }
+
+  @Put(':profileId/contacts')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @AuthGroups('head')
+  async updateProfileContacts(
+    @Param() { profileId }: ProfileIdDto,
+    @Body() dto: UpdateProfileContactDto,
+  ): Promise<void> {
+    const updatedProfile = await this.profileService.updateContactInfo(profileId.objectId, dto)
+    if (!updatedProfile) throw new NotFoundException('Profile not found')
   }
 
   @Put(':profileId/name')

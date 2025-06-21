@@ -1,13 +1,17 @@
+import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { ReturnModelType } from '@typegoose/typegoose'
 import expect from 'expect'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
+import { ProfileModel } from 'src/models/accounts/profile.model'
 import request from 'supertest'
 import { TestData } from 'test/test-data'
 import { Repository } from 'typeorm'
 
 describe('Accounts - refresh token', () => {
   let app: INestApplication
+  let mockProfileRepository: ReturnModelType<typeof ProfileModel>
   let mockRefreshTokenRepository: Repository<RefreshTokenEntity>
 
   beforeAll(async () => {
@@ -15,9 +19,14 @@ describe('Accounts - refresh token', () => {
   })
 
   beforeEach(async () => {
+    mockProfileRepository = await app.get(getModelToken(ProfileModel.name))
     mockRefreshTokenRepository = await app.get(getRepositoryToken(RefreshTokenEntity))
     mockRefreshTokenRepository.save = jest.fn().mockImplementation((entity) => Promise.resolve(entity))
     mockRefreshTokenRepository.update = jest.fn().mockResolvedValue({ affected: 1 })
+    mockProfileRepository.findById = jest.fn().mockReturnValue({
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(TestData.aValidProfile().build()),
+    })
   })
 
   it('POST /api/v1/accounts/refresh-token (success)', async () => {
