@@ -1,10 +1,12 @@
-import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, NotFoundException, Param, Post, Put, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
+import { CreateRecruitSettingDto } from '../dto/create-recruit-setting.dto'
 import { GetRecruitSettingsDto } from '../dto/get-recruit-settings.dto'
+import { UpdateRecruitSettingDto } from '../dto/update-recruit-setting.dto'
 import { RecruitSettingModel } from '../models/recruit-setting.model'
 import { RecruitSettingService } from './recruit-setting.service'
 
@@ -37,6 +39,31 @@ export class RecruitSettingV1Controller {
   async getRecruitSetting(@Param() { id }: UuidParamDto): Promise<RecruitSettingModel> {
     const setting = await this.recruitSettingService.getById(id)
     if (!setting) throw new NotFoundException()
+    return RecruitSettingModel.fromEntity(setting)
+  }
+
+  @Post()
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: `Create a new recruit application setting` })
+  @ApiCreatedResponse({ type: RecruitSettingModel })
+  async createRecruitSetting(@Body() dto: CreateRecruitSettingDto): Promise<RecruitSettingModel> {
+    const setting = await this.recruitSettingService.create(dto)
+    return RecruitSettingModel.fromEntity(setting)
+  }
+
+  @Put(':id')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: `Update the specific recruit application setting` })
+  @ApiOkResponse({ type: RecruitSettingModel })
+  async updateRecruitSetting(
+    @Param() { id }: UuidParamDto,
+    @Body() dto: UpdateRecruitSettingDto,
+  ): Promise<RecruitSettingModel> {
+    const setting = await this.recruitSettingService.update(id, dto)
     return RecruitSettingModel.fromEntity(setting)
   }
 }
