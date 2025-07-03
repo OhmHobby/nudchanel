@@ -45,7 +45,7 @@ export class RegistrationV1Controller {
     @Res({ passthrough: true }) response: Pick<Response, 'cookie'>,
   ): Promise<AccountRegistrationInfoModel> {
     const registration = await this.registrationService.useToken(id)
-    if (!registration?.profile?._id) throw new NotFoundException()
+    if (!registration?.profile) throw new NotFoundException()
 
     const profile = await this.registrationService.register(registration.profile, [
       dto.name.toModel(),
