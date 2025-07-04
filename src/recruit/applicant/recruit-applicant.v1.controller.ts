@@ -35,6 +35,8 @@ import { UuidParamDto } from 'src/gallery/dto/uuid-param.dto'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
+import { ApplicantOfferResponseDto } from '../dto/applicant-offer-response-dto'
+import { ApplicantOfferDto } from '../dto/applicant-offer.dto'
 import { RecruitNoteBodyDto } from '../dto/recruit-note-body.dto'
 import { RecruitNoteParamDto } from '../dto/recruit-note-param.dto'
 import { RecruitApplicantNoteModel } from '../models/recruit-applicant-note.model'
@@ -44,8 +46,6 @@ import { RecruitApplicantsModel } from '../models/recruit-applicants.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitNoteService } from '../note/recruit-note.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
-import { ApplicantOfferResponseDto } from '../dto/applicant-offer-response-dto'
-import { ApplicantOfferDto } from '../dto/applicant-offer.dto'
 
 @Controller({ path: 'recruit/applicants', version: '1' })
 @ApiTags('RecruitApplicantV1')
@@ -81,7 +81,7 @@ export class RecruitApplicantV1Controller {
   @ApiCookieAuth()
   @ApiHeader({ name: RECRUIT_SETTING_ID })
   @ApiOperation({ summary: 'Create applicant', description: 'Create applicant data when TC accepted' })
-  @ApiOkResponse({ type: RecruitApplicantModel })
+  @ApiCreatedResponse({ type: RecruitApplicantModel })
   @ApiConflictResponse({ description: 'Already created' })
   async createRecruitApplicant(
     @UserCtx() user: User,
