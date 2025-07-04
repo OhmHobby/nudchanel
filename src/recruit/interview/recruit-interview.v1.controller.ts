@@ -1,4 +1,15 @@
-import { ConflictException, Controller, Get, HttpCode, HttpStatus, Param, Put } from '@nestjs/common'
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -13,7 +24,9 @@ import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
+import { AddRecruitInterviewSlotDto } from '../dto/add-recruit-interview-slot.dto'
 import { BookRecruitInterviewSlotDto } from '../dto/book-recruit-interview-slot.dto'
+import { RemoveRecruitInterviewSlotDto } from '../dto/remove-recruit-interview-slot.dto'
 import { RecruitInterviewSlotDetailModel } from '../models/recruit-interview-slot-detail.model'
 import { RecruitInterviewSlotModel } from '../models/recruit-interview-slot.model'
 import { RecruitInterviewService } from './recruit-interview.service'
@@ -70,5 +83,36 @@ export class RecruitInterviewV1Controller {
   async cancelRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext) {
     const result = await this.recruitInterviewService.cancelSlot(ctx.applicantIdOrThrow)
     if (!result) throw new ConflictException()
+  }
+
+  @Post('slots')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Add interview slot` })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async addRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: AddRecruitInterviewSlotDto) {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    await this.recruitInterviewService.addSlot(
+      ctx.currentSettingId,
+      new Date(dto.startWhen),
+      new Date(dto.endWhen),
+      dto.roleIds,
+    )
+  }
+
+  @Delete('slots')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Remove interview slot` })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiConflictResponse({ description: 'Cannot remove slot: one or more slots are already booked' })
+  async removeRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: RemoveRecruitInterviewSlotDto) {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    const { start, end } = RecruitInterviewSlotModel.fromRefId(dto.refId)
+    await this.recruitInterviewService.removeSlot(ctx.currentSettingId, start, end, dto.roleIds)
   }
 }
