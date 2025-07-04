@@ -364,4 +364,53 @@ describe(RecruitInterviewService.name, () => {
       expect(dataSource.transaction).not.toHaveBeenCalled()
     })
   })
+
+  describe('addSlot', () => {
+    it('should create and save slots for each roleId', async () => {
+      const saveMock = jest.fn()
+      service['interviewSlotRepostory'].create = ((data: any) => data) as any
+      service['interviewSlotRepostory'].save = saveMock
+      const startWhen = new Date('2024-07-29T15:00:00.000Z')
+      const endWhen = new Date('2024-07-29T15:30:00.000Z')
+      const roleIds = ['role-1', 'role-2']
+      await service.addSlot('recruit-id', startWhen, endWhen, roleIds)
+      expect(saveMock).toHaveBeenCalledWith([
+        { startWhen, endWhen, roleId: 'role-1' },
+        { startWhen, endWhen, roleId: 'role-2' },
+      ])
+    })
+  })
+
+  describe('removeSlot', () => {
+    it('should remove slots if none are booked', async () => {
+      const findMock = jest.fn().mockResolvedValue([
+        { id: '1', applicantId: null },
+        { id: '2', applicantId: null },
+      ])
+      const removeMock = jest.fn()
+      service['interviewSlotRepostory'].find = findMock
+      service['interviewSlotRepostory'].remove = removeMock
+      await service.removeSlot(
+        'recruit-id',
+        new Date('2024-07-29T15:00:00.000Z'),
+        new Date('2024-07-29T15:30:00.000Z'),
+        ['role-1', 'role-2'],
+      )
+      expect(removeMock).toHaveBeenCalled()
+    })
+
+    it('should throw ConflictException if any slot is booked', async () => {
+      const findMock = jest.fn().mockResolvedValue([
+        { id: '1', applicantId: 'applicant-1' },
+        { id: '2', applicantId: null },
+      ])
+      service['interviewSlotRepostory'].find = findMock
+      await expect(
+        service.removeSlot('recruit-id', new Date('2024-07-29T15:00:00.000Z'), new Date('2024-07-29T15:30:00.000Z'), [
+          'role-1',
+          'role-2',
+        ]),
+      ).rejects.toThrow('Cannot remove slot: one or more slots are already booked')
+    })
+  })
 })
