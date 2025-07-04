@@ -15,7 +15,7 @@ export class RecruitRoleModel {
   @ApiPropertyOptional()
   description?: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String })
   icon?: string | null
 
   @ApiPropertyOptional()
