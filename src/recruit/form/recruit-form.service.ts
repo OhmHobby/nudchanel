@@ -9,14 +9,13 @@ import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-que
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
-import { RecruitInterviewService } from '../interview/recruit-interview.service'
-import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
-import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
-import { RecruitFormQuestionModel } from '../models/recruit-form-question.model'
 import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
 import { CreateRecruitFormQuestionDto } from '../dto/create-recruit-form-question.dto'
 import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
 import { UpdateRecruitFormQuestionDto } from '../dto/update-recruit-form-question.dto'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
+import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
+import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
 
 @Injectable()
 export class RecruitFormService {
