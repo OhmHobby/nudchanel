@@ -260,4 +260,29 @@ export class RecruitInterviewService {
     const description = this.configService.getOrThrow(Config.RECRUIT_INTERVIEW_CALENDAR_DESCRIPTION)
     return description
   }
+
+  async addSlot(recruitId: string, startWhen: Date, endWhen: Date, roleIds: string[]) {
+    const slots = roleIds.map((roleId) =>
+      this.interviewSlotRepostory.create({
+        startWhen,
+        endWhen,
+        roleId,
+      }),
+    )
+    await this.interviewSlotRepostory.save(slots)
+  }
+
+  async removeSlot(recruitId: string, startWhen: Date, endWhen: Date, roleIds: string[]) {
+    const slots = await this.interviewSlotRepostory.find({
+      where: {
+        startWhen,
+        endWhen,
+        roleId: In(roleIds),
+      },
+    })
+    if (slots.some((slot) => slot.applicantId)) {
+      throw new ConflictException('Cannot remove slot: one or more slots are already booked')
+    }
+    await this.interviewSlotRepostory.remove(slots)
+  }
 }
