@@ -29,8 +29,28 @@ export class ProfileSteps extends CommonSteps {
     this.workspace.requestBody.newPassword = password
   }
 
+  @given('profile contact tels {string}')
+  givenProfileContactTels(tels: string) {
+    this.workspace.requestBody.tels = tels.split(',')
+  }
+
+  @given('profile contact emails {string}')
+  givenProfileContactEmails(emails: string) {
+    this.workspace.requestBody.emails = emails.split(',')
+  }
+
   @then('profile photo id should be {string}')
   thenProfilePhotoId(id: string) {
     expect(this.workspace.response?.body.id).toBe(id)
+  }
+
+  @then('profile contact tels should be {string}')
+  thenProfileContactTels(tels: string) {
+    expect(this.workspace.response?.body.tels).toEqual(tels.split(','))
+  }
+
+  @then('profile contact emails should be {string}')
+  thenProfileContactEmails(emails: string) {
+    expect(this.workspace.response?.body.emails).toEqual(emails.split(','))
   }
 }
