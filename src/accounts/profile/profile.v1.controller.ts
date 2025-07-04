@@ -46,7 +46,7 @@ export class ProfileV1Controller {
   @ApiBearerAuth()
   @ApiCookieAuth()
   async getMyContacts(@UserCtx() user: User): Promise<ProfileContactResponseModel> {
-    const doc = await this.profileService.findById(new Types.ObjectId(user.id!))
+    const doc = await this.profileService.findById(new Types.ObjectId(user.id!), true)
     if (!doc) throw new NotFoundException('Profile not found')
     return ProfileContactResponseModel.fromModel(doc)
   }
