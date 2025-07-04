@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiCookieAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
 import { Types } from 'mongoose'
@@ -40,6 +40,7 @@ export class NudStudentV1Controller {
   }
 
   @Put(':studentId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @AuthGroups()
   @ApiBearerAuth()
   @ApiCookieAuth()
