@@ -61,7 +61,10 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
       (this.offerExpireAt && now.getTime() >= this.offerExpireAt.getTime())
     ) {
       return this.offerAccepted ? RecruitOfferResponseEnum.accepted : RecruitOfferResponseEnum.declined
-    } else if (this.offerAccepted === false) {
+    } else if (
+      this.offerAccepted === false &&
+      ((this.offerExpireAt && now.getTime() >= this.offerExpireAt.getTime()) || this.offerResponseAt)
+    ) {
       return this.offerExpireAt ? RecruitOfferResponseEnum.pending : RecruitOfferResponseEnum.rejected
     } else return RecruitOfferResponseEnum.tba
   }
