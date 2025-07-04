@@ -14,6 +14,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCookieAuth,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiHeader,
   ApiNoContentResponse,
@@ -31,9 +32,12 @@ import { RecruitCtx } from '../context/recruit-context.decorator'
 import { RecruitContext } from '../context/recruit-context.model'
 import { AnswerRecruitFormQuestionsDto } from '../dto/answer-recruit-form-questions.dto'
 import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
+import { CreateRecruitFormQuestionDto } from '../dto/create-recruit-form-question.dto'
 import { GetRecruitFormCollectionDto } from '../dto/get-recruit-form-collection.dto'
 import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
+import { UpdateRecruitFormQuestionDto } from '../dto/update-recruit-form-question.dto'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
+import { RecruitFormQuestionModel } from '../models/recruit-form-question.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitFormService } from './recruit-form.service'
 
@@ -109,5 +113,37 @@ export class RecruitFormV1Controller {
   ): Promise<RecruitFormCollectionModel> {
     const collection = await this.recruitFormService.updateCollection(id, body)
     return RecruitFormCollectionModel.fromEntity(collection)
+  }
+
+  @Post('questions')
+  @HttpCode(HttpStatus.CREATED)
+  @AuthGroups('pr')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Create a new form question' })
+  @ApiCreatedResponse({ type: RecruitFormQuestionModel })
+  async createRecruitFormQuestion(
+    @Body() body: CreateRecruitFormQuestionDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ): Promise<RecruitFormQuestionModel> {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    const question = await this.recruitFormService.createQuestion(body)
+    return RecruitFormQuestionModel.fromEntity(question)
+  }
+
+  @Put('questions/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups('pr')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Update a form question' })
+  @ApiNoContentResponse()
+  async updateRecruitFormQuestion(
+    @Param() { id }: UuidParamDto,
+    @Body() body: UpdateRecruitFormQuestionDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ): Promise<void> {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    await this.recruitFormService.updateQuestion(id, body)
   }
 }

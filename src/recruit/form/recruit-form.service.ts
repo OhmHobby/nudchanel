@@ -9,11 +9,13 @@ import { RecruitFormQuestionEntity } from 'src/entities/recruit/recruit-form-que
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { AnswerRecruitFormQuestionDto } from '../dto/answer-recruit-form-question.dto'
+import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
+import { CreateRecruitFormQuestionDto } from '../dto/create-recruit-form-question.dto'
+import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
+import { UpdateRecruitFormQuestionDto } from '../dto/update-recruit-form-question.dto'
 import { RecruitInterviewService } from '../interview/recruit-interview.service'
 import { RecruitFormCollectionModel } from '../models/recruit-form-collection.model'
 import { RecruitFormQuestionAnswerModel } from '../models/recruit-form-question-answer.model'
-import { CreateRecruitFormCollectionDto } from '../dto/create-recruit-form-collection.dto'
-import { UpdateRecruitFormCollectionDto } from '../dto/update-recruit-form-collection.dto'
 
 @Injectable()
 export class RecruitFormService {
@@ -180,5 +182,34 @@ export class RecruitFormService {
       throw new NotFoundException('Collection not found')
     }
     return updatedCollection
+  }
+
+  async createQuestion(createQuestionDto: CreateRecruitFormQuestionDto): Promise<RecruitFormQuestionEntity> {
+    const question = new RecruitFormQuestionEntity({
+      collectionId: createQuestionDto.collectionId,
+      question: createQuestionDto.question,
+      input: createQuestionDto.input,
+      options: createQuestionDto.options,
+      rank: createQuestionDto.rank ?? 0,
+    })
+    return await this.questionRepostory.save(question)
+  }
+
+  async updateQuestion(
+    questionId: string,
+    updateQuestionDto: UpdateRecruitFormQuestionDto,
+  ): Promise<RecruitFormQuestionEntity> {
+    await this.questionRepostory.update(questionId, {
+      ...(updateQuestionDto.question !== undefined && { question: updateQuestionDto.question }),
+      ...(updateQuestionDto.input !== undefined && { input: updateQuestionDto.input }),
+      ...(updateQuestionDto.options !== undefined && { options: updateQuestionDto.options }),
+      ...(updateQuestionDto.rank !== undefined && { rank: updateQuestionDto.rank }),
+    })
+
+    const updatedQuestion = await this.questionRepostory.findOne({ where: { id: questionId } })
+    if (!updatedQuestion) {
+      throw new NotFoundException('Question not found')
+    }
+    return updatedQuestion
   }
 }
