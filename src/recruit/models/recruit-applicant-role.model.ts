@@ -13,7 +13,7 @@ export class RecruitApplicantRoleModel {
   @ApiProperty()
   name: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String })
   icon?: string | null
 
   @ApiPropertyOptional()
