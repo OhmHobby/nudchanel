@@ -10,7 +10,7 @@ export class CreateRecruitRoleDto {
   @IsString()
   description: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   icon?: string | null
