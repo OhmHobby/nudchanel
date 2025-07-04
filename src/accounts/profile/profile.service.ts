@@ -1,18 +1,30 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Config } from 'src/enums/config.enum'
+import { Encryption } from 'src/helpers/encryption'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileId } from 'src/models/types'
 
 @Injectable()
-export class ProfileService {
+export class ProfileService extends Encryption {
   constructor(
     @InjectModel(ProfileModel)
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
-  ) {}
+    configService: ConfigService,
+  ) {
+    super(configService.getOrThrow(Config.ENCRYPTION_KEY))
+  }
 
-  findById(id: ProfileId) {
-    return this.profileModel.findById(id).exec()
+  async findById(id: ProfileId, withContact = false) {
+    const query = this.profileModel.findById(id)
+    if (withContact) query.select(['emails', 'tels'])
+    const result = await query.exec()
+    if (result?.tels?.length) {
+      result.tels = result?.tels.map((el) => this.decrypt(el))
+    }
+    return result
   }
 
   findByIdPopulated(id: ProfileId) {
@@ -58,7 +70,7 @@ export class ProfileService {
     }
 
     if (contactInfo.tels !== undefined) {
-      updateData.tels = contactInfo.tels
+      updateData.tels = contactInfo.tels.map((el) => this.encrypt(el))
     }
 
     return this.profileModel.findByIdAndUpdate(id, updateData, { new: true }).exec()
