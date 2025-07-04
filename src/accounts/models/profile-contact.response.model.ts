@@ -18,8 +18,8 @@ export class ProfileContactResponseModel {
   static fromModel(profile?: ProfileModel): ProfileContactResponseModel {
     return new ProfileContactResponseModel({
       profileId: profile?._id.toString(),
-      emails: profile?.emails,
-      tels: profile?.tels,
+      emails: profile?.emails?.slice(0, 1),
+      tels: profile?.tels?.slice(0, 1),
     })
   }
 }
