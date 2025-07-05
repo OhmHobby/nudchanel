@@ -83,7 +83,7 @@ export class ProfileV1Controller {
   @ApiCookieAuth()
   @AuthGroups('nudch')
   async getProfileContacts(@Param() { profileId }: ProfileIdDto): Promise<ProfileContactResponseModel> {
-    const doc = await this.profileService.findById(profileId.objectId)
+    const doc = await this.profileService.findById(profileId.objectId, true)
     if (!doc) throw new NotFoundException('Profile not found')
     return ProfileContactResponseModel.fromModel(doc)
   }

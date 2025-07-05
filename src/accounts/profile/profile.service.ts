@@ -19,11 +19,11 @@ export class ProfileService extends Encryption {
 
   async findById(id: ProfileId, withContact = false) {
     const query = this.profileModel.findById(id)
-    if (withContact) query.select(['emails', 'tels'])
     const result = await query.exec()
-    if (result?.tels?.length) {
-      result.tels = result?.tels.map((el) => this.decrypt(el))
-    }
+    if (!result) return null
+    if (withContact && result.tels?.length) {
+      result.tels = result.tels.map((el) => this.decrypt(el))
+    } else result.tels = []
     return result
   }
 

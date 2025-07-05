@@ -23,7 +23,7 @@ export class ProfileModel {
   @Prop({ index: true, type: String, dim: 1, lowercase: true })
   emails?: string[]
 
-  @Prop({ select: false, type: String, dim: 1 })
+  @Prop({ type: String, dim: 1 })
   tels?: string[]
 
   @Prop({ select: false, type: String, dim: 1 })
