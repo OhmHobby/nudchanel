@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Auth, google } from 'googleapis'
+import { Span } from 'nestjs-otel'
 import { ApplicationSettingService } from 'src/application-setting/application-setting.service'
 import { Config } from 'src/enums/config.enum'
 
@@ -13,6 +14,7 @@ export class GoogleOauth2ClientService {
     private readonly applicationSettingService: ApplicationSettingService,
   ) {}
 
+  @Span()
   createClient(): Auth.OAuth2Client {
     const clientId = this.configService.get(Config.GAPIS_CLIENT_ID)
     const clientSecret = this.configService.get(Config.GAPIS_CLIENT_SECRET)
@@ -24,6 +26,7 @@ export class GoogleOauth2ClientService {
     })
   }
 
+  @Span()
   async getClientWithCredential(): Promise<Auth.OAuth2Client> {
     const tokenString = await this.applicationSettingService.getGoogleCredential()
     const token = JSON.parse(tokenString) as Auth.Credentials
@@ -33,6 +36,7 @@ export class GoogleOauth2ClientService {
     return client
   }
 
+  @Span()
   async updateCredential(client: Pick<Auth.OAuth2Client, 'getAccessToken'>): Promise<void> {
     const { res } = await client.getAccessToken()
     if (!res) return
