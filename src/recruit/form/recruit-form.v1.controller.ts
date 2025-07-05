@@ -65,9 +65,13 @@ export class RecruitFormV1Controller {
   ): Promise<RecruitFormCollectionModel> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
-    applicantId = applicantId ?? ctx.applicantIdOrThrow
+    applicantId = applicantId ?? (user.isAuthorized('nudch') ? (ctx.applicantId ?? undefined) : ctx.applicantIdOrThrow)
     const [[collection], questions] = await Promise.all([
-      this.recruitFormService.getApplicantFormCollectionWithCompletions(applicantId, ctx.currentSettingId, [id]),
+      applicantId
+        ? this.recruitFormService.getApplicantFormCollectionWithCompletions(applicantId, ctx.currentSettingId, [id])
+        : this.recruitFormService
+            .getCollections([id])
+            .then((collections) => collections.map((collection) => RecruitFormCollectionModel.fromEntity(collection))),
       this.recruitFormService.getQAByCollectionId(id, applicantId),
     ])
     if (!collection) throw new NotFoundException()
