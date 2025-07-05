@@ -11,12 +11,13 @@ import { ConfigService } from '@nestjs/config'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
 import dayjs from 'dayjs'
 import { calendar_v3 } from 'googleapis'
+import { Types } from 'mongoose'
+import { Span } from 'nestjs-otel'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-interview-slot.entity'
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { Config } from 'src/enums/config.enum'
 import { GoogleCalendarService } from 'src/google/google-calendar.service'
-import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { DataSource, In, IsNull, Repository } from 'typeorm'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitFormService } from '../form/recruit-form.service'
@@ -26,7 +27,6 @@ import { RecruitInterviewSlotModel } from '../models/recruit-interview-slot.mode
 import { RecruitRoleModel } from '../models/recruit-role.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitRoleService } from '../role/recruit-role.service'
-import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class RecruitInterviewService {
@@ -238,10 +238,7 @@ export class RecruitInterviewService {
     ])
     const applicant = applicants.at(0)
     if (!applicant) throw new InternalServerErrorException(`Applicant not found: ${applicantId}`)
-    this.logger.log(
-      `Creating calendar event for ${applicantId} (profile: ${applicant.profileId}) (${startWhen} - ${endWhen}) to`,
-    )
-    const applicantProfileId = ObjectIdUuidConverter.toObjectId(applicant.profileId)
+    const applicantProfileId = new Types.ObjectId(applicant.profileId)
     const profileIds = [applicantProfileId, ...roleModerators]
     const attendeeEmails = await this.profileService.emailsFromProfileIds(profileIds)
     const applicantFullName = applicant.profileName?.fullname || undefined
