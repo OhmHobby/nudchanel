@@ -26,6 +26,7 @@ import { RecruitInterviewSlotModel } from '../models/recruit-interview-slot.mode
 import { RecruitRoleModel } from '../models/recruit-role.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitRoleService } from '../role/recruit-role.service'
+import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class RecruitInterviewService {
@@ -48,6 +49,7 @@ export class RecruitInterviewService {
     private readonly profileService: ProfileService,
   ) {}
 
+  @Span()
   async getRange(recruitId: string): Promise<{ start: Date; end: Date } | undefined> {
     return await this.interviewSlotRepostory
       .createQueryBuilder('ris')
@@ -57,6 +59,7 @@ export class RecruitInterviewService {
       .getRawOne<{ start: Date; end: Date }>()
   }
 
+  @Span()
   async getSlots(
     recruitId: string,
     applicantId?: string,
@@ -95,16 +98,19 @@ export class RecruitInterviewService {
     return mergedSlots
   }
 
+  @Span()
   getSelectedSlots(applicantId: string) {
     return this.interviewSlotRepostory.find({
       where: { applicantId },
     })
   }
 
+  @Span()
   isSelectedSlot(sameGroupSlots: RecruitInterviewSlotEntity[], applicantId: string): boolean {
     return sameGroupSlots.some((el) => el.applicantId === applicantId)
   }
 
+  @Span()
   isSlotAvailable(sameGroupSlots: RecruitInterviewSlotEntity[], requestRoleIds?: string[]): boolean | undefined {
     const availableRoleId = new Set(sameGroupSlots.filter((slot) => !slot.applicantId).map((el) => el.roleId))
     return (
@@ -113,6 +119,7 @@ export class RecruitInterviewService {
     )
   }
 
+  @Span()
   isValidLeadTime(slotStartTime: Date, currentTime = new Date()) {
     return (
       dayjs(slotStartTime).diff(currentTime, 'hours') >=
@@ -120,12 +127,14 @@ export class RecruitInterviewService {
     )
   }
 
+  @Span()
   leadTimePrecheck(slotStartTime: Date) {
     if (!this.isValidLeadTime(slotStartTime)) {
       throw new ConflictException()
     }
   }
 
+  @Span()
   applicantBookingPrecheck(isFormCompleted: boolean, numberOfApplyRoles: number) {
     if (!numberOfApplyRoles) {
       throw new UnprocessableEntityException('No selected roles')
@@ -135,6 +144,7 @@ export class RecruitInterviewService {
     }
   }
 
+  @Span()
   isRebookSameSlot(slots: RecruitInterviewSlotEntity[], roleIds: string[], startWhen: Date, endWhen: Date): boolean {
     return (
       slots.at(0)?.startWhen === startWhen &&
@@ -145,6 +155,7 @@ export class RecruitInterviewService {
     )
   }
 
+  @Span()
   async bookSlot(recruitId: string, applicantId: string, startWhen?: Date, endWhen?: Date) {
     const [selectedSlots, isFormCompleted, mandatoryRoleIds, selectedRoleIds] = await Promise.all([
       this.getSelectedSlots(applicantId),
@@ -191,6 +202,7 @@ export class RecruitInterviewService {
     }
   }
 
+  @Span()
   async rebookSlot(recruitId: string, applicantId: string) {
     try {
       await this.bookSlot(recruitId, applicantId)
@@ -200,6 +212,7 @@ export class RecruitInterviewService {
     }
   }
 
+  @Span()
   async cancelSlot(applicantId: string, repository?: Repository<RecruitInterviewSlotEntity>) {
     await this.cancelCalendarEvent(applicantId)
     const result = await (repository ?? this.interviewSlotRepostory).update(
@@ -210,6 +223,7 @@ export class RecruitInterviewService {
     return !!result.affected
   }
 
+  @Span()
   async createCalendarEvent(
     applicantId: string,
     startWhen: Date,
@@ -240,6 +254,7 @@ export class RecruitInterviewService {
     return event
   }
 
+  @Span()
   async cancelCalendarEvent(applicantId: string) {
     try {
       const slot = await this.interviewSlotRepostory.findOne({ where: { applicantId } })
