@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { Logger } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { parse as uuidParse, stringify as uuidStringify } from 'uuid'
 import { V7Generator } from 'uuidv7'
 
 export class ObjectIdUuidConverter {
+  private static readonly logger = new Logger(ObjectIdUuidConverter.name)
+
+  private static isObjectIdString(str: string): boolean {
+    return /^[0-9a-fA-F]{24}$/.test(str)
+  }
+
   static toUuid<T extends Types.ObjectId | string | undefined | null>(
     objectId: T,
   ): string | (undefined extends T ? undefined : never) | (null extends T ? null : never) {
@@ -27,10 +34,18 @@ export class ObjectIdUuidConverter {
   }
 
   static toObjectId(uuid: string): Types.ObjectId {
+    if (this.isObjectIdString(uuid)) {
+      this.logger.warn(`Input is already an ObjectId string format: ${uuid}`)
+      return new Types.ObjectId(uuid)
+    }
     return new Types.ObjectId(this.toObjectIdBytes(uuid))
   }
 
   static toHexString(uuid: string): string {
+    if (this.isObjectIdString(uuid)) {
+      this.logger.warn(`Input is already an ObjectId string format: ${uuid}`)
+      return uuid
+    }
     return this.toObjectIdBytes(uuid).reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '')
   }
 
