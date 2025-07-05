@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Logger,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -34,6 +35,8 @@ import { RecruitInterviewService } from './recruit-interview.service'
 @Controller({ path: 'recruit/interview', version: '1' })
 @ApiTags('RecruitInterviewV1')
 export class RecruitInterviewV1Controller {
+  private readonly logger = new Logger(RecruitInterviewV1Controller.name)
+
   constructor(private readonly recruitInterviewService: RecruitInterviewService) {}
 
   @Get('slots')
@@ -68,6 +71,7 @@ export class RecruitInterviewV1Controller {
   @ApiConflictResponse({ description: 'No available slot' })
   async bookRecruitInterviewSlot(@Param() { refId }: BookRecruitInterviewSlotDto, @RecruitCtx() ctx: RecruitContext) {
     const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
+    this.logger.log(`Booking slot ${refId} (${start} - ${end}) for applicant ${ctx.applicantIdOrThrow}`)
     await this.recruitInterviewService.bookSlot(ctx.currentSettingId, ctx.applicantIdOrThrow, start, end)
   }
 
