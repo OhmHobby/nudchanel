@@ -207,7 +207,7 @@ export class RecruitInterviewService {
     try {
       await this.bookSlot(recruitId, applicantId)
     } catch (err) {
-      this.logger.error(`Failed to rebook slot for ${applicantId}`, err)
+      this.logger.warn(`Failed to rebook slot for ${applicantId}`, err)
       await this.cancelSlot(applicantId)
     }
   }
