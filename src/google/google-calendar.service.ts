@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { calendar_v3, google } from 'googleapis'
 import { GoogleOauth2ClientService } from 'src/google/google-oauth2-client.service'
 import { CalendarEventInsertBuilder } from './calendar-event-insert.builder'
+import { Span } from 'nestjs-otel'
 
 @Injectable()
 export class GoogleCalendarService {
@@ -11,6 +12,7 @@ export class GoogleCalendarService {
 
   constructor(private readonly googleService: GoogleOauth2ClientService) {}
 
+  @Span()
   async getCalendar() {
     const client = await this.googleService.getClientWithCredential()
     return google.calendar({
@@ -19,6 +21,7 @@ export class GoogleCalendarService {
     })
   }
 
+  @Span()
   async list(from?: Date, to?: Date): Promise<calendar_v3.Schema$Events> {
     const { events } = await this.getCalendar()
     const { data } = await events.list({
@@ -32,6 +35,7 @@ export class GoogleCalendarService {
     return data
   }
 
+  @Span()
   filterOnlyUpcomingEvents(
     from: Date = new Date(),
     items: calendar_v3.Schema$Event[] = [],
@@ -39,6 +43,7 @@ export class GoogleCalendarService {
     return items?.filter((item) => new Date(item.start?.dateTime ?? '0').getTime() >= from.getTime())
   }
 
+  @Span()
   async find(from?: Date, to?: Date, email?: string, summary?: string) {
     const events = await this.list(from, to)
     return events.items?.filter(
@@ -48,6 +53,7 @@ export class GoogleCalendarService {
     )
   }
 
+  @Span()
   async create(
     from: Date,
     to: Date,
@@ -71,6 +77,7 @@ export class GoogleCalendarService {
     return response.data
   }
 
+  @Span()
   async remove(eventId: string, sendUpdates: 'all' | 'externalOnly' | 'none' = 'all'): Promise<void> {
     const { events } = await this.getCalendar()
     await events.delete({
