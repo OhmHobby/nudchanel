@@ -35,8 +35,42 @@ describe(ObjectIdUuidConverter.name, () => {
     expect(result.toHexString()).toEqual(testObjectId)
   })
 
-  test(ObjectIdUuidConverter.toObjectId.name, () => {
+  test(ObjectIdUuidConverter.toHexString.name, () => {
     const result = ObjectIdUuidConverter.toHexString(testUuid)
     expect(result).toEqual(testObjectId)
+  })
+
+  describe('ObjectId string format detection', () => {
+    test('toObjectId with ObjectId string format', () => {
+      const objectIdString = '5b794c41fd533e3b2f61cf05'
+      const result = ObjectIdUuidConverter.toObjectId(objectIdString)
+      expect(result.toHexString()).toEqual(objectIdString)
+    })
+
+    test('toHexString with ObjectId string format', () => {
+      const objectIdString = '5b794c41fd533e3b2f61cf05'
+      const result = ObjectIdUuidConverter.toHexString(objectIdString)
+      expect(result).toEqual(objectIdString)
+    })
+
+    test('toObjectId with UUID format (existing behavior)', () => {
+      const result = ObjectIdUuidConverter.toObjectId(testUuid)
+      expect(result.toHexString()).toEqual(testObjectId)
+    })
+
+    test('toHexString with UUID format (existing behavior)', () => {
+      const result = ObjectIdUuidConverter.toHexString(testUuid)
+      expect(result).toEqual(testObjectId)
+    })
+
+    test('should handle invalid ObjectId string format gracefully', () => {
+      const invalidObjectId = 'invalid-object-id'
+      expect(() => ObjectIdUuidConverter.toObjectId(invalidObjectId)).toThrow()
+    })
+
+    test('should handle invalid UUID format gracefully', () => {
+      const invalidUuid = 'invalid-uuid'
+      expect(() => ObjectIdUuidConverter.toHexString(invalidUuid)).toThrow()
+    })
   })
 })
