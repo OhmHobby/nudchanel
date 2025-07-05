@@ -238,6 +238,9 @@ export class RecruitInterviewService {
     ])
     const applicant = applicants.at(0)
     if (!applicant) throw new InternalServerErrorException(`Applicant not found: ${applicantId}`)
+    this.logger.log(
+      `Creating calendar event for ${applicantId} (profile: ${applicant.profileId}) (${startWhen} - ${endWhen}) to`,
+    )
     const applicantProfileId = ObjectIdUuidConverter.toObjectId(applicant.profileId)
     const profileIds = [applicantProfileId, ...roleModerators]
     const attendeeEmails = await this.profileService.emailsFromProfileIds(profileIds)
