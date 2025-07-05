@@ -74,6 +74,19 @@ export class RecruitFormV1Controller {
     return collection.withQuestions(questions)
   }
 
+  @Get('collections')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: 'List form collections for current recruit' })
+  @ApiOkResponse({ type: [RecruitFormCollectionModel] })
+  async getRecruitFormCollections(@RecruitCtx() ctx: RecruitContext): Promise<RecruitFormCollectionModel[]> {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    const collections = await this.recruitFormService.getCollectionsByRecruitId(ctx.currentSettingId)
+    return collections.map((collection) => RecruitFormCollectionModel.fromEntity(collection))
+  }
+
   @Patch('answers')
   @HttpCode(HttpStatus.NO_CONTENT)
   @AuthGroups()

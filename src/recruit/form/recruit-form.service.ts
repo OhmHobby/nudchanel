@@ -42,6 +42,14 @@ export class RecruitFormService {
   }
 
   @Span()
+  async getCollectionsByRecruitId(recruitId: string): Promise<RecruitFormCollectionEntity[]> {
+    return await this.collectionRepostory.find({
+      where: { recruitId },
+      select: { id: true, title: true },
+    })
+  }
+
+  @Span()
   async getMandatoryCollections(recruitId: string): Promise<RecruitFormCollectionEntity[]> {
     const roles = await this.roleRepostory.find({
       where: { recruitId, mandatory: true, collection: Not(IsNull()) },
