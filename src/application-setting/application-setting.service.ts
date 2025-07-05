@@ -46,4 +46,12 @@ export class ApplicationSettingService extends Encryption {
   getIsDevToolsEnabled() {
     return this.get(this.devToolsEnabled)
   }
+
+  async migrateSetting() {
+    const key = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+    const gc = await this.repository.findOneBy({ id: this.googleCredential })
+    if (gc) await this.set(this.googleCredential, this.decrypt(gc.value, key))
+    const isDevToolsEnabled = await this.repository.findOneBy({ id: this.devToolsEnabled })
+    if (isDevToolsEnabled) await this.set(this.devToolsEnabled, this.decrypt(isDevToolsEnabled.value, key))
+  }
 }

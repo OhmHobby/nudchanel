@@ -22,9 +22,9 @@ export class Encryption {
     return iv.toString(this.ENCODING) + this.IV_SEPERATOR + encrypted.toString(this.ENCODING)
   }
 
-  protected decrypt(val: string): string {
+  protected decrypt(val: string, key = this.KEY): string {
     const [iv, encrypted] = val.split(this.IV_SEPERATOR).map((el) => Buffer.from(el, this.ENCODING))
-    const decipher = createDecipheriv(this.ALGORITHM, this.KEY, iv)
+    const decipher = createDecipheriv(this.ALGORITHM, key, iv)
     return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString()
   }
 }
