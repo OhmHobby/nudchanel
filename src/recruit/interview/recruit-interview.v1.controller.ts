@@ -6,10 +6,11 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
+  Patch,
   Post,
   Put,
-  Logger,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -21,6 +22,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
+import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
 import { RecruitCtx } from '../context/recruit-context.decorator'
@@ -98,12 +100,7 @@ export class RecruitInterviewV1Controller {
   @HttpCode(HttpStatus.NO_CONTENT)
   async addRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: AddRecruitInterviewSlotDto) {
     ctx.hasPermissionOrThrow(ctx.currentSettingId)
-    await this.recruitInterviewService.addSlot(
-      ctx.currentSettingId,
-      new Date(dto.startWhen),
-      new Date(dto.endWhen),
-      dto.roleIds,
-    )
+    await this.recruitInterviewService.addSlot(new Date(dto.startWhen), new Date(dto.endWhen), dto.roleIds)
   }
 
   @Delete('slots')
@@ -117,6 +114,44 @@ export class RecruitInterviewV1Controller {
   async removeRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: RemoveRecruitInterviewSlotDto) {
     ctx.hasPermissionOrThrow(ctx.currentSettingId)
     const { start, end } = RecruitInterviewSlotModel.fromRefId(dto.refId)
-    await this.recruitInterviewService.removeSlot(ctx.currentSettingId, start, end, dto.roleIds)
+    await this.recruitInterviewService.removeSlot(start, end, dto.roleIds)
+  }
+
+  @Patch('slots/:refId/interviewed')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Mark interview slot as interviewed` })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  @ApiConflictResponse({ description: 'Interview slots are already marked as interviewed' })
+  @AuditLog(RecruitInterviewV1Controller.prototype.markRecruitInterviewSlotAsInterviewed.name)
+  async markRecruitInterviewSlotAsInterviewed(
+    @Param() { refId }: BookRecruitInterviewSlotDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ) {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    this.logger.log(`Marking slot ${refId} as interviewed`)
+    await this.recruitInterviewService.markSlotAsInterviewed(refId)
+  }
+
+  @Delete('slots/:refId/interviewed')
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiHeader({ name: RECRUIT_SETTING_ID })
+  @ApiOperation({ summary: `Unmark interview slot as interviewed` })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  @ApiConflictResponse({ description: 'Interview slots are already unmarked as interviewed' })
+  @AuditLog(RecruitInterviewV1Controller.prototype.unmarkRecruitInterviewSlotAsInterviewed.name)
+  async unmarkRecruitInterviewSlotAsInterviewed(
+    @Param() { refId }: BookRecruitInterviewSlotDto,
+    @RecruitCtx() ctx: RecruitContext,
+  ) {
+    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    this.logger.log(`Unmarking slot ${refId} as interviewed`)
+    await this.recruitInterviewService.unmarkSlotAsInterviewed(refId)
   }
 }
