@@ -18,7 +18,7 @@ import { RecruitInterviewSlotEntity } from 'src/entities/recruit/recruit-intervi
 import { RecruitRoleEntity } from 'src/entities/recruit/recruit-role.entity'
 import { Config } from 'src/enums/config.enum'
 import { GoogleCalendarService } from 'src/google/google-calendar.service'
-import { DataSource, In, IsNull, Repository } from 'typeorm'
+import { DataSource, In, IsNull, Not, Repository } from 'typeorm'
 import { RecruitApplicantService } from '../applicant/recruit-applicant.service'
 import { RecruitFormService } from '../form/recruit-form.service'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
@@ -276,7 +276,7 @@ export class RecruitInterviewService {
     return description
   }
 
-  async addSlot(recruitId: string, startWhen: Date, endWhen: Date, roleIds: string[]) {
+  async addSlot(startWhen: Date, endWhen: Date, roleIds: string[]) {
     const slots = roleIds.map((roleId) =>
       this.interviewSlotRepostory.create({
         startWhen,
@@ -287,7 +287,7 @@ export class RecruitInterviewService {
     await this.interviewSlotRepostory.save(slots)
   }
 
-  async removeSlot(recruitId: string, startWhen: Date, endWhen: Date, roleIds: string[]) {
+  async removeSlot(startWhen: Date, endWhen: Date, roleIds: string[]) {
     const slots = await this.interviewSlotRepostory.find({
       where: {
         startWhen,
@@ -299,5 +299,59 @@ export class RecruitInterviewService {
       throw new ConflictException('Cannot remove slot: one or more slots are already booked')
     }
     await this.interviewSlotRepostory.remove(slots)
+  }
+
+  @Span()
+  async markSlotAsInterviewed(refId: string) {
+    const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
+
+    const existingSlots = await this.interviewSlotRepostory.find({
+      where: {
+        startWhen: start,
+        endWhen: end,
+        interviewAt: Not(IsNull()),
+      },
+    })
+
+    if (existingSlots.length > 0) {
+      throw new ConflictException('Interview slots are already marked as interviewed')
+    }
+
+    const result = await this.interviewSlotRepostory.update(
+      {
+        startWhen: start,
+        endWhen: end,
+      },
+      { interviewAt: new Date() },
+    )
+    this.logger.log(`Marked interview slot ${refId} as interviewed: ${result.affected} slots updated`)
+    return result.affected
+  }
+
+  @Span()
+  async unmarkSlotAsInterviewed(refId: string) {
+    const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
+
+    const existingSlots = await this.interviewSlotRepostory.find({
+      where: {
+        startWhen: start,
+        endWhen: end,
+        interviewAt: IsNull(),
+      },
+    })
+
+    if (existingSlots.length > 0) {
+      throw new ConflictException('Interview slots are already unmarked as interviewed')
+    }
+
+    const result = await this.interviewSlotRepostory.update(
+      {
+        startWhen: start,
+        endWhen: end,
+      },
+      { interviewAt: null },
+    )
+    this.logger.log(`Unmarked interview slot ${refId} as interviewed: ${result.affected} slots updated`)
+    return result.affected
   }
 }
