@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { RecruitFormCollectionEntity } from 'src/entities/recruit/recruit-form-collection.entity'
 import { RecruitSettingEntity } from 'src/entities/recruit/recruit-setting.entity'
 import { RecruitFormCollectionModel } from './recruit-form-collection.model'
 
@@ -40,8 +41,10 @@ export class RecruitSettingModel {
   @ApiPropertyOptional({ type: RecruitFormCollectionModel, isArray: true })
   collections?: RecruitFormCollectionModel[]
 
-  withCollections(collections?: RecruitFormCollectionModel[]) {
-    this.collections = collections
+  withCollections(collections?: (RecruitFormCollectionEntity | RecruitFormCollectionModel)[]) {
+    this.collections = collections?.map((el) =>
+      el instanceof RecruitFormCollectionEntity ? RecruitFormCollectionModel.fromEntity(el) : el,
+    )
     return this
   }
 

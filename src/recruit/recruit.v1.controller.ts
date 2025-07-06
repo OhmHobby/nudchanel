@@ -31,7 +31,7 @@ export class RecruitV1Controller {
             ctx.applicantIdOrThrow,
             ctx.currentSettingId,
           )
-        : Promise.resolve(undefined),
+        : this.recruitFormService.getMandatoryCollections(ctx.currentSettingId),
       this.recruitInterviewService.getRange(ctx.currentSettingId),
     ])
     if (!entity) throw new NotFoundException()
