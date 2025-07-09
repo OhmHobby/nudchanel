@@ -28,6 +28,9 @@ export class RecruitInterviewSlotModel {
   @ApiPropertyOptional()
   interviewedAt?: Date
 
+  @ApiPropertyOptional()
+  conferenceUri?: string | null
+
   static refId(start: Date, end: Date) {
     return `${this.toBase36(start)}${this.separator}${this.toBase36(end)}`
   }
@@ -42,6 +45,7 @@ export class RecruitInterviewSlotModel {
       start: entity.startWhen,
       end: entity.endWhen,
       interviewedAt: entity.interviewAt ?? undefined,
+      conferenceUri: entity.conferenceUri,
     })
   }
 
