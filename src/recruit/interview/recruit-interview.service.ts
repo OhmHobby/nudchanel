@@ -302,56 +302,52 @@ export class RecruitInterviewService {
   }
 
   @Span()
-  async markSlotAsInterviewed(refId: string) {
-    const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
-
+  async markApplicantSlotsAsInterviewed(applicantId: string) {
     const existingSlots = await this.interviewSlotRepostory.find({
       where: {
-        startWhen: start,
-        endWhen: end,
+        applicantId,
         interviewAt: Not(IsNull()),
       },
     })
 
     if (existingSlots.length > 0) {
-      throw new ConflictException('Interview slots are already marked as interviewed')
+      throw new ConflictException('Applicant interview slots are already marked as interviewed')
     }
 
     const result = await this.interviewSlotRepostory.update(
       {
-        startWhen: start,
-        endWhen: end,
+        applicantId,
       },
       { interviewAt: new Date() },
     )
-    this.logger.log(`Marked interview slot ${refId} as interviewed: ${result.affected} slots updated`)
+    this.logger.log(
+      `Marked interview slots for applicant ${applicantId} as interviewed: ${result.affected} slots updated`,
+    )
     return result.affected
   }
 
   @Span()
-  async unmarkSlotAsInterviewed(refId: string) {
-    const { start, end } = RecruitInterviewSlotModel.fromRefId(refId)
-
+  async unmarkApplicantSlotsAsInterviewed(applicantId: string) {
     const existingSlots = await this.interviewSlotRepostory.find({
       where: {
-        startWhen: start,
-        endWhen: end,
+        applicantId,
         interviewAt: IsNull(),
       },
     })
 
     if (existingSlots.length > 0) {
-      throw new ConflictException('Interview slots are already unmarked as interviewed')
+      throw new ConflictException('Applicant interview slots are already unmarked as interviewed')
     }
 
     const result = await this.interviewSlotRepostory.update(
       {
-        startWhen: start,
-        endWhen: end,
+        applicantId,
       },
       { interviewAt: null },
     )
-    this.logger.log(`Unmarked interview slot ${refId} as interviewed: ${result.affected} slots updated`)
+    this.logger.log(
+      `Unmarked interview slots for applicant ${applicantId} as interviewed: ${result.affected} slots updated`,
+    )
     return result.affected
   }
 }
