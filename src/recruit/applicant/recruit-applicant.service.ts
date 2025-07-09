@@ -57,6 +57,10 @@ export class RecruitApplicantService {
         },
         interviewSlots: { id: true, startWhen: true, endWhen: true, interviewAt: true },
       },
+      order: {
+        interviewSlots: { startWhen: 'ASC' },
+        id: 'ASC',
+      },
     })
   }
 
