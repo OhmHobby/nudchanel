@@ -46,6 +46,8 @@ import { RecruitApplicantsModel } from '../models/recruit-applicants.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitNoteService } from '../note/recruit-note.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
+import { AuditLog } from 'src/audit-log/audit-log.decorator'
 
 @Controller({ path: 'recruit/applicants', version: '1' })
 @ApiTags('RecruitApplicantV1')
@@ -54,6 +56,7 @@ export class RecruitApplicantV1Controller {
     private readonly recruitApplicantService: RecruitApplicantService,
     private readonly recruitModeratorService: RecruitModeratorService,
     private readonly recruitNoteService: RecruitNoteService,
+    private readonly recruitInterviewService: RecruitInterviewService,
   ) {}
 
   @Get()
@@ -253,5 +256,39 @@ export class RecruitApplicantV1Controller {
   async deleteRecruitApplicantNote(@Param() { noteId }: RecruitNoteParamDto, @UserCtx() user: User): Promise<void> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitNoteService.deleteNote(noteId, profileUid)
+  }
+
+  @Patch(':id/interviewed')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Mark applicant interview slots as interviewed' })
+  @ApiNoContentResponse({ description: 'Interview slots marked as interviewed successfully' })
+  @ApiConflictResponse({ description: 'Applicant interview slots are already marked as interviewed' })
+  @ApiForbiddenResponse({ description: 'No permission to mark this applicant' })
+  @ApiNotFoundResponse({ description: 'Applicant not found' })
+  @AuditLog(RecruitApplicantV1Controller.prototype.markApplicantAsInterviewed.name)
+  async markApplicantAsInterviewed(@Param() { id: applicantId }: UuidParamDto, @UserCtx() user: User): Promise<void> {
+    const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
+    await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
+    await this.recruitInterviewService.markApplicantSlotsAsInterviewed(applicantId)
+  }
+
+  @Delete(':id/interviewed')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @AuthGroups('nudch')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Unmark applicant interview slots as interviewed' })
+  @ApiNoContentResponse({ description: 'Interview slots unmarked as interviewed successfully' })
+  @ApiConflictResponse({ description: 'Applicant interview slots are already unmarked as interviewed' })
+  @ApiForbiddenResponse({ description: 'No permission to unmark this applicant' })
+  @ApiNotFoundResponse({ description: 'Applicant not found' })
+  @AuditLog(RecruitApplicantV1Controller.prototype.unmarkApplicantAsInterviewed.name)
+  async unmarkApplicantAsInterviewed(@Param() { id: applicantId }: UuidParamDto, @UserCtx() user: User): Promise<void> {
+    const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
+    await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
+    await this.recruitInterviewService.unmarkApplicantSlotsAsInterviewed(applicantId)
   }
 }
