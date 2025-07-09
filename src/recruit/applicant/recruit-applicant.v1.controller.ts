@@ -47,6 +47,7 @@ import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitNoteService } from '../note/recruit-note.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
 import { RecruitInterviewService } from '../interview/recruit-interview.service'
+import { AuditLog } from 'src/audit-log/audit-log.decorator'
 
 @Controller({ path: 'recruit/applicants', version: '1' })
 @ApiTags('RecruitApplicantV1')
@@ -267,6 +268,7 @@ export class RecruitApplicantV1Controller {
   @ApiConflictResponse({ description: 'Applicant interview slots are already marked as interviewed' })
   @ApiForbiddenResponse({ description: 'No permission to mark this applicant' })
   @ApiNotFoundResponse({ description: 'Applicant not found' })
+  @AuditLog(RecruitApplicantV1Controller.prototype.markApplicantAsInterviewed.name)
   async markApplicantAsInterviewed(@Param() { id: applicantId }: UuidParamDto, @UserCtx() user: User): Promise<void> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
@@ -283,6 +285,7 @@ export class RecruitApplicantV1Controller {
   @ApiConflictResponse({ description: 'Applicant interview slots are already unmarked as interviewed' })
   @ApiForbiddenResponse({ description: 'No permission to unmark this applicant' })
   @ApiNotFoundResponse({ description: 'Applicant not found' })
+  @AuditLog(RecruitApplicantV1Controller.prototype.unmarkApplicantAsInterviewed.name)
   async unmarkApplicantAsInterviewed(@Param() { id: applicantId }: UuidParamDto, @UserCtx() user: User): Promise<void> {
     const profileUid = ObjectIdUuidConverter.toUuid(user.id!)
     await this.recruitModeratorService.hasPermissionToApplicantOrThrow(profileUid, applicantId)
