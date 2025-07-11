@@ -54,7 +54,7 @@ export class RecruitInterviewV1Controller {
     return await this.recruitInterviewService.getSlots(
       ctx.currentSettingId,
       ctx.applicantId ?? undefined,
-      ctx.isModerator,
+      ctx.hasPermission(),
     )
   }
 
@@ -98,7 +98,7 @@ export class RecruitInterviewV1Controller {
   @ApiOperation({ summary: `Add interview slot` })
   @HttpCode(HttpStatus.NO_CONTENT)
   async addRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: AddRecruitInterviewSlotDto) {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     await this.recruitInterviewService.addSlot(new Date(dto.startWhen), new Date(dto.endWhen), dto.roleIds)
   }
 
@@ -111,7 +111,7 @@ export class RecruitInterviewV1Controller {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiConflictResponse({ description: 'Cannot remove slot: one or more slots are already booked' })
   async removeRecruitInterviewSlot(@RecruitCtx() ctx: RecruitContext, @Body() dto: RemoveRecruitInterviewSlotDto) {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     const { start, end } = RecruitInterviewSlotModel.fromRefId(dto.refId)
     await this.recruitInterviewService.removeSlot(start, end, dto.roleIds)
   }
