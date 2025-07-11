@@ -17,8 +17,12 @@ export class RecruitContext {
     return this.currentSetting.id
   }
 
-  hasPermissionOrThrow(settingId?: string) {
-    if (!settingId || this.manageableRecruitId.includes(settingId)) return true
+  hasPermission() {
+    return this.manageableRecruitId.includes(this.currentSettingId)
+  }
+
+  hasPermissionOrThrow() {
+    if (this.hasPermission()) return true
     else throw new ForbiddenException()
   }
 
@@ -39,9 +43,5 @@ export class RecruitContext {
   get applicantIdOrThrow(): string {
     if (this.applicantId) return this.applicantId
     else throw new ForbiddenException('The applicant has not been created')
-  }
-
-  get isModerator(): boolean {
-    return !!this.manageableRecruitId
   }
 }
