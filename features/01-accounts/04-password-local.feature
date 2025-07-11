@@ -20,7 +20,7 @@ Feature: Password local
   Scenario: Incorrect current password
     Given user profileId 5b794c41fd533e3b2f61cf05
     And change password using current password = "password"
-    And change password using new password = "P@$$w0rd"
+    And change password using new password = "P@$$w0rd1234"
     When PATCH /api/v1/accounts/users/local/password
     Then HTTP response status should be BAD_REQUEST
     And HTTP response error message should be "Invalid current password"
