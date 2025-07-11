@@ -54,6 +54,7 @@ export class CookieToken {
     const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)
     this._accessToken = await this.accessTokenService.generateAccessToken(
       ObjectIdUuidConverter.toObjectId(refreshToken.profileId),
+      refreshToken.isMfaEnabled,
     )
     this._refreshToken = refreshToken.id
     if (response) {
