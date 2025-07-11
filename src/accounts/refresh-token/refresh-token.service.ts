@@ -27,10 +27,11 @@ export class RefreshTokenService {
     return dayjs().add(sessionDuration).toDate()
   }
 
-  async create(profileUid: string, sessionToken = false): Promise<RefreshTokenEntity> {
+  async create(profileUid: string, sessionToken = false, isMfaEnabled = false): Promise<RefreshTokenEntity> {
     const refreshToken = new RefreshTokenEntity({
       profileId: profileUid,
       expiresAt: this.refreshTokenExpires(sessionToken),
+      isMfaEnabled,
     })
     return await this.refreshTokenRepository.save(refreshToken)
   }
@@ -91,7 +92,7 @@ export class RefreshTokenService {
     const isSessionToken = this.isSessionToken(currentRefreshToken.createdAt, currentRefreshToken.expiresAt)
 
     const profileId = currentRefreshToken.profileId
-    const newRefreshToken = await this.create(profileId, isSessionToken)
+    const newRefreshToken = await this.create(profileId, isSessionToken, currentRefreshToken.isMfaEnabled)
     await this.revokeToken(refreshToken, newRefreshToken.id)
 
     currentRefreshToken.id = newRefreshToken.id

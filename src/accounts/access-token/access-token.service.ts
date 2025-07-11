@@ -35,14 +35,14 @@ export class AccessTokenService {
     this.verifyAccessToken = new VerifyAccessToken(publicKey)
   }
 
-  async generateAccessToken(profileId: ProfileId) {
+  async generateAccessToken(profileId: ProfileId, withGroups: boolean) {
     const privateKey = this.configService.get(Config.NUDCH_TOKEN_PRIVATE_KEY)
     const issuer = this.configService.get(Config.NUDCH_TOKEN_ISSUER)
     const signAccessToken = new SignAccessToken(issuer, privateKey)
     const [profile, name, groups] = await Promise.all([
       this.profileService.findById(profileId),
       this.profileNameService.getProfileName(profileId, 'en'),
-      this.userGroupService.getProfileGroups(profileId.toString()),
+      withGroups ? this.userGroupService.getProfileGroups(profileId.toString()) : Promise.resolve([]),
     ])
 
     const photo = PhotoUrlHelper.profileJpg(profile?.photo)
