@@ -58,7 +58,7 @@ describe(ExternalOauth2ProviderService.name, () => {
       const profileId = new Types.ObjectId()
       cut.findProfileId = jest.fn().mockResolvedValue(profileId)
       const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
-      expect(result).toEqual(new ProfileIdOrRegistrationUrlModel(profileId))
+      expect(result).toEqual(new ProfileIdOrRegistrationUrlModel(profileId, undefined, false))
     })
 
     it('should continue to cross origin correctly', async () => {
