@@ -15,6 +15,6 @@ Feature: Sign in local
 
   Scenario: Sign in - invalid password
     Given sign in with username = "nattawatj"
-    And sign in with password = "nudchdev!123"
+    And sign in with password = "NudchDev!123"
     When POST /api/v1/accounts/sign-in/local
     Then HTTP response status should be UNAUTHORIZED

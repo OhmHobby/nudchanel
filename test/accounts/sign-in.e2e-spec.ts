@@ -49,7 +49,7 @@ describe('Accounts - sign-in', () => {
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
-      .send({ username: 'username', password: 'nudchdev!123' })
+      .send({ username: 'username', password: 'Nudchdev!123' })
 
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()
