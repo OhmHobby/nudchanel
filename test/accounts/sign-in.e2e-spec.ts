@@ -33,7 +33,7 @@ describe('Accounts - sign-in', () => {
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
-      .send({ username: 'username', password: 'password' })
+      .send({ username: 'username', password: 'nudchDev!123' })
 
     expect(result.status).toBe(HttpStatus.OK)
     expect(result.headers['set-cookie']).toContainEqual(expect.stringContaining('access_token=eyJ'))
@@ -49,7 +49,7 @@ describe('Accounts - sign-in', () => {
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
-      .send({ username: 'username', password: 'secret' })
+      .send({ username: 'username', password: 'Nudchdev!123' })
 
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()
@@ -60,7 +60,7 @@ describe('Accounts - sign-in', () => {
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
-      .send({ username: 'username', password: 'password' })
+      .send({ username: 'username', password: 'nudchDev!123' })
 
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()
@@ -73,7 +73,7 @@ describe('Accounts - sign-in', () => {
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
-      .send({ username: 'username', password: 'password' })
+      .send({ username: 'username', password: 'nudchDev!123' })
 
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
     expect(result.headers['set-cookie']).toBeUndefined()

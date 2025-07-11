@@ -195,7 +195,7 @@ describe(UserLocalService.name, () => {
     it('should return user when password matches', async () => {
       const user = TestData.aValidUserLocal().build()
       service.findByUsername = jest.fn().mockResolvedValue(user)
-      const result = await service.signIn('username', 'password')
+      const result = await service.signIn('username', 'nudchDev!123')
       expect(result).toEqual(user)
     })
   })
