@@ -66,7 +66,7 @@ export class SignInV1Controller {
       response,
       profileId,
       !persistent,
-      this.configService.get(Config.IS_DEV_ENV) ?? false,
+      this.configService.get(Config.IS_PROD_ENV) ?? false,
     )
     this.logger.log(
       { message: 'Successful sign-in', username, persistent },
