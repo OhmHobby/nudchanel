@@ -42,6 +42,6 @@ export class RecruitContext {
   }
 
   get isModerator(): boolean {
-    return !!this.manageableRecruitId
+    return !!this.manageableRecruitId.length
   }
 }
