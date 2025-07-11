@@ -68,12 +68,12 @@ export class RecruitApplicantV1Controller {
   @ApiOkResponse({ type: RecruitApplicantsModel })
   @ApiForbiddenResponse()
   async getRecruitApplicants(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantsModel> {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     const applicants = await this.recruitApplicantService.getRecruitApplicantModels(
       undefined,
       ctx.currentSettingId,
       undefined,
-      ctx.currentSetting.isAnnounced() || ctx.isModerator,
+      true,
     )
     return new RecruitApplicantsModel({ applicants })
   }
@@ -186,7 +186,7 @@ export class RecruitApplicantV1Controller {
       id,
       undefined,
       undefined,
-      ctx.currentSetting.isAnnounced() || ctx.isModerator,
+      ctx.currentSetting.isAnnounced() || ctx.hasPermission(),
     )
     if (!applicant) throw new NotFoundException()
     return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(applicant)
