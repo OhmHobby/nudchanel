@@ -54,7 +54,7 @@ export class RecruitInterviewV1Controller {
     return await this.recruitInterviewService.getSlots(
       ctx.currentSettingId,
       ctx.applicantId ?? undefined,
-      ctx.hasPermissionOrThrow(ctx.currentSettingId),
+      ctx.isModerator,
     )
   }
 

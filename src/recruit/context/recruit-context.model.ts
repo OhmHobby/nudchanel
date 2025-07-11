@@ -40,4 +40,8 @@ export class RecruitContext {
     if (this.applicantId) return this.applicantId
     else throw new ForbiddenException('The applicant has not been created')
   }
+
+  get isModerator(): boolean {
+    return !!this.manageableRecruitId.length
+  }
 }
