@@ -18,10 +18,11 @@ export class SignInService {
     response: Pick<Response, 'cookie'>,
     profileId: ProfileId,
     isSession = false,
+    isMfaEnabled = false,
   ) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.accessTokenService.generateAccessToken(profileId),
-      this.refreshTokenService.create(ObjectIdUuidConverter.toUuid(profileId), isSession),
+      this.accessTokenService.generateAccessToken(profileId, isMfaEnabled),
+      this.refreshTokenService.create(ObjectIdUuidConverter.toUuid(profileId), isSession, isMfaEnabled),
     ])
     if (!refreshToken.id) throw new Error('Failed to create refreshToken')
     const expires = this.refreshTokenService.tokenCookieExpires(refreshToken)

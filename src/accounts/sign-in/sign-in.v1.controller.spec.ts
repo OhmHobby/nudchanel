@@ -11,6 +11,7 @@ import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
 import { SignInProviderDto } from './dto/sign-in-provider.dto'
 import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
+import { ProfileIdOrRegistrationUrlModel } from './oidc/profile-id-or-registration-code.model'
 import { SignInService } from './sign-in.service'
 import { SignInV1Controller } from './sign-in.v1.controller'
 
@@ -94,7 +95,9 @@ describe(SignInV1Controller.name, () => {
     })
 
     it('should redirect to home when sign-in successfully', async () => {
-      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest.fn().mockResolvedValue(profileId)
+      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest
+        .fn()
+        .mockResolvedValue(new ProfileIdOrRegistrationUrlModel(profileId))
       await controller.redirectSignInWithProviderCallback(
         mockRequest,
         new SignInProviderDto({ provider: OidcProvider.Discord }),
@@ -108,7 +111,9 @@ describe(SignInV1Controller.name, () => {
     })
 
     it('should redirect to continue path when sign-in successfully', async () => {
-      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest.fn().mockResolvedValue(profileId)
+      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest
+        .fn()
+        .mockResolvedValue(new ProfileIdOrRegistrationUrlModel(profileId))
       await controller.redirectSignInWithProviderCallback(
         { ...mockRequest, cookies: { continue_path: '/test' } },
         new SignInProviderDto({ provider: OidcProvider.Discord }),
@@ -123,7 +128,9 @@ describe(SignInV1Controller.name, () => {
 
     it('should redirect to register page correctly', async () => {
       const returnUrl = '/register?code=registration-token'
-      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest.fn().mockResolvedValue(returnUrl)
+      discordOauth2ProviderService.profileIdBySignInWithCodeOrRegistrationUrl = jest
+        .fn()
+        .mockResolvedValue(new ProfileIdOrRegistrationUrlModel(undefined, returnUrl))
       await controller.redirectSignInWithProviderCallback(
         { ...mockRequest },
         new SignInProviderDto({ provider: OidcProvider.Discord }),

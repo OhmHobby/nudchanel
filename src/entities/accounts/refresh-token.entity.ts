@@ -20,6 +20,9 @@ export class RefreshTokenEntity extends BaseEntity {
   @Column({ name: 'next_token', type: 'uuid', nullable: true })
   nextToken: string | null
 
+  @Column({ name: 'is_mfa_enabled', type: 'boolean', default: false })
+  isMfaEnabled: boolean
+
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at', select: true })
   createdAt: Date
 }

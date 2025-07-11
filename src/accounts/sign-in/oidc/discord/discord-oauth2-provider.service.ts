@@ -64,6 +64,10 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
     return registrationDoc._id
   }
 
+  isMfaEnabled(user: APIUser): boolean {
+    return user.mfa_enabled ?? false
+  }
+
   private generateSignInUrl(redirectUri: string): string {
     return this.oauth2Client.generateAuthorizationURL({
       client_id: this.clientId,

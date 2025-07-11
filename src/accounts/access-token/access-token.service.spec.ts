@@ -47,7 +47,7 @@ describe(AccessTokenService.name, () => {
         sign: jest.fn().mockResolvedValue(accessToken),
       })
 
-      const result = await service.generateAccessToken(new Types.ObjectId())
+      const result = await service.generateAccessToken(new Types.ObjectId(), true)
       expect(result).toBe(accessToken)
     })
   })

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
@@ -61,7 +62,12 @@ export class SignInV1Controller {
   ): Promise<SignInLocalUserResponseDto> {
     const user = await this.userLocalService.signIn(username, password)
     const profileId = user.profile! as ProfileId
-    await this.signInService.setAccessRefreshTokenCookiesByProfile(response, profileId, !persistent)
+    await this.signInService.setAccessRefreshTokenCookiesByProfile(
+      response,
+      profileId,
+      !persistent,
+      this.configService.get(Config.IS_PROD_ENV) ?? false,
+    )
     this.logger.log(
       { message: 'Successful sign-in', username, persistent },
       SignInV1Controller.prototype.signInWithLocalUser.name,
@@ -86,11 +92,18 @@ export class SignInV1Controller {
     if (!providerService) throw new NotFoundException('Unknown provider')
     try {
       const profileIdOrRegistrationUrl = await providerService.profileIdBySignInWithCodeOrRegistrationUrl(code, baseUrl)
-      if (typeof profileIdOrRegistrationUrl === 'string') {
-        return res.redirect(HttpStatus.FOUND, profileIdOrRegistrationUrl)
-      } else {
-        await this.signInService.setAccessRefreshTokenCookiesByProfile(res, profileIdOrRegistrationUrl, true)
+      if (profileIdOrRegistrationUrl.registrationUrl) {
+        return res.redirect(HttpStatus.FOUND, profileIdOrRegistrationUrl.registrationUrl)
+      } else if (profileIdOrRegistrationUrl.profileId) {
+        await this.signInService.setAccessRefreshTokenCookiesByProfile(
+          res,
+          profileIdOrRegistrationUrl.profileId,
+          true,
+          profileIdOrRegistrationUrl.isMfaEnabled,
+        )
         return res.redirect(HttpStatus.FOUND, this.getContinuePath(cookies, res) ?? '/')
+      } else {
+        throw new InternalServerErrorException('Undecided profile id or registration url')
       }
     } catch (err) {
       this.logger.warn(err)

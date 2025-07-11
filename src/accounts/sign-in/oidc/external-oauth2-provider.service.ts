@@ -2,27 +2,33 @@ import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.res
 import { RegistrationService } from 'src/accounts/registration/registration.service'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ProfileId } from 'src/models/types'
+import { ProfileIdOrRegistrationUrlModel } from './profile-id-or-registration-code.model'
 
 export abstract class ExternalOauth2ProviderService<T> {
   protected abstract readonly providerName: OidcProvider
 
   constructor(protected readonly registrationService: RegistrationService) {}
 
-  async profileIdBySignInWithCodeOrRegistrationUrl(code: string, baseUrl: string): Promise<string | ProfileId> {
+  async profileIdBySignInWithCodeOrRegistrationUrl(
+    code: string,
+    baseUrl: string,
+  ): Promise<ProfileIdOrRegistrationUrlModel> {
     const providerUser = await this.getProviderUser(code, this.redirectUri(baseUrl))
     const profileId = await this.findProfileId(providerUser)
     if (profileId) {
-      return profileId
+      return new ProfileIdOrRegistrationUrlModel(profileId, undefined, this.isMfaEnabled(providerUser))
     } else {
       const registrationToken = await this.createRegistrationTokenFromProviderUser(providerUser)
       const redirectUrl = this.registrationService.redirectToAppRegistrationUrl(registrationToken)
-      return redirectUrl
+      return new ProfileIdOrRegistrationUrlModel(undefined, redirectUrl)
     }
   }
 
   redirectUri(baseUrl: string) {
     return new URL(`/api/v1/accounts/sign-in/${this.providerName}/callback`, baseUrl).href
   }
+
+  abstract isMfaEnabled(user: T): boolean
 
   abstract getProviderInfo(baseUrl: string): AuthProviderResponseModel
 

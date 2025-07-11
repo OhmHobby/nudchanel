@@ -6,6 +6,7 @@ import { RegistrationService } from 'src/accounts/registration/registration.serv
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ProfileId } from 'src/models/types'
 import { ExternalOauth2ProviderService } from './external-oauth2-provider.service'
+import { ProfileIdOrRegistrationUrlModel } from './profile-id-or-registration-code.model'
 
 jest.mock('src/accounts/registration/registration.service')
 
@@ -31,6 +32,11 @@ class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
   createRegistrationTokenFromProviderUser(): Promise<string> {
     return Promise.resolve('')
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isMfaEnabled(user: APIUser): boolean {
+    return false
+  }
 }
 
 describe(ExternalOauth2ProviderService.name, () => {
@@ -52,14 +58,14 @@ describe(ExternalOauth2ProviderService.name, () => {
       const profileId = new Types.ObjectId()
       cut.findProfileId = jest.fn().mockResolvedValue(profileId)
       const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
-      expect(result).toEqual(profileId)
+      expect(result).toEqual(new ProfileIdOrRegistrationUrlModel(profileId, undefined, false))
     })
 
     it('should continue to cross origin correctly', async () => {
       const registrationUrl = 'http://dev.nudchannel.com/register?code=0'
       registrationService.redirectToAppRegistrationUrl = jest.fn().mockReturnValue(registrationUrl)
       const result = await cut.profileIdBySignInWithCodeOrRegistrationUrl('signInCode', 'http://dev.nudchannel.com')
-      expect(result).toBe(registrationUrl)
+      expect(result).toEqual(new ProfileIdOrRegistrationUrlModel(undefined, registrationUrl))
     })
   })
 })
