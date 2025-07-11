@@ -8,7 +8,7 @@ export class UserLocalBuilder {
     this.userLocal = new UserLocalModel()
     this.userLocal.profile = TestData.aValidUserId
     this.userLocal.username = 'username'
-    this.userLocal.password = '$argon2id$v=19$m=16,t=2,p=1$bmlXTGJqQkhLTWhmU2N4Rg$bZVUsm/cQ0Dq7Crqu+5eIw' // password
+    this.userLocal.password = '$argon2i$v=19$m=16,t=2,p=1$RG12dThTeUZDYmsyWVBQVw$3gh5x1Zn+A/C2GYGJGiX5Q' // nudchDev!123
     this.userLocal.disabled = false
   }
 
