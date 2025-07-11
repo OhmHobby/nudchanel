@@ -31,6 +31,11 @@ class ClassUnderTest extends ExternalOauth2ProviderService<APIUser> {
   createRegistrationTokenFromProviderUser(): Promise<string> {
     return Promise.resolve('')
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isMfaEnabled(user: APIUser): boolean {
+    return false
+  }
 }
 
 describe(ExternalOauth2ProviderService.name, () => {
