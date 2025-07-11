@@ -57,6 +57,11 @@ export class GoogleOauth2ProviderService extends ExternalOauth2ProviderService<o
     return registrationDoc._id
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isMfaEnabled(user: oauth2_v2.Schema$Userinfo): boolean {
+    return false
+  }
+
   private generateSignInUrl(redirectUri: string): string {
     return this.oauth2Client(redirectUri).generateAuthUrl({
       access_type: 'offline',

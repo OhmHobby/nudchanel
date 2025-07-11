@@ -1,4 +1,5 @@
 export enum Config {
+  IS_DEV_ENV = 'isDevEnv',
   RUN_MODE = 'runMode',
   HTTP_PORT = 'http.port',
   HTTP_SECONDARY_PORT = 'http.secondaryPort',
