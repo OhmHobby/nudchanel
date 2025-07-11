@@ -86,7 +86,7 @@ export class RecruitFormV1Controller {
   @ApiOperation({ summary: 'List form collections for current recruit' })
   @ApiOkResponse({ type: [RecruitFormCollectionModel] })
   async getRecruitFormCollections(@RecruitCtx() ctx: RecruitContext): Promise<RecruitFormCollectionModel[]> {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     const collections = await this.recruitFormService.getCollectionsByRecruitId(ctx.currentSettingId)
     return collections.map((collection) => RecruitFormCollectionModel.fromEntity(collection))
   }
@@ -143,7 +143,7 @@ export class RecruitFormV1Controller {
     @Body() body: CreateRecruitFormQuestionDto,
     @RecruitCtx() ctx: RecruitContext,
   ): Promise<RecruitFormQuestionModel> {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     const question = await this.recruitFormService.createQuestion(body)
     return RecruitFormQuestionModel.fromEntity(question)
   }
@@ -160,7 +160,7 @@ export class RecruitFormV1Controller {
     @Body() body: UpdateRecruitFormQuestionDto,
     @RecruitCtx() ctx: RecruitContext,
   ): Promise<void> {
-    ctx.hasPermissionOrThrow(ctx.currentSettingId)
+    ctx.hasPermissionOrThrow()
     await this.recruitFormService.updateQuestion(id, body)
   }
 }
