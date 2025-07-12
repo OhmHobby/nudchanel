@@ -1,10 +1,13 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { BadRequestException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ProfileId } from 'src/models/types'
+import { Repository } from 'typeorm'
 import { ProfileNameService } from '../profile/profile-name.service'
 
 @Injectable()
@@ -14,6 +17,8 @@ export class UserLocalService {
   constructor(
     @InjectModel(UserLocalModel)
     private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
+    @InjectRepository(UserLocalUserEntity)
+    private readonly userLocalUserRepository: Repository<UserLocalUserEntity>,
     private readonly profileNameService: ProfileNameService,
   ) {}
 
