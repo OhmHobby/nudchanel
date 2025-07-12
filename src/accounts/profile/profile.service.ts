@@ -58,6 +58,11 @@ export class ProfileService extends Encryption {
     return profiles.flatMap((profile) => profile.emails ?? [])
   }
 
+  async profileMap(profileIds: ProfileId[]): Promise<Map<string, ProfileModel>> {
+    const profiles = await this.profileModel.find({ _id: { $in: profileIds } }).exec()
+    return new Map(profiles.map((el) => [el._id.toString(), el]))
+  }
+
   create(profile: Partial<ProfileModel>): Promise<ProfileModel> {
     return this.profileModel.create(profile)
   }
