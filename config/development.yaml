@@ -81,6 +81,7 @@ authentication:
       -----END PRIVATE KEY-----
   refreshToken:
     secure: false
+  mfaRequired: false
 
 googleapis:
   clientId: 1083281018269-fvqevf7hgj2svu0m431anvq5ldofud8d.apps.googleusercontent.com

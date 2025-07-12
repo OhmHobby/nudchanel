@@ -120,6 +120,7 @@ authentication:
     privateKey: ""
   refreshToken:
     secure: true
+  mfaRequired: true
 
 auditLog:
   enabled: false
