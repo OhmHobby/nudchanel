@@ -11,6 +11,6 @@ export class PasswordStrengthConstraint implements ValidatorConstraintInterface 
   }
 
   defaultMessage(args: ValidationArguments): string {
-    return `Password is not strong enough: (${zxcvbn(args.value).feedback.warning})`
+    return `Password is not strong enough: ${zxcvbn(args.value).feedback.warning || 'Password score is too low'}`
   }
 }

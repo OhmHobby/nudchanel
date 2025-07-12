@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsBoolean, IsOptional, IsString, IsStrongPassword, Validate } from 'class-validator'
+import { IsBoolean, IsOptional, IsString, Validate } from 'class-validator'
 import { IsNonCommonPasswordConstraint } from 'src/accounts/user/non-password-password.constraint'
-import { PasswordStrengthConstraint } from 'src/accounts/user/zxcvbn.constraint'
-import { STRONG_PASSWORD_OPTIONS } from 'src/constants/account.constant'
+import { PasswordCharacterConstraint } from 'src/accounts/user/password-character.constraint'
+import { PasswordStrengthConstraint } from 'src/accounts/user/password-strength.constraint'
 
 export class SignInLocalUserRequestDto {
   @ApiProperty({ type: String })
@@ -10,7 +10,7 @@ export class SignInLocalUserRequestDto {
   username: string
 
   @ApiProperty({ type: String })
-  @IsStrongPassword(STRONG_PASSWORD_OPTIONS)
+  @Validate(PasswordCharacterConstraint)
   @Validate(PasswordStrengthConstraint)
   @Validate(IsNonCommonPasswordConstraint)
   password: string
