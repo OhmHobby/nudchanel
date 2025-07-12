@@ -5,7 +5,6 @@ import { AccountsModule } from 'src/accounts/accounts.module'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { LdapAuthorizeService } from './authorize.service'
 import { BindDnService } from './bind/bind-dn.service'
 import { BindRootService } from './bind/bind-root.service'
@@ -21,7 +20,7 @@ import { SearchDnUserService } from './search/dn/user.service'
 import { SearchSubschemaService } from './search/subschema.service'
 
 @Module({
-  imports: [TypegooseModule.forFeature([GroupModel, UserLocalModel], MongoConnection.Accounts), AccountsModule],
+  imports: [TypegooseModule.forFeature([GroupModel], MongoConnection.Accounts), AccountsModule],
   providers: [
     LdapServerLifecyclesService,
     LdapMetricService,

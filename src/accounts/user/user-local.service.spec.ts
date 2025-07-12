@@ -1,35 +1,45 @@
-import { getModelToken } from '@m8a/nestjs-typegoose'
 import { Test, TestingModule } from '@nestjs/testing'
-import { getModelForClass } from '@typegoose/typegoose'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import { verify } from 'argon2'
 import { Types } from 'mongoose'
 import { ProfileNameModel } from 'src/models/accounts/profile.name.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { TestData } from 'test/test-data'
 import { ProfileNameService } from '../profile/profile-name.service'
 import { UserLocalService } from './user-local.service'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 
 jest.mock('../profile/profile-name.service')
 
 describe(UserLocalService.name, () => {
   let service: UserLocalService
   let profileNameService: ProfileNameService
-  const userLocalModel = getModelForClass(UserLocalModel)
+  let userLocalUserRepository: any
 
   beforeEach(async () => {
+    const mockRepository = {
+      find: jest.fn(),
+      createQueryBuilder: jest.fn(),
+      findOne: jest.fn(),
+      count: jest.fn(),
+      update: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+    }
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserLocalService,
         ProfileNameService,
         {
-          provide: getModelToken(UserLocalModel.name),
-          useValue: userLocalModel,
+          provide: getRepositoryToken(UserLocalUserEntity),
+          useValue: mockRepository,
         },
       ],
     }).compile()
 
     service = module.get<UserLocalService>(UserLocalService)
     profileNameService = module.get(ProfileNameService)
+    userLocalUserRepository = module.get(getRepositoryToken(UserLocalUserEntity))
   })
 
   it('should be defined', () => {
@@ -38,59 +48,81 @@ describe(UserLocalService.name, () => {
 
   describe('findAll', () => {
     it('should find without condition', async () => {
-      userLocalModel.find = jest.fn().mockReturnValue({ exec: jest.fn() })
+      userLocalUserRepository.find = jest.fn().mockResolvedValue([])
       await service.findAll()
-      expect(userLocalModel.find).toHaveBeenCalledWith()
+      expect(userLocalUserRepository.find).toHaveBeenCalledWith()
     })
   })
 
   describe('findByUsername', () => {
     it('should findOne by username', async () => {
       const username = 'username'
-      userLocalModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn() })
+      const mockQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue({ username }),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
       await service.findByUsername(username)
-      expect(userLocalModel.findOne).toHaveBeenCalledWith({ username })
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('user.username = :username', { username })
+    })
+
+    it('should include password when requested', async () => {
+      const username = 'username'
+      const mockQueryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue({ username, password: 'hashed' }),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      await service.findByUsername(username, true)
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('user.password')
     })
   })
 
   describe('findByProfile', () => {
     it('should findOne by profile', async () => {
       const profile = new Types.ObjectId()
-      userLocalModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn() })
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue({ username: 'test' })
       await service.findByProfile(profile)
-      expect(userLocalModel.findOne).toHaveBeenCalledWith({ profile })
+      expect(userLocalUserRepository.findOne).toHaveBeenCalledWith({
+        where: { profileId: expect.any(String) },
+      })
     })
   })
 
   describe('getUsersHashedPassword', () => {
     it('should return hashed password when found', async () => {
       const hashedPassword = 'hashedPassword'
-      userLocalModel.findOne = jest.fn().mockReturnValue({
+      const mockQueryBuilder = {
         select: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValue({ password: hashedPassword }),
-      })
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue({ password: hashedPassword }),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
       const result = await service.getUsersHashedPassword('username')
       expect(result).toBe(hashedPassword)
     })
 
     it('should throw when user not found', async () => {
-      userLocalModel.findOne = jest.fn().mockReturnValue({
+      const mockQueryBuilder = {
         select: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValue(null),
-      })
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(null),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
       await expect(service.getUsersHashedPassword('username')).rejects.toThrow()
     })
   })
 
   describe('isUsernameExists', () => {
     it('should return true when user exists', async () => {
-      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(1) })
+      userLocalUserRepository.count = jest.fn().mockResolvedValue(1)
       const result = await service.isUsernameExists('username')
       expect(result).toBe(true)
     })
 
     it('should return false when user does not exist', async () => {
-      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) })
+      userLocalUserRepository.count = jest.fn().mockResolvedValue(0)
       const result = await service.isUsernameExists('username')
       expect(result).toBe(false)
     })
@@ -113,7 +145,7 @@ describe(UserLocalService.name, () => {
     })
 
     it('should error when username has already created', async () => {
-      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(1) })
+      userLocalUserRepository.count = jest.fn().mockResolvedValue(1)
       await expect(service.requestUsername(profileId)).rejects.toThrow()
     })
 
@@ -129,7 +161,7 @@ describe(UserLocalService.name, () => {
     })
 
     it('should return expected username correctly', async () => {
-      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) })
+      userLocalUserRepository.count = jest.fn().mockResolvedValue(0)
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
       service.isUsernameExists = jest.fn().mockResolvedValue(false)
       const result = await service.requestUsername(profileId)
@@ -137,7 +169,7 @@ describe(UserLocalService.name, () => {
     })
 
     it('should add more character if duplicate', async () => {
-      userLocalModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) })
+      userLocalUserRepository.count = jest.fn().mockResolvedValue(0)
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
       service.isUsernameExists = jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false)
       const result = await service.requestUsername(profileId)
@@ -163,13 +195,11 @@ describe(UserLocalService.name, () => {
     it('should update with hashed password', async () => {
       const hashedPassword = 'hashed-password'
       service.hashPassword = jest.fn().mockReturnValue(hashedPassword)
-      userLocalModel.findOneAndUpdate = jest.fn().mockReturnValue({
-        exec: jest.fn(),
-      })
+      userLocalUserRepository.update = jest.fn().mockResolvedValue({ affected: 1 })
       await service.changePassword('username', 'password')
-      expect(userLocalModel.findOneAndUpdate).toHaveBeenCalledWith(
+      expect(userLocalUserRepository.update).toHaveBeenCalledWith(
         { username: 'username' },
-        { password: hashedPassword, password_last_set: expect.any(Date) },
+        { password: hashedPassword, passwordLastSet: expect.any(Date) },
       )
     })
   })
@@ -178,14 +208,16 @@ describe(UserLocalService.name, () => {
     it('should create with hashed password', async () => {
       const profile = new Types.ObjectId()
       const hashedPassword = 'hashed-password'
-      userLocalModel.create = jest.fn()
+      const mockUser = { username: 'username', password: hashedPassword }
+      userLocalUserRepository.create = jest.fn().mockReturnValue(mockUser)
+      userLocalUserRepository.save = jest.fn().mockResolvedValue(mockUser)
       service.hashPassword = jest.fn().mockReturnValue(hashedPassword)
       await service.create('username', 'password', profile)
-      expect(userLocalModel.create).toHaveBeenCalledWith(
+      expect(userLocalUserRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'username',
           password: hashedPassword,
-          profile,
+          profileId: expect.any(String),
         }),
       )
     })

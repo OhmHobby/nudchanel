@@ -1,16 +1,18 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { isDocument, isDocumentArray, ReturnModelType } from '@typegoose/typegoose'
+import { InjectRepository } from '@nestjs/typeorm'
 import { parseDN } from 'ldapjs'
 import { Span } from 'nestjs-otel'
+import { Repository } from 'typeorm'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
 import { Config } from 'src/enums/config.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { LdapRequestScope } from 'src/enums/ldap-request-scope.enum'
 import { LdapObject } from 'src/ldap-server/types/ldap-object.type'
 import { LdapRequest } from 'src/ldap-server/types/ldap-request.type'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
+import { ProfileService } from 'src/accounts/profile/profile.service'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 
 @Injectable()
 export class SearchDnUserService {
@@ -22,31 +24,29 @@ export class SearchDnUserService {
 
   constructor(
     configService: ConfigService,
-    @InjectModel(UserLocalModel)
-    private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
+    @InjectRepository(UserLocalUserEntity)
+    private readonly userLocalUserRepository: Repository<UserLocalUserEntity>,
     private readonly profilePhotoService: ProfilePhotoService,
+    private readonly profileService: ProfileService,
   ) {
     this.baseDn = configService.getOrThrow(Config.LDAP_BASE_DN)
   }
 
   @Span()
-  findUsers(req: LdapRequest) {
-    const query = this.userLocalModel.find()
+  async findUsers(req: LdapRequest) {
+    const query = this.userLocalUserRepository.createQueryBuilder('user')
 
     const findUid = /uid=(\w+)/.exec(req.dn?.toString())?.at(1)
-    if (req.scope === LdapRequestScope.Base && findUid) query.where({ username: findUid })
+    if (req.scope === LdapRequestScope.Base && findUid) {
+      query.where('user.username = :username', { username: findUid })
+    }
 
     const filterByUid = req.filter.filters?.filter((el) => el.attribute === 'uid' && el.value)?.map((el) => el.value)
-    if (filterByUid?.length) query.where({ username: { $in: filterByUid } })
+    if (filterByUid?.length) {
+      query.andWhere('user.username IN (:...usernames)', { usernames: filterByUid })
+    }
 
-    return query
-      .populate({
-        path: 'profile',
-        populate: { path: 'names', select: ['profile', 'firstname', 'lastname'], match: { lang: 'en' } },
-        select: ['emails', 'photo'],
-      })
-      .select(['username'])
-      .exec()
+    return await query.getMany()
   }
 
   @Span()
@@ -74,30 +74,36 @@ export class SearchDnUserService {
   }
 
   @Span()
-  async toLdapObject(user: UserLocalModel, withPhoto = false): Promise<LdapObject | undefined> {
-    if (
-      user._id &&
-      isDocument(user.profile) &&
-      isDocumentArray(user.profile.names) &&
-      user.profile.names.length &&
-      user.profile.emails?.length
-    )
-      return {
-        dn: parseDN(`uid=${user.username}, ou=users, ${this.baseDn}`),
-        attributes: {
-          cn: `${user.profile.names[0].firstname} ${user.profile.names[0].lastname}`,
-          uid: user.username,
-          uidNumber: user._id + SearchDnUserService.USER_PADDING,
-          gidNumber: user._id + SearchDnUserService.USER_PADDING,
-          mail: user.profile.emails[0],
-          givenName: user.profile.names[0].firstname,
-          sn: user.profile.names[0].lastname,
-          objectclass: ['top', 'posixAccount', 'sambaDomain'],
-          sambaDomainName: 'nudchannel',
-          jpegPhoto: withPhoto
-            ? await this.profilePhotoService.getPhotoBuffer(user.profile.photo, ImageFormat.jpeg).catch(() => null)
-            : null,
-        },
-      }
+  async toLdapObject(user: UserLocalUserEntity, withPhoto = false): Promise<LdapObject | undefined> {
+    if (!user.id || !user.profileId) return undefined
+
+    // Convert UUID back to ObjectId for the profile service
+    const profileObjectId = ObjectIdUuidConverter.toObjectId(user.profileId)
+
+    // Get profile data using the profile service
+    const profile = await this.profileService.findByIdPopulated(profileObjectId)
+    if (!profile || !profile.emails?.length) return undefined
+
+    // Get profile names in English
+    const englishName = profile.populatedNames?.find((name) => name.lang === 'en')
+    if (!englishName) return undefined
+
+    return {
+      dn: parseDN(`uid=${user.username}, ou=users, ${this.baseDn}`),
+      attributes: {
+        cn: `${englishName.firstname} ${englishName.lastname}`,
+        uid: user.username,
+        uidNumber: user.id + SearchDnUserService.USER_PADDING,
+        gidNumber: user.id + SearchDnUserService.USER_PADDING,
+        mail: profile.emails[0],
+        givenName: englishName.firstname,
+        sn: englishName.lastname,
+        objectclass: ['top', 'posixAccount', 'sambaDomain'],
+        sambaDomainName: 'nudchannel',
+        jpegPhoto: withPhoto
+          ? await this.profilePhotoService.getPhotoBuffer(profile.photo, ImageFormat.jpeg).catch(() => null)
+          : null,
+      },
+    }
   }
 }
