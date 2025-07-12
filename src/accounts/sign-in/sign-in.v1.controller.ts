@@ -66,7 +66,7 @@ export class SignInV1Controller {
       response,
       profileId,
       !persistent,
-      !this.configService.get(Config.IS_PROD_ENV),
+      !this.configService.get(Config.NUDCH_MFA_REQUIRED),
     )
     this.logger.log(
       { message: 'Successful sign-in', username, persistent },
@@ -99,7 +99,7 @@ export class SignInV1Controller {
           res,
           profileIdOrRegistrationUrl.profileId,
           true,
-          profileIdOrRegistrationUrl.isMfaEnabled,
+          profileIdOrRegistrationUrl.isMfaEnabled || !this.configService.get(Config.NUDCH_MFA_REQUIRED),
         )
         return res.redirect(HttpStatus.FOUND, this.getContinuePath(cookies, res) ?? '/')
       } else {
