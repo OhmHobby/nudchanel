@@ -24,11 +24,17 @@ export class UserLocalService {
 
   @Span()
   async findByUsername(username: string, withPassword = false) {
-    const query = this.userLocalUserRepository.createQueryBuilder('user')
-    if (withPassword) {
-      query.addSelect('password')
-    }
-    return await query.where({ username }).getOne()
+    return await this.userLocalUserRepository.findOne({
+      where: { username },
+      select: {
+        id: true,
+        profileId: true,
+        username: true,
+        password: withPassword,
+        passwordLastSet: true,
+        disabled: true,
+      },
+    })
   }
 
   async findByProfile(profile: ProfileId) {
@@ -38,11 +44,7 @@ export class UserLocalService {
   }
 
   async getUsersHashedPassword(username: string): Promise<string> {
-    const user = await this.userLocalUserRepository
-      .createQueryBuilder('user')
-      .select('password')
-      .where({ username })
-      .getOne()
+    const user = await this.userLocalUserRepository.findOne({ where: { username }, select: ['password'] })
     if (!user) {
       throw new Error('Username not found')
     }
