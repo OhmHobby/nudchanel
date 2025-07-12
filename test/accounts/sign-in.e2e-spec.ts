@@ -1,17 +1,18 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import request from 'supertest'
 import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
 
 describe('Accounts - sign-in', () => {
   let app: INestApplication
-  let mockUserLocalModel: MockModelType<typeof UserLocalModel>
+  let mockUserLocalUserRepository: any
   let mockProfileModel: MockModelType<typeof ProfileModel>
 
   beforeAll(async () => {
@@ -19,17 +20,18 @@ describe('Accounts - sign-in', () => {
   })
 
   beforeEach(async () => {
-    mockUserLocalModel = await app.get(getModelToken(UserLocalModel.name))
-    resetMockModel(mockUserLocalModel)
+    mockUserLocalUserRepository = await app.get(getRepositoryToken(UserLocalUserEntity))
     mockProfileModel = await app.get(getModelToken(ProfileModel.name))
     resetMockModel(mockProfileModel)
   })
 
   test('POST /api/v1/accounts/sign-in/local (success)', async () => {
-    mockUserLocalModel.findOne = jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
-    })
+    const mockQueryBuilder = {
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
+    }
+    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -43,9 +45,12 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (invalid password)', async () => {
-    mockUserLocalModel.findOne = jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()) })
+    const mockQueryBuilder = {
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
+    }
+    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -56,7 +61,12 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (user not found)', async () => {
-    mockUserLocalModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+    const mockQueryBuilder = {
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockResolvedValue(null),
+    }
+    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -67,9 +77,12 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (disabled user)', async () => {
-    mockUserLocalModel.findOne = jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().withDisabled(true).build()) })
+    const mockQueryBuilder = {
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().withDisabled(true).build()),
+    }
+    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
