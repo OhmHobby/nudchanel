@@ -1,5 +1,5 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { BadRequestException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
