@@ -2,6 +2,7 @@ import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { Span } from 'nestjs-otel'
 import { Config } from 'src/enums/config.enum'
 import { Encryption } from 'src/helpers/encryption'
 import { ProfileModel } from 'src/models/accounts/profile.model'
@@ -17,6 +18,7 @@ export class ProfileService extends Encryption {
     super(configService.getOrThrow(Config.ENCRYPTION_KEY))
   }
 
+  @Span()
   async findById(id: ProfileId, withContact = false) {
     const query = this.profileModel.findById(id)
     const result = await query.exec()
@@ -27,28 +29,34 @@ export class ProfileService extends Encryption {
     return result
   }
 
+  @Span()
   findByIdPopulated(id: ProfileId) {
     return this.profileModel.findById(id).populate({ path: 'names' }).exec()
   }
 
+  @Span()
   findByGoogleId(googleId: string) {
     return this.profileModel.findOne({ google_ids: googleId }).exec()
   }
 
+  @Span()
   findByDiscordId(discordId: string) {
     return this.profileModel.findOne({ discord_ids: discordId }).exec()
   }
 
+  @Span()
   async findAllDiscordIds() {
     const docs = await this.profileModel.find().select('discord_ids').lean().exec()
     return docs.flatMap((el) => el.discord_ids ?? [])
   }
 
+  @Span()
   async discordIdsFromEmails(emails: string[] = []): Promise<string[]> {
     const profiles = await this.profileModel.find({ emails: { $in: emails } }).exec()
     return profiles.flatMap((profile) => (profile.discord_ids ?? []).slice(0, 1))
   }
 
+  @Span()
   async emailsFromProfileIds(profileIds: ProfileId[]): Promise<string[]> {
     const profiles = await this.profileModel
       .find({ _id: { $in: profileIds } })
@@ -58,10 +66,12 @@ export class ProfileService extends Encryption {
     return profiles.flatMap((profile) => profile.emails ?? [])
   }
 
+  @Span()
   create(profile: Partial<ProfileModel>): Promise<ProfileModel> {
     return this.profileModel.create(profile)
   }
 
+  @Span()
   updateContactInfo(id: ProfileId, contactInfo: { emails?: string[]; tels?: string[] }): Promise<ProfileModel | null> {
     const updateData: Partial<ProfileModel> = {}
 
