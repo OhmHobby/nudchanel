@@ -10,6 +10,7 @@ import { UserLocalService } from '../user/user-local.service'
 import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
 import { SignInProviderDto } from './dto/sign-in-provider.dto'
 import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
+import { GitlabOauth2ProviderService } from './oidc/gitlab/gitlab-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
 import { ProfileIdOrRegistrationUrlModel } from './oidc/profile-id-or-registration-code.model'
 import { SignInService } from './sign-in.service'
@@ -20,6 +21,7 @@ jest.mock('../refresh-token/refresh-token.service')
 jest.mock('../user/user-local.service')
 jest.mock('./oidc/discord/discord-oauth2-provider.service')
 jest.mock('./oidc/google/google-oauth2-provider.service')
+jest.mock('./oidc/gitlab/gitlab-oauth2-provider.service')
 
 describe(SignInV1Controller.name, () => {
   let controller: SignInV1Controller
@@ -38,6 +40,7 @@ describe(SignInV1Controller.name, () => {
         UserLocalService,
         GoogleOauth2ProviderService,
         DiscordOauth2ProviderService,
+        GitlabOauth2ProviderService,
       ],
     }).compile()
 
