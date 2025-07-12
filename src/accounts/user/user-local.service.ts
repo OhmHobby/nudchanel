@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
