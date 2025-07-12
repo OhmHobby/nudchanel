@@ -51,7 +51,7 @@ describe('Accounts - sign-in', () => {
       .post('/api/v1/accounts/sign-in/local')
       .send({ username: 'username', password: 'Nudchdev!123' })
 
-    expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST)
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 
@@ -62,7 +62,7 @@ describe('Accounts - sign-in', () => {
       .post('/api/v1/accounts/sign-in/local')
       .send({ username: 'username', password: 'nudchDev!123' })
 
-    expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST)
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 
@@ -75,7 +75,7 @@ describe('Accounts - sign-in', () => {
       .post('/api/v1/accounts/sign-in/local')
       .send({ username: 'username', password: 'nudchDev!123' })
 
-    expect(result.status).toBe(HttpStatus.UNAUTHORIZED)
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST)
     expect(result.headers['set-cookie']).toBeUndefined()
   })
 
