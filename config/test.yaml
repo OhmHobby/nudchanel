@@ -84,6 +84,7 @@ authentication:
       -----END PRIVATE KEY-----
   refreshToken:
     secure: false
+  mfaRequired: false
 
 storage:
   webdav:

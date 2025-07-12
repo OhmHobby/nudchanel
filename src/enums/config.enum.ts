@@ -1,5 +1,4 @@
 export enum Config {
-  IS_PROD_ENV = 'isProdEnv',
   RUN_MODE = 'runMode',
   HTTP_PORT = 'http.port',
   HTTP_SECONDARY_PORT = 'http.secondaryPort',
@@ -67,6 +66,7 @@ export enum Config {
   NUDCH_TOKEN_PUBLIC_KEY = 'authentication.accessToken.publicKey',
   NUDCH_TOKEN_PRIVATE_KEY = 'authentication.accessToken.privateKey',
   NUDCH_TOKEN_SECURE = 'authentication.refreshToken.secure',
+  NUDCH_MFA_REQUIRED = 'authentication.mfaRequired',
   AUDIT_LOG_ENABLED = 'auditLog.enabled',
   DELIVERY_UPCOMINGEVENTS_CRON = 'delivery.upcomingEvents.cron',
   DELIVERY_UPCOMINGEVENTS_LOOKAHEADHOURS = 'delivery.upcomingEvents.lookAheadHours',
