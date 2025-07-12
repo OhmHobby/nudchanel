@@ -23,7 +23,7 @@ Feature: Password local
     And change password using new password = "P@$$w0rd1234"
     When PATCH /api/v1/accounts/users/local/password
     Then HTTP response status should be BAD_REQUEST
-    And HTTP response error message should be "Password is not strong enough: (This is similar to a commonly used password)"
+    And HTTP response error message should be "Password is not strong enough: This is similar to a commonly used password"
 
   Scenario: Incorrect current password
     Given user profileId 5b794c41fd533e3b2f61cf05
