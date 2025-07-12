@@ -1,5 +1,5 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
-import { BadRequestException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
@@ -121,7 +121,7 @@ export class UserLocalService {
       return user
     } catch (err) {
       this.logger.warn({ message: err.message, username })
-      throw new UnauthorizedException({ error: 'Invalid credential' })
+      throw new BadRequestException({ error: 'Invalid credential' })
     }
   }
 }
