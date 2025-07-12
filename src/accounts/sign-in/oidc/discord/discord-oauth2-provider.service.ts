@@ -49,8 +49,15 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
   }
 
   async findProfileId(user: APIUser): Promise<ProfileId | undefined> {
-    const profile = await this.profileService.findByDiscordId(user.id)
-    return profile?._id
+    const profileById = await this.profileService.findByDiscordId(user.id)
+    if (profileById?._id) {
+      return profileById._id
+    }
+    const profileByEmail = await this.profileService.findByEmail(String(user.email))
+    if (profileByEmail?._id) {
+      return profileByEmail._id
+    }
+    return undefined
   }
 
   async createRegistrationTokenFromProviderUser(user: APIUser) {
