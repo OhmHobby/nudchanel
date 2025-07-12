@@ -122,6 +122,11 @@ discord:
   clientId: "1095379875226988664"
   clientSecret: ""
 
+gitlab:
+  clientId: e068e8565345b9d16b62457e0a6e2cec778c3d62c8c09e4f1b0379a27d60cd2c
+  clientSecret: gloas-afca745231842085f52deb902d240b2e3123674af58821a5a4524b642da00bec
+  instanceUrl: https://gitlab.nudchannel.com
+
 photo:
   minio:
     endpoint: storage.nas.nudchannel.com

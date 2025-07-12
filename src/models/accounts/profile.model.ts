@@ -33,6 +33,9 @@ export class ProfileModel {
   discord_ids?: string[]
 
   @Prop({ select: false, type: String, dim: 1 })
+  gitlab_ids?: string[]
+
+  @Prop({ select: false, type: String, dim: 1 })
   discord_invites?: string[]
 
   @Prop({ select: false, type: String, dim: 1 })
