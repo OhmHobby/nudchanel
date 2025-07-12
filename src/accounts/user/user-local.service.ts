@@ -26,9 +26,9 @@ export class UserLocalService {
   async findByUsername(username: string, withPassword = false) {
     const query = this.userLocalUserRepository.createQueryBuilder('user')
     if (withPassword) {
-      query.addSelect('user.password')
+      query.addSelect('password')
     }
-    return await query.where('user.username = :username', { username }).getOne()
+    return await query.where({ username }).getOne()
   }
 
   async findByProfile(profile: ProfileId) {
@@ -40,8 +40,8 @@ export class UserLocalService {
   async getUsersHashedPassword(username: string): Promise<string> {
     const user = await this.userLocalUserRepository
       .createQueryBuilder('user')
-      .select('user.password')
-      .where('user.username = :username', { username })
+      .select('password')
+      .where({ username })
       .getOne()
     if (!user) {
       throw new Error('Username not found')
@@ -100,8 +100,8 @@ export class UserLocalService {
   async verifyAndChangePassword(profileId: ProfileId, currentPassword: string, newPassword: string) {
     const user = await this.userLocalUserRepository
       .createQueryBuilder('user')
-      .select(['user.username', 'user.password'])
-      .where('user.profileId = :profileId', { profileId: ObjectIdUuidConverter.toUuid(profileId) })
+      .select(['username', 'password'])
+      .where({ profileId: ObjectIdUuidConverter.toUuid(profileId) })
       .getOne()
     if (!user) throw new ForbiddenException('Current profile has no local user')
     const isValidPassword = await verify(user.password, currentPassword)

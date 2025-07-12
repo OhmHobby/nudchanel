@@ -14,15 +14,15 @@ export class UserLocalUserEntity extends BaseEntity {
   @Column({ name: 'profile_id', type: 'uuid' })
   profileId: string
 
-  @Column({ name: 'username', type: 'text' })
+  @Column({ type: 'text' })
   username: string
 
-  @Column({ name: 'password', type: 'text', select: false })
+  @Column({ type: 'text', select: false })
   password: string
 
   @Column({ name: 'password_last_set', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   passwordLastSet: Date
 
-  @Column({ name: 'disabled', type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: false })
   disabled: boolean
 }
