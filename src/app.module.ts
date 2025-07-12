@@ -75,6 +75,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     AmqpModule,
     BullBoardModule,
     StorageModule,
+    DevtoolsModule,
     ConditionalModule.registerWhen(AccountsModule, isRegisterWebServer),
     ConditionalModule.registerWhen(ApiKeyModule, isRegisterWebServer),
     ConditionalModule.registerWhen(AuditLogModule, isRegisterWebServer),
