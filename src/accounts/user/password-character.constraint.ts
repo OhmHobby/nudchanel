@@ -27,27 +27,27 @@ export class PasswordCharacterConstraint implements ValidatorConstraintInterface
   }
 
   defaultMessage(args: ValidationArguments): string {
-    if (this.validateLength(args.value)) {
+    if (!this.validateLength(args.value)) {
       this.logger.warn({ message: `Password requires at least ${this.minLength} character(s)` })
       return `Password requires at least ${this.minLength} character(s)`
     }
 
-    if (this.validateLowercase(args.value)) {
+    if (!this.validateLowercase(args.value)) {
       this.logger.warn({ message: `Password requires at least ${this.minLowercase} lowercase character(s)` })
       return `Password requires at least ${this.minLowercase} lowercase character(s)`
     }
 
-    if (this.validateUppercase(args.value)) {
+    if (!this.validateUppercase(args.value)) {
       this.logger.warn({ message: `Password requires at least ${this.minUppercase} uppercase character(s)` })
       return `Password requires at least ${this.minUppercase} uppercase character(s)`
     }
 
-    if (this.validateNumbers(args.value)) {
+    if (!this.validateNumbers(args.value)) {
       this.logger.warn({ message: `Password requires at least ${this.minNumbers} number(s)` })
       return `Password requires at least ${this.minNumbers} number(s)`
     }
 
-    if (this.validateSymbols(args.value)) {
+    if (!this.validateSymbols(args.value)) {
       this.logger.warn({ message: `Password requires at least ${this.minSymbols} symbol(s)` })
       return `Password requires at least ${this.minSymbols} symbol(s)`
     }
