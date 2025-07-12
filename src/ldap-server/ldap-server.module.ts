@@ -1,7 +1,9 @@
 import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { Logger, Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { createServer } from 'ldapjs'
 import { AccountsModule } from 'src/accounts/accounts.module'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -20,7 +22,11 @@ import { SearchDnUserService } from './search/dn/user.service'
 import { SearchSubschemaService } from './search/subschema.service'
 
 @Module({
-  imports: [TypegooseModule.forFeature([GroupModel], MongoConnection.Accounts), AccountsModule],
+  imports: [
+    TypegooseModule.forFeature([GroupModel], MongoConnection.Accounts),
+    TypeOrmModule.forFeature([UserLocalUserEntity]),
+    AccountsModule,
+  ],
   providers: [
     LdapServerLifecyclesService,
     LdapMetricService,
