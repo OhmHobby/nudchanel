@@ -1,14 +1,17 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
 
 @ValidatorConstraint({ name: 'NonCommonPasswordConstraint', async: false })
 @Injectable()
 export class IsNonCommonPasswordConstraint implements ValidatorConstraintInterface {
+  private readonly logger = new Logger(IsNonCommonPasswordConstraint.name)
+
   validate(value: string) {
     return !this.commonPassword.has(value.toLowerCase())
   }
 
   defaultMessage(): string {
+    this.logger.warn({ message: `Common password is not allowed` })
     return `Common password is not allowed`
   }
 

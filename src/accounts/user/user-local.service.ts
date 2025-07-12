@@ -121,7 +121,7 @@ export class UserLocalService {
       return user
     } catch (err) {
       this.logger.warn({ message: err.message, username })
-      throw new UnauthorizedException({ error: 'Invalid credential' })
+      throw new BadRequestException({ error: 'Invalid credential' })
     }
   }
 }

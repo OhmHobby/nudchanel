@@ -10,9 +10,9 @@ export class SignInLocalUserRequestDto {
   username: string
 
   @ApiProperty({ type: String })
-  @Validate(PasswordCharacterConstraint)
-  @Validate(PasswordStrengthConstraint)
-  @Validate(IsNonCommonPasswordConstraint)
+  @Validate(PasswordCharacterConstraint, { message: 'Invalid credential' })
+  @Validate(PasswordStrengthConstraint, { message: 'Invalid credential' })
+  @Validate(IsNonCommonPasswordConstraint, { message: 'Invalid credential' })
   password: string
 
   @ApiProperty({ type: Boolean, required: false })
