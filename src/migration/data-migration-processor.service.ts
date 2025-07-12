@@ -129,7 +129,7 @@ export class DataMigrationProcessorService extends WorkerHost {
       await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.UserLocal }), {
         conflictPaths: ['id'],
       })
-      const userLocals = await this.userLocalModel.find().exec()
+      const userLocals = await this.userLocalModel.find().select('+password').exec()
       for (const userLocal of userLocals) {
         if (!userLocal.profile) {
           this.logger.warn({ message: `UserLocal ${userLocal._id} has no profile`, userLocal })
