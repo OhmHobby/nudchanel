@@ -1,4 +1,4 @@
-import { Gitlab, UserSchema } from '@gitbeaker/rest'
+import { ExpandedUserSchema, Gitlab, UserSchema } from '@gitbeaker/rest'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
@@ -39,7 +39,7 @@ export class GitlabOauth2ProviderService extends ExternalOauth2ProviderService<U
     })
   }
 
-  async getProviderUser(code: string, redirectUri: string): Promise<UserSchema> {
+  async getProviderUser(code: string, redirectUri: string): Promise<ExpandedUserSchema> {
     const accessToken = await this.getAccessTokenFromCode(code, redirectUri)
 
     const gitlabClient = new Gitlab({
@@ -50,12 +50,12 @@ export class GitlabOauth2ProviderService extends ExternalOauth2ProviderService<U
     return await gitlabClient.Users.showCurrentUser()
   }
 
-  async findProfileId(user: UserSchema): Promise<ProfileId | undefined> {
+  async findProfileId(user: ExpandedUserSchema): Promise<ProfileId | undefined> {
     const profileById = await this.profileService.findByGitlabId(user.id.toString())
     if (profileById?._id) {
       return profileById._id
     }
-    const profileByEmail = await this.profileService.findByEmail(String(user.email))
+    const profileByEmail = await this.profileService.findByEmail(user.email)
     if (profileByEmail?._id) {
       return profileByEmail._id
     }
@@ -73,8 +73,8 @@ export class GitlabOauth2ProviderService extends ExternalOauth2ProviderService<U
     return registrationDoc._id
   }
 
-  isMfaEnabled(user: UserSchema): boolean {
-    return Boolean(user.two_factor_enabled)
+  isMfaEnabled(user: ExpandedUserSchema): boolean {
+    return user.two_factor_enabled
   }
 
   private generateSignInUrl(redirectUri: string): string {
