@@ -17,6 +17,9 @@ importers:
       '@discordjs/core':
         specifier: 2.0.0
         version: 2.0.0
+      '@gitbeaker/rest':
+        specifier: ^42.5.0
+        version: 42.5.0
       '@golevelup/nestjs-rabbitmq':
         specifier: 5.5.0
         version: 5.5.0(@nestjs/common@10.4.17(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.17)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -605,6 +608,18 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@gitbeaker/core@42.5.0':
+    resolution: {integrity: sha512-rMWpOPaZi1iLiifnOIoVO57p2EmQQdfIwP4txqNyMvG4WjYP5Ez0U7jRD9Nra41x6K5kTPBZkuQcAdxVWRJcEQ==}
+    engines: {node: '>=18.20.0'}
+
+  '@gitbeaker/requester-utils@42.5.0':
+    resolution: {integrity: sha512-HLdLS9LPBMVQumvroQg/4qkphLDtwDB+ygEsrD2u4oYCMUtXV4V1xaVqU4yTXjbTJ5sItOtdB43vYRkBcgueBw==}
+    engines: {node: '>=18.20.0'}
+
+  '@gitbeaker/rest@42.5.0':
+    resolution: {integrity: sha512-oC5cM6jS7aFOp0luTw5mWSRuMgdxwHRLZQ/aWkI+ETMfsprR/HyxsXfljlMY/XJ/fRxTbRJiodR5Axf66WjO3w==}
+    engines: {node: '>=18.20.0'}
 
   '@golevelup/nestjs-common@2.0.0':
     resolution: {integrity: sha512-D9RLXgkqn9SDLnZ2VoMER9l/+g5CM9Z7sZXa+10+0rZs6yevMepoiWmMVsFoUXLzYG2GwfixHLExwUr3XBCHFw==}
@@ -4427,6 +4442,10 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
+  picomatch-browser@2.2.6:
+    resolution: {integrity: sha512-0ypsOQt9D4e3hziV8O4elD9uN0z/jtUEfxVRtNaAAtXIyUx9m/SzlO020i8YNL2aL/E6blOvvHQcin6HZlFy/w==}
+    engines: {node: '>=8.6'}
+
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -4579,6 +4598,9 @@ packages:
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
+
+  rate-limiter-flexible@4.0.1:
+    resolution: {integrity: sha512-2/dGHpDFpeA0+755oUkW+EKyklqLS9lu0go9pDsbhqQjZcxfRyJ6LA4JI0+HAdZ2bemD/oOjUeZQB2lCZqXQfQ==}
 
   raw-body@2.5.2:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
@@ -5595,6 +5617,9 @@ packages:
       utf-8-validate:
         optional: true
 
+  xcase@2.0.1:
+    resolution: {integrity: sha512-UmFXIPU+9Eg3E9m/728Bii0lAIuoc+6nbrNUKaRPJOFp91ih44qqGlWtxMB6kXFrRD6po+86ksHM5XHCfk6iPw==}
+
   xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
     engines: {node: '>=4.0.0'}
@@ -6142,6 +6167,24 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@gitbeaker/core@42.5.0':
+    dependencies:
+      '@gitbeaker/requester-utils': 42.5.0
+      qs: 6.13.0
+      xcase: 2.0.1
+
+  '@gitbeaker/requester-utils@42.5.0':
+    dependencies:
+      picomatch-browser: 2.2.6
+      qs: 6.13.0
+      rate-limiter-flexible: 4.0.1
+      xcase: 2.0.1
+
+  '@gitbeaker/rest@42.5.0':
+    dependencies:
+      '@gitbeaker/core': 42.5.0
+      '@gitbeaker/requester-utils': 42.5.0
 
   '@golevelup/nestjs-common@2.0.0(@nestjs/common@10.4.17(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))':
     dependencies:
@@ -10608,6 +10651,8 @@ snapshots:
 
   picocolors@1.1.1: {}
 
+  picomatch-browser@2.2.6: {}
+
   picomatch@2.3.1: {}
 
   picomatch@4.0.1: {}
@@ -10729,6 +10774,8 @@ snapshots:
       safe-buffer: 5.2.1
 
   range-parser@1.2.1: {}
+
+  rate-limiter-flexible@4.0.1: {}
 
   raw-body@2.5.2:
     dependencies:
@@ -11766,6 +11813,8 @@ snapshots:
       signal-exit: 3.0.7
 
   ws@8.18.0: {}
+
+  xcase@2.0.1: {}
 
   xml2js@0.5.0:
     dependencies:

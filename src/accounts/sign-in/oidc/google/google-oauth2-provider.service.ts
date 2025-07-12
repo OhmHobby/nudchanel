@@ -35,8 +35,15 @@ export class GoogleOauth2ProviderService extends ExternalOauth2ProviderService<o
 
   async findProfileId(user: oauth2_v2.Schema$Userinfo): Promise<ProfileId | undefined> {
     if (!user.id) throw new Error('Missing google user id')
-    const profile = await this.profileService.findByGoogleId(user.id)
-    return profile?._id
+    const profileById = await this.profileService.findByGoogleId(user.id)
+    if (profileById?._id) {
+      return profileById._id
+    }
+    const profileByEmail = await this.profileService.findByEmail(String(user.email))
+    if (profileByEmail?._id) {
+      return profileByEmail._id
+    }
+    return undefined
   }
 
   async getProviderUser(code: string, redirectUri: string): Promise<oauth2_v2.Schema$Userinfo> {

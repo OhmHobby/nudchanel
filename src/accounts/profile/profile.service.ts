@@ -45,6 +45,16 @@ export class ProfileService extends Encryption {
   }
 
   @Span()
+  findByGitlabId(gitlabId: string) {
+    return this.profileModel.findOne({ gitlab_ids: gitlabId }).exec()
+  }
+
+  @Span()
+  findByEmail(email: string) {
+    return this.profileModel.findOne({ emails: email }).exec()
+  }
+
+  @Span()
   async findAllDiscordIds() {
     const docs = await this.profileModel.find().select('discord_ids').lean().exec()
     return docs.flatMap((el) => el.discord_ids ?? [])
