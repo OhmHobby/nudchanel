@@ -63,7 +63,7 @@ describe(UserLocalService.name, () => {
       }
       userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
       await service.findByUsername(username)
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('user.username = :username', { username })
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({ username })
     })
 
     it('should include password when requested', async () => {
@@ -75,7 +75,7 @@ describe(UserLocalService.name, () => {
       }
       userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
       await service.findByUsername(username, true)
-      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('user.password')
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('password')
     })
   })
 
