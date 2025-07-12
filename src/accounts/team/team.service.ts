@@ -19,6 +19,7 @@ export class TeamService {
     private readonly teamGroupModel: ReturnModelType<typeof TeamGroupModel>,
   ) {}
 
+  @Span()
   async getLatestProfilePrimaryTeam(profileId: ProfileId): Promise<TeamRoleModel | undefined> {
     const teamMember = await this.teamMemberModel
       .find({ profile: profileId })
@@ -30,11 +31,13 @@ export class TeamService {
     return teamRole
   }
 
+  @Span()
   async getLatestProfileTeamEmoji(profileId: ProfileId): Promise<string | undefined> {
     const teamRole = await this.getLatestProfilePrimaryTeam(profileId)
     return teamRole?.emoji
   }
 
+  @Span()
   async getProfilePrimaryTeams(profileId: ProfileId) {
     const profileTeams = await this.teamMemberModel
       .find({ profile: profileId })
@@ -63,11 +66,13 @@ export class TeamService {
     return members
   }
 
+  @Span()
   async getPrimaryTeamRoles() {
     const roles = await this.teamRoleModel.find({ emoji: { $exists: true } }).exec()
     return roles.sort((a, b) => a.rank - b.rank)
   }
 
+  @Span()
   async getPrimaryTeamYears(): Promise<number[]> {
     const primaryGroup = await this.teamGroupModel.findOne({ rank: 0 }).exec()
     const years = await this.teamMemberModel.find({ group: primaryGroup?._id }).distinct('year').exec()
