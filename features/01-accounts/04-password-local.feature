@@ -33,6 +33,14 @@ Feature: Password local
     Then HTTP response status should be BAD_REQUEST
     And HTTP response error message should be "Invalid current password"
 
+  Scenario: Pwned password is not allowed
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And change password using current password = "password"
+    And change password using new password = "TestPa$$w0rd!"
+    When PATCH /api/v1/accounts/users/local/password
+    Then HTTP response status should be BAD_REQUEST
+    And HTTP response error message should be "Password has been pwned"
+
   Scenario: Valid password
     Given user profileId 5b794c41fd533e3b2f61cf05
     And change password using current password = "nudchDev!123"
