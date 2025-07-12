@@ -24,7 +24,6 @@ export class HaveIBeenPwnedService {
       const lines = data.split('\n')
       const line = lines.find((line) => line.startsWith(hashSuffix))
       const count = parseInt(line?.split(':')[1] ?? '0')
-      this.logger.debug({ message: `Checked pwned password: ${url} result: ${line}` })
       if (count) {
         this.logger.warn({ message: `Password has been pwned with ${count} times` })
         return true
