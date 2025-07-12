@@ -7,7 +7,7 @@ Feature: Password local
     And change password using new password = "nudch"
     When PATCH /api/v1/accounts/users/local/password
     Then HTTP response status should be BAD_REQUEST
-    And HTTP response error message should be "Password is not strong enough"
+    And HTTP response error message should be "Password requires at least 10 character(s)"
 
   Scenario: Common password is not allowed
     Given user profileId 5b794c41fd533e3b2f61cf05
@@ -17,13 +17,29 @@ Feature: Password local
     Then HTTP response status should be BAD_REQUEST
     And HTTP response error message should be "Common password is not allowed"
 
-  Scenario: Incorrect current password
+  Scenario: Similar to a commonly used password
     Given user profileId 5b794c41fd533e3b2f61cf05
     And change password using current password = "password"
     And change password using new password = "P@$$w0rd1234"
     When PATCH /api/v1/accounts/users/local/password
     Then HTTP response status should be BAD_REQUEST
+    And HTTP response error message should be "Password is not strong enough: This is similar to a commonly used password"
+
+  Scenario: Incorrect current password
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And change password using current password = "password"
+    And change password using new password = "321!veDhcdun"
+    When PATCH /api/v1/accounts/users/local/password
+    Then HTTP response status should be BAD_REQUEST
     And HTTP response error message should be "Invalid current password"
+
+  Scenario: Pwned password is not allowed
+    Given user profileId 5b794c41fd533e3b2f61cf05
+    And change password using current password = "password"
+    And change password using new password = "TestPa$$w0rd!"
+    When PATCH /api/v1/accounts/users/local/password
+    Then HTTP response status should be BAD_REQUEST
+    And HTTP response error message should be "Password has been pwned"
 
   Scenario: Valid password
     Given user profileId 5b794c41fd533e3b2f61cf05
