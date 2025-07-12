@@ -2,6 +2,7 @@ import { Snowflake } from '@discordjs/core'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { Queue } from 'bullmq'
+import { Span } from 'nestjs-otel'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { TeamService } from 'src/accounts/team/team.service'
@@ -36,6 +37,7 @@ export class DiscordService implements OnModuleDestroy {
     return discordIds
   }
 
+  @Span()
   async triggerProfileNameSync(discordId: Snowflake) {
     const profile = await this.profileService.findByDiscordId(discordId)
     if (!profile) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
@@ -47,6 +49,7 @@ export class DiscordService implements OnModuleDestroy {
     await Promise.all(promises ?? [])
   }
 
+  @Span()
   async triggerProfileRoleSync(discordId: Snowflake) {
     const profile = await this.profileService.findByDiscordId(discordId)
     if (!profile) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
@@ -56,7 +59,7 @@ export class DiscordService implements OnModuleDestroy {
       this.discordBotService.getUserById(discordId),
       this.getSyncedDiscordRoles(),
     ])
-    if (!discordUser) return
+    if (!discordUser) return this.logger.warn(`Could not find discord user for discordId: "${discordId}"`)
 
     const profileYears = profileMembers.map((el) => el.year.toString())
     const profileRoleNames = profileMembers.map((el) => el.populatedRoles?.at(0)?.name + DiscordService.allTeamSuffix)
@@ -76,6 +79,18 @@ export class DiscordService implements OnModuleDestroy {
     const toRemoveRoleIds = guildRoles
       .filter((role) => discordUser.roles.includes(role.id) && !targetGuildRoleIds.includes(role.id))
       .map((el) => el.id)
+    this.logger.log({
+      message: `Updating discord ID: ${discordId}`,
+      profileYears,
+      profileRoleNames,
+      latestYear,
+      profileYear,
+      isActiveCurrentYear,
+      targetGuildRoleIds,
+      discordUserRoles: discordUser.roles,
+      toAddRoleIds,
+      toRemoveRoleIds,
+    })
     await this.discordBotService.addRoleToMember(discordId, toAddRoleIds)
     await this.discordBotService.removeRoleFromMember(discordId, toRemoveRoleIds)
   }
@@ -86,6 +101,7 @@ export class DiscordService implements OnModuleDestroy {
     return [...teamRoles, ...allSuffixTeamRoles]
   }
 
+  @Span()
   async getSyncedDiscordRoles() {
     const [years, teamRoles, discordRoles] = await Promise.all([
       this.teamService.getPrimaryTeamYears(),
@@ -99,6 +115,7 @@ export class DiscordService implements OnModuleDestroy {
     )
   }
 
+  @Span()
   async triggerRoleSyncAll() {
     const [years, teamRoles, discordRoles] = await Promise.all([
       this.teamService.getPrimaryTeamYears(),

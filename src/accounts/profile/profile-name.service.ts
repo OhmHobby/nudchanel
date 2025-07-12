@@ -80,6 +80,7 @@ export class ProfileNameService {
     return this.getNameWithSecondaryNameInParenthesisPrefix(nicknameCased, `${trimmedFirstname}${lastnameInitial}`)
   }
 
+  @Span()
   async getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profileId: ProfileId) {
     const maxLength = 32
     const [name, emoji] = await Promise.all([
