@@ -7,7 +7,6 @@ import { Job } from 'bullmq'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
-import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { AlbumPhotoUploadRule } from 'src/gallery/photo/rules/album-photo-upload-rule'
@@ -15,7 +14,6 @@ import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { StudentInformationModel } from 'src/models/accounts/student-information.model'
 import { StudentProfileModel } from 'src/models/accounts/student-profile.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { DataSource } from 'typeorm'
 
 @Injectable()
@@ -32,8 +30,6 @@ export class DataMigrationProcessorService extends WorkerHost {
     private readonly studentInformationModel: ReturnModelType<typeof StudentInformationModel>,
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: ReturnModelType<typeof StudentProfileModel>,
-    @InjectModel(UserLocalModel)
-    private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
   ) {
     super()
   }
@@ -44,8 +40,6 @@ export class DataMigrationProcessorService extends WorkerHost {
         return this.migratePhotoUploadTask()
       } else if (job.name === DataMigration.NudStudent) {
         return this.migrateNudStudent()
-      } else if (job.name === DataMigration.UserLocal) {
-        return this.migrateUserLocal()
       }
       throw new Error(`${job.name} not found`)
     } catch (err) {
@@ -119,31 +113,6 @@ export class DataMigrationProcessorService extends WorkerHost {
           await nudStudentRepository.save(studentEntity)
           this.logger.log({ message: `Migrated student ${studentDoc._id}`, studentEntity })
         }
-      }
-    })
-  }
-
-  private migrateUserLocal() {
-    return this.dataSource.transaction(async (manager) => {
-      const userLocalUserRepository = manager.getRepository(UserLocalUserEntity)
-      await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.UserLocal }), {
-        conflictPaths: ['id'],
-      })
-      const userLocals = await this.userLocalModel.find().select('+password').exec()
-      for (const userLocal of userLocals) {
-        if (!userLocal.profile) {
-          this.logger.warn({ message: `UserLocal ${userLocal._id} has no profile`, userLocal })
-          continue
-        }
-        const userLocalEntity = new UserLocalUserEntity({
-          profileId: ObjectIdUuidConverter.toUuid(userLocal.profile.toString()),
-          username: userLocal.username,
-          password: userLocal.password,
-          passwordLastSet: userLocal.password_last_set,
-          disabled: userLocal.disabled,
-        })
-        await userLocalUserRepository.save(userLocalEntity)
-        this.logger.log({ message: `Migrated UserLocal ${userLocal._id}`, userLocalEntity })
       }
     })
   }
