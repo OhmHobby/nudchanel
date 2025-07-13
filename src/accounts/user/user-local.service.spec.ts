@@ -7,6 +7,7 @@ import { TestData } from 'test/test-data'
 import { ProfileNameService } from '../profile/profile-name.service'
 import { UserLocalService } from './user-local.service'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
+import { BadRequestException, ForbiddenException } from '@nestjs/common'
 
 jest.mock('../profile/profile-name.service')
 
@@ -55,27 +56,40 @@ describe(UserLocalService.name, () => {
   })
 
   describe('findByUsername', () => {
-    it('should findOne by username', async () => {
+    it('should findOne by username without password', async () => {
       const username = 'username'
-      const mockQueryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue({ username }),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      const mockUser = { username, id: '1', profileId: 'profile1' }
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
       await service.findByUsername(username)
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith({ username })
+      expect(userLocalUserRepository.findOne).toHaveBeenCalledWith({
+        where: { username },
+        select: {
+          id: true,
+          profileId: true,
+          username: true,
+          password: false,
+          passwordLastSet: true,
+          disabled: true,
+        },
+      })
     })
 
     it('should include password when requested', async () => {
       const username = 'username'
-      const mockQueryBuilder = {
-        addSelect: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue({ username, password: 'hashed' }),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      const mockUser = { username, password: 'hashed', id: '1', profileId: 'profile1' }
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
       await service.findByUsername(username, true)
-      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('password')
+      expect(userLocalUserRepository.findOne).toHaveBeenCalledWith({
+        where: { username },
+        select: {
+          id: true,
+          profileId: true,
+          username: true,
+          password: true,
+          passwordLastSet: true,
+          disabled: true,
+        },
+      })
     })
   })
 
@@ -93,24 +107,18 @@ describe(UserLocalService.name, () => {
   describe('getUsersHashedPassword', () => {
     it('should return hashed password when found', async () => {
       const hashedPassword = 'hashedPassword'
-      const mockQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue({ password: hashedPassword }),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue({ password: hashedPassword })
       const result = await service.getUsersHashedPassword('username')
       expect(result).toBe(hashedPassword)
+      expect(userLocalUserRepository.findOne).toHaveBeenCalledWith({
+        where: { username: 'username' },
+        select: ['password'],
+      })
     })
 
     it('should throw when user not found', async () => {
-      const mockQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(null),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
-      await expect(service.getUsersHashedPassword('username')).rejects.toThrow()
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue(null)
+      await expect(service.getUsersHashedPassword('username')).rejects.toThrow('Username not found')
     })
   })
 
@@ -119,6 +127,7 @@ describe(UserLocalService.name, () => {
       userLocalUserRepository.count = jest.fn().mockResolvedValue(1)
       const result = await service.isUsernameExists('username')
       expect(result).toBe(true)
+      expect(userLocalUserRepository.count).toHaveBeenCalledWith({ where: { username: 'username' } })
     })
 
     it('should return false when user does not exist', async () => {
@@ -131,6 +140,14 @@ describe(UserLocalService.name, () => {
   describe('usernameCleanUp', () => {
     it('should clean up correctly', () => {
       expect(service.usernameCleanUp(' ก Ab 3')).toBe('ab')
+    })
+
+    it('should handle undefined input', () => {
+      expect(service.usernameCleanUp(undefined)).toBe(undefined)
+    })
+
+    it('should handle empty string', () => {
+      expect(service.usernameCleanUp('')).toBe('')
     })
   })
 
@@ -146,18 +163,18 @@ describe(UserLocalService.name, () => {
 
     it('should error when username has already created', async () => {
       userLocalUserRepository.count = jest.fn().mockResolvedValue(1)
-      await expect(service.requestUsername(profileId)).rejects.toThrow()
+      await expect(service.requestUsername(profileId)).rejects.toThrow('Username has already created')
     })
 
     it('should error when english fullname not found', async () => {
       profileNameService.getProfileName = jest.fn().mockResolvedValue(new ProfileNameModel())
-      await expect(service.requestUsername(profileId)).rejects.toThrow()
+      await expect(service.requestUsername(profileId)).rejects.toThrow('English fullname not found')
     })
 
     it('should error when fullname not complete', async () => {
       profileName.lastname = undefined
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
-      await expect(service.requestUsername(profileId)).rejects.toThrow()
+      await expect(service.requestUsername(profileId)).rejects.toThrow('Fullname required')
     })
 
     it('should return expected username correctly', async () => {
@@ -179,7 +196,7 @@ describe(UserLocalService.name, () => {
     it('should error when no available username', async () => {
       profileNameService.getProfileName = jest.fn().mockResolvedValue(profileName)
       service.isUsernameExists = jest.fn().mockResolvedValue(true)
-      await expect(service.requestUsername(profileId)).rejects.toThrowError()
+      await expect(service.requestUsername(profileId)).rejects.toThrowError('No username available')
     })
   })
 
@@ -204,6 +221,46 @@ describe(UserLocalService.name, () => {
     })
   })
 
+  describe('verifyAndChangePassword', () => {
+    const profileId = new Types.ObjectId()
+    const mockUser = { username: 'testuser', password: 'hashedPassword' }
+
+    beforeEach(() => {
+      const mockQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(mockUser),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+    })
+
+    it('should change password when current password is valid', async () => {
+      service.changePassword = jest.fn().mockResolvedValue({ affected: 1 })
+      jest.spyOn(require('argon2'), 'verify').mockResolvedValue(true)
+      await service.verifyAndChangePassword(profileId, 'currentPassword', 'newPassword')
+      expect(service.changePassword).toHaveBeenCalledWith('testuser', 'newPassword')
+    })
+
+    it('should throw ForbiddenException when user not found', async () => {
+      const mockQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(null),
+      }
+      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      await expect(service.verifyAndChangePassword(profileId, 'currentPassword', 'newPassword')).rejects.toThrow(
+        ForbiddenException,
+      )
+    })
+
+    it('should throw BadRequestException when current password is invalid', async () => {
+      jest.spyOn(require('argon2'), 'verify').mockResolvedValue(false)
+      await expect(service.verifyAndChangePassword(profileId, 'wrongPassword', 'newPassword')).rejects.toThrow(
+        BadRequestException,
+      )
+    })
+  })
+
   describe('create', () => {
     it('should create with hashed password', async () => {
       const profile = new Types.ObjectId()
@@ -221,14 +278,63 @@ describe(UserLocalService.name, () => {
         }),
       )
     })
+
+    it('should create without profile', async () => {
+      const hashedPassword = 'hashed-password'
+      const mockUser = { username: 'username', password: hashedPassword }
+      userLocalUserRepository.create = jest.fn().mockReturnValue(mockUser)
+      userLocalUserRepository.save = jest.fn().mockResolvedValue(mockUser)
+      service.hashPassword = jest.fn().mockReturnValue(hashedPassword)
+      await service.create('username', 'password')
+      expect(userLocalUserRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'username',
+          password: hashedPassword,
+          profileId: undefined,
+        }),
+      )
+    })
   })
 
-  describe(UserLocalService.prototype.signIn.name, () => {
+  describe('disableUser', () => {
+    it('should disable user by default', async () => {
+      userLocalUserRepository.update = jest.fn().mockResolvedValue({ affected: 1 })
+      await service.disableUser('username')
+      expect(userLocalUserRepository.update).toHaveBeenCalledWith({ username: 'username' }, { disabled: true })
+    })
+
+    it('should enable user when disabled is false', async () => {
+      userLocalUserRepository.update = jest.fn().mockResolvedValue({ affected: 1 })
+      await service.disableUser('username', false)
+      expect(userLocalUserRepository.update).toHaveBeenCalledWith({ username: 'username' }, { disabled: false })
+    })
+  })
+
+  describe('signIn', () => {
     it('should return user when password matches', async () => {
       const user = TestData.aValidUserLocal().build()
       service.findByUsername = jest.fn().mockResolvedValue(user)
+      jest.spyOn(require('argon2'), 'verify').mockResolvedValue(true)
       const result = await service.signIn('username', 'nudchDev!123')
       expect(result).toEqual(user)
+    })
+
+    it('should throw BadRequestException when user not found', async () => {
+      service.findByUsername = jest.fn().mockResolvedValue(null)
+      await expect(service.signIn('username', 'password')).rejects.toThrow(BadRequestException)
+    })
+
+    it('should throw BadRequestException when user is disabled', async () => {
+      const user = { ...TestData.aValidUserLocal().build(), disabled: true }
+      service.findByUsername = jest.fn().mockResolvedValue(user)
+      await expect(service.signIn('username', 'password')).rejects.toThrow(BadRequestException)
+    })
+
+    it('should throw BadRequestException when password is invalid', async () => {
+      const user = { ...TestData.aValidUserLocal().build(), password: 'wrongHash' }
+      service.findByUsername = jest.fn().mockResolvedValue(user)
+      jest.spyOn(require('argon2'), 'verify').mockResolvedValue(false)
+      await expect(service.signIn('username', 'wrongPassword')).rejects.toThrow(BadRequestException)
     })
   })
 })
