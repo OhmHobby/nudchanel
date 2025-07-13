@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { REST } from 'discord.js'
 import { Auth, google } from 'googleapis'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
@@ -19,7 +20,6 @@ import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { PhotoModule } from 'src/photo/photo.module'
 import { StorageModule } from 'src/storage/storage.module'
 import { ProfileModel } from '../models/accounts/profile.model'
@@ -58,7 +58,6 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
       [
         ProfileModel,
         ProfileNameModel,
-        UserLocalModel,
         UserGroupModel,
         GroupModel,
         TeamMemberModel,
@@ -68,7 +67,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
       ],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, NudStudentEntity]),
+    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, NudStudentEntity, UserLocalUserEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     PhotoModule,

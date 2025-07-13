@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
 import { AuditLogEntity } from 'src/entities/audit-log.entity'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
@@ -30,13 +31,13 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
   static readonly entities = [
-    ProfilePhotoEntity,
     GalleryActivityEntity,
     GalleryAlbumEntity,
     GalleryPhotoEntity,
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
     NudStudentEntity,
+    ProfilePhotoEntity,
     RecruitApplicantEntity,
     RecruitApplicantRoleEntity,
     RecruitFormAnswerEntity,
@@ -49,6 +50,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     RecruitSettingEntity,
     RecruitSurveyEntity,
     RefreshTokenEntity,
+    UserLocalUserEntity,
     AuditLogEntity,
     ApplicationSettingEntity,
     DataMigrationEntity,

@@ -1,10 +1,11 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common'
-import { ReturnModelType } from '@typegoose/typegoose'
+import { InjectRepository } from '@nestjs/typeorm'
 import { argon2id, hash, verify } from 'argon2'
 import { Span } from 'nestjs-otel'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileId } from 'src/models/types'
+import { Repository } from 'typeorm'
 import { ProfileNameService } from '../profile/profile-name.service'
 
 @Injectable()
@@ -12,28 +13,38 @@ export class UserLocalService {
   private readonly logger = new Logger(UserLocalService.name)
 
   constructor(
-    @InjectModel(UserLocalModel)
-    private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
+    @InjectRepository(UserLocalUserEntity)
+    private readonly userLocalUserRepository: Repository<UserLocalUserEntity>,
     private readonly profileNameService: ProfileNameService,
   ) {}
 
   async findAll() {
-    return await this.userLocalModel.find().exec()
+    return await this.userLocalUserRepository.find()
   }
 
   @Span()
   async findByUsername(username: string, withPassword = false) {
-    const query = this.userLocalModel.findOne({ username })
-    if (withPassword) query.select('+password')
-    return await query.exec()
+    return await this.userLocalUserRepository.findOne({
+      where: { username },
+      select: {
+        id: true,
+        profileId: true,
+        username: true,
+        password: withPassword,
+        passwordLastSet: true,
+        disabled: true,
+      },
+    })
   }
 
   async findByProfile(profile: ProfileId) {
-    return await this.userLocalModel.findOne({ profile }).exec()
+    return await this.userLocalUserRepository.findOne({
+      where: { profileId: ObjectIdUuidConverter.toUuid(profile) },
+    })
   }
 
   async getUsersHashedPassword(username: string): Promise<string> {
-    const user = await this.userLocalModel.findOne({ username }).select('password').exec()
+    const user = await this.userLocalUserRepository.findOne({ where: { username }, select: ['password'] })
     if (!user) {
       throw new Error('Username not found')
     }
@@ -41,8 +52,8 @@ export class UserLocalService {
   }
 
   async isUsernameExists(username: string): Promise<boolean> {
-    const count = await this.userLocalModel.countDocuments({ username }).exec()
-    return !!count
+    const count = await this.userLocalUserRepository.count({ where: { username } })
+    return count > 0
   }
 
   usernameCleanUp(name?: string) {
@@ -50,7 +61,9 @@ export class UserLocalService {
   }
 
   async requestUsername(profileId: ProfileId): Promise<string> {
-    const countByProfile = await this.userLocalModel.countDocuments({ profile: profileId }).exec()
+    const countByProfile = await this.userLocalUserRepository.count({
+      where: { profileId: ObjectIdUuidConverter.toUuid(profileId) },
+    })
     if (countByProfile) throw new Error('Username has already created')
 
     const name = await this.profileNameService.getProfileName(profileId, 'en')
@@ -83,13 +96,14 @@ export class UserLocalService {
 
   async changePassword(username: string, plainPassword: string) {
     const hashedPassword = await this.hashPassword(plainPassword)
-    return this.userLocalModel
-      .findOneAndUpdate({ username }, { password: hashedPassword, password_last_set: new Date() })
-      .exec()
+    return this.userLocalUserRepository.update({ username }, { password: hashedPassword, passwordLastSet: new Date() })
   }
 
   async verifyAndChangePassword(profileId: ProfileId, currentPassword: string, newPassword: string) {
-    const user = await this.userLocalModel.findOne({ profile: profileId }).select(['username', 'password']).exec()
+    const user = await this.userLocalUserRepository.findOne({
+      where: { profileId: ObjectIdUuidConverter.toUuid(profileId) },
+      select: ['username', 'password'],
+    })
     if (!user) throw new ForbiddenException('Current profile has no local user')
     const isValidPassword = await verify(user.password, currentPassword)
     if (!isValidPassword) throw new BadRequestException('Invalid current password')
@@ -98,15 +112,16 @@ export class UserLocalService {
 
   async create(username: string, plainPassword: string, profile?: ProfileId) {
     const hashedPassword = await this.hashPassword(plainPassword)
-    return this.userLocalModel.create({
+    const user = this.userLocalUserRepository.create({
       username,
-      profile,
+      profileId: profile ? ObjectIdUuidConverter.toUuid(profile) : undefined,
       password: hashedPassword,
     })
+    return await this.userLocalUserRepository.save(user)
   }
 
   async disableUser(username: string, disabled = true) {
-    await this.userLocalModel.findOneAndUpdate({ username }, { disabled }).exec()
+    await this.userLocalUserRepository.update({ username }, { disabled })
   }
 
   @Span()
