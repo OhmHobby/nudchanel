@@ -139,3 +139,8 @@ googleapis:
 
 discord:
   clientId: "1095379875226988664"
+
+
+gitlab:
+  clientId: e068e8565345b9d16b62457e0a6e2cec778c3d62c8c09e4f1b0379a27d60cd2c
+  instanceUrl: https://gitlab.nudchannel.com

@@ -91,6 +91,12 @@ describe('Accounts - sign-in', () => {
         url: 'https://discord.com/api/v10/oauth2/authorize?client_id=1095379875226988664&response_type=code&scope=identify+email&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fdiscord%2Fcallback',
       }),
     )
+    expect(result.body).toContainEqual(
+      new AuthProviderResponseModel({
+        provider: OidcProvider.GitLab,
+        url: 'https://gitlab.nudchannel.com/oauth/authorize?client_id=e068e8565345b9d16b62457e0a6e2cec778c3d62c8c09e4f1b0379a27d60cd2c&response_type=code&scope=read_user&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fgitlab%2Fcallback',
+      }),
+    )
   })
 
   test('GET /api/v1/accounts/sign-in/discord/callback (sign-in)', async () => {
