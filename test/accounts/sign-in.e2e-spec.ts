@@ -26,12 +26,8 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (success)', async () => {
-    const mockQueryBuilder = {
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
-    }
-    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+    const mockUser = TestData.aValidUserLocal().build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -45,12 +41,8 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (invalid password)', async () => {
-    const mockQueryBuilder = {
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
-    }
-    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+    const mockUser = TestData.aValidUserLocal().build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -61,12 +53,7 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (user not found)', async () => {
-    const mockQueryBuilder = {
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      getOne: jest.fn().mockResolvedValue(null),
-    }
-    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(null)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -77,12 +64,8 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (disabled user)', async () => {
-    const mockQueryBuilder = {
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      getOne: jest.fn().mockResolvedValue(TestData.aValidUserLocal().withDisabled(true).build()),
-    }
-    mockUserLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+    const mockUser = TestData.aValidUserLocal().withDisabled(true).build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
