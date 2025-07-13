@@ -226,12 +226,7 @@ describe(UserLocalService.name, () => {
     const mockUser = { username: 'testuser', password: 'hashedPassword' }
 
     beforeEach(() => {
-      const mockQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(mockUser),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
     })
 
     it('should change password when current password is valid', async () => {
@@ -239,15 +234,14 @@ describe(UserLocalService.name, () => {
       jest.spyOn(require('argon2'), 'verify').mockResolvedValue(true)
       await service.verifyAndChangePassword(profileId, 'currentPassword', 'newPassword')
       expect(service.changePassword).toHaveBeenCalledWith('testuser', 'newPassword')
+      expect(userLocalUserRepository.findOne).toHaveBeenCalledWith({
+        where: { profileId: expect.any(String) },
+        select: ['username', 'password'],
+      })
     })
 
     it('should throw ForbiddenException when user not found', async () => {
-      const mockQueryBuilder = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(null),
-      }
-      userLocalUserRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder)
+      userLocalUserRepository.findOne = jest.fn().mockResolvedValue(null)
       await expect(service.verifyAndChangePassword(profileId, 'currentPassword', 'newPassword')).rejects.toThrow(
         ForbiddenException,
       )
