@@ -38,19 +38,15 @@ export class SearchDnUserService {
 
   @Span()
   async findUsers(req: LdapRequest): Promise<LdapObject[]> {
-    const query = this.userLocalUserRepository.createQueryBuilder('user')
-
     const findUid = /uid=(\w+)/.exec(req.dn?.toString())?.at(1)
-    if (req.scope === LdapRequestScope.Base && findUid) {
-      query.andWhere({ username: findUid })
-    }
-
     const filterByUid = req.filter.filters?.filter((el) => el.attribute === 'uid' && el.value)?.map((el) => el.value)
-    if (filterByUid?.length) {
-      query.andWhere({ username: In(filterByUid) })
-    }
 
-    const users = await query.getMany()
+    const users = await this.userLocalUserRepository.find({
+      where: [
+        req.scope === LdapRequestScope.Base && findUid ? { username: findUid } : undefined,
+        filterByUid?.length ? { username: In(filterByUid) } : undefined,
+      ].filter((el) => !!el),
+    })
 
     const profileIds = users.map((el) => ObjectIdUuidConverter.toObjectId(el.profileId))
     const [profileMap, profileNameMap] = await Promise.all([
