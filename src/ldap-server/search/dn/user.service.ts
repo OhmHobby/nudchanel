@@ -64,7 +64,7 @@ export class SearchDnUserService {
   @Span()
   async handler(req: LdapRequest, res): Promise<LdapObject[]> {
     const users = await this.findUsers(req)
-    const promises = users.map((user) => {
+    const filteredUsers = users.filter((user) => {
       const isMatched =
         (req.scope === LdapRequestScope.Base && req.dn?.equals(user.dn)) ||
         (req.scope !== LdapRequestScope.Base && req.filter.matches(user.attributes))
@@ -73,12 +73,10 @@ export class SearchDnUserService {
         object: user,
         req: req.json,
       })
-      if (isMatched) {
-        res.send(user)
-        return user
-      }
+      if (isMatched) res.send(user)
+      return isMatched
     })
-    return promises.filter((el) => !!el)
+    return filteredUsers
   }
 
   @Span()
@@ -88,8 +86,9 @@ export class SearchDnUserService {
     profileNameMap: ProfileNameMap,
     withPhoto = false,
   ): Promise<LdapObject | null> {
-    const profile = profileMap.get(user.profileId)
-    const profileName = profileNameMap.get(user.profileId)
+    const profileOid = ObjectIdUuidConverter.toHexString(user.profileId)
+    const profile = profileMap.get(profileOid)
+    const profileName = profileNameMap.get(profileOid)
     if (!profileName || !profile) {
       this.logger.error({ message: 'Profile not found', user })
       return null
