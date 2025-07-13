@@ -1,17 +1,18 @@
 import { getModelToken } from '@m8a/nestjs-typegoose'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import expect from 'expect'
 import { AuthProviderResponseModel } from 'src/accounts/models/auth-provider.response.model'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import request from 'supertest'
 import { MockModelType, resetMockModel } from 'test/helpers/mock-model'
 import { TestData } from 'test/test-data'
 
 describe('Accounts - sign-in', () => {
   let app: INestApplication
-  let mockUserLocalModel: MockModelType<typeof UserLocalModel>
+  let mockUserLocalUserRepository: any
   let mockProfileModel: MockModelType<typeof ProfileModel>
 
   beforeAll(async () => {
@@ -19,17 +20,14 @@ describe('Accounts - sign-in', () => {
   })
 
   beforeEach(async () => {
-    mockUserLocalModel = await app.get(getModelToken(UserLocalModel.name))
-    resetMockModel(mockUserLocalModel)
+    mockUserLocalUserRepository = await app.get(getRepositoryToken(UserLocalUserEntity))
     mockProfileModel = await app.get(getModelToken(ProfileModel.name))
     resetMockModel(mockProfileModel)
   })
 
   test('POST /api/v1/accounts/sign-in/local (success)', async () => {
-    mockUserLocalModel.findOne = jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()),
-    })
+    const mockUser = TestData.aValidUserLocal().build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -43,9 +41,8 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (invalid password)', async () => {
-    mockUserLocalModel.findOne = jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().build()) })
+    const mockUser = TestData.aValidUserLocal().build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -56,7 +53,7 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (user not found)', async () => {
-    mockUserLocalModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(null)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -67,9 +64,8 @@ describe('Accounts - sign-in', () => {
   })
 
   test('POST /api/v1/accounts/sign-in/local (disabled user)', async () => {
-    mockUserLocalModel.findOne = jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(TestData.aValidUserLocal().withDisabled(true).build()) })
+    const mockUser = TestData.aValidUserLocal().withDisabled(true).build()
+    mockUserLocalUserRepository.findOne = jest.fn().mockResolvedValue(mockUser)
 
     const result = await request(app.getHttpServer())
       .post('/api/v1/accounts/sign-in/local')
@@ -93,6 +89,12 @@ describe('Accounts - sign-in', () => {
       new AuthProviderResponseModel({
         provider: OidcProvider.Discord,
         url: 'https://discord.com/api/v10/oauth2/authorize?client_id=1095379875226988664&response_type=code&scope=identify+email&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fdiscord%2Fcallback',
+      }),
+    )
+    expect(result.body).toContainEqual(
+      new AuthProviderResponseModel({
+        provider: OidcProvider.GitLab,
+        url: 'https://gitlab.nudchannel.com/oauth/authorize?client_id=e068e8565345b9d16b62457e0a6e2cec778c3d62c8c09e4f1b0379a27d60cd2c&response_type=code&scope=read_user&redirect_uri=http%3A%2F%2Fdev.nudchannel.com%2Fapi%2Fv1%2Faccounts%2Fsign-in%2Fgitlab%2Fcallback',
       }),
     )
   })

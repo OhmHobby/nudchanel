@@ -11,6 +11,7 @@ import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { DataMigrationProcessorService } from './data-migration-processor.service'
 import { MigrationController } from './migration.controller.service'
 import { MigrationService } from './migration.service'
+
 @Module({
   imports: [
     TypegooseModule.forFeature([UploadTaskModel], MongoConnection.Photo),

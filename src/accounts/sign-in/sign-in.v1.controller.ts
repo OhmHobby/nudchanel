@@ -16,6 +16,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { Request, Response } from 'express'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { Config } from 'src/enums/config.enum'
 import { OidcProvider } from 'src/enums/oidc-provider.enum'
 import { ProfileId } from 'src/models/types'
@@ -64,7 +65,7 @@ export class SignInV1Controller {
     @Res({ passthrough: true }) response: Pick<Response, 'cookie'>,
   ): Promise<SignInLocalUserResponseDto> {
     const user = await this.userLocalService.signIn(username, password)
-    const profileId = user.profile! as ProfileId
+    const profileId = ObjectIdUuidConverter.toObjectId(user.profileId!) as ProfileId
     await this.signInService.setAccessRefreshTokenCookiesByProfile(
       response,
       profileId,

@@ -1,16 +1,21 @@
-import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { isDocument, isDocumentArray, ReturnModelType } from '@typegoose/typegoose'
+import { InjectRepository } from '@nestjs/typeorm'
 import { parseDN } from 'ldapjs'
 import { Span } from 'nestjs-otel'
+import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { ProfilePhotoService } from 'src/accounts/profile/profile-photo.service'
+import { ProfileService } from 'src/accounts/profile/profile.service'
+import { ProfileNameMap } from 'src/accounts/types/profile-name-map.type'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { Config } from 'src/enums/config.enum'
 import { ImageFormat } from 'src/enums/image-format.enum'
 import { LdapRequestScope } from 'src/enums/ldap-request-scope.enum'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { LdapObject } from 'src/ldap-server/types/ldap-object.type'
 import { LdapRequest } from 'src/ldap-server/types/ldap-request.type'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
+import { ProfileModel } from 'src/models/accounts/profile.model'
+import { In, Repository } from 'typeorm'
 
 @Injectable()
 export class SearchDnUserService {
@@ -22,40 +27,44 @@ export class SearchDnUserService {
 
   constructor(
     configService: ConfigService,
-    @InjectModel(UserLocalModel)
-    private readonly userLocalModel: ReturnModelType<typeof UserLocalModel>,
+    @InjectRepository(UserLocalUserEntity)
+    private readonly userLocalUserRepository: Repository<UserLocalUserEntity>,
     private readonly profilePhotoService: ProfilePhotoService,
+    private readonly profileService: ProfileService,
+    private readonly profileNameService: ProfileNameService,
   ) {
     this.baseDn = configService.getOrThrow(Config.LDAP_BASE_DN)
   }
 
   @Span()
-  findUsers(req: LdapRequest) {
-    const query = this.userLocalModel.find()
-
+  async findUsers(req: LdapRequest): Promise<LdapObject[]> {
     const findUid = /uid=(\w+)/.exec(req.dn?.toString())?.at(1)
-    if (req.scope === LdapRequestScope.Base && findUid) query.where({ username: findUid })
-
     const filterByUid = req.filter.filters?.filter((el) => el.attribute === 'uid' && el.value)?.map((el) => el.value)
-    if (filterByUid?.length) query.where({ username: { $in: filterByUid } })
 
-    return query
-      .populate({
-        path: 'profile',
-        populate: { path: 'names', select: ['profile', 'firstname', 'lastname'], match: { lang: 'en' } },
-        select: ['emails', 'photo'],
-      })
-      .select(['username'])
-      .exec()
+    const users = await this.userLocalUserRepository.find({
+      where: [
+        req.scope === LdapRequestScope.Base && findUid ? { username: findUid } : undefined,
+        filterByUid?.length ? { username: In(filterByUid) } : undefined,
+      ].filter((el) => !!el),
+    })
+
+    const profileIds = users.map((el) => ObjectIdUuidConverter.toObjectId(el.profileId))
+    const [profileMap, profileNameMap] = await Promise.all([
+      this.profileService.profileMap(profileIds),
+      this.profileNameService.getProfilesNameMap(profileIds),
+    ])
+
+    const withPhoto = req.attributes.some((el) => el.toLowerCase() === 'jpegphoto')
+    const ldapObjects = await Promise.all(
+      users.map((userLocal) => this.toLdapObject(userLocal, profileMap, profileNameMap, withPhoto)),
+    )
+    return ldapObjects.filter((el) => el !== null)
   }
 
   @Span()
   async handler(req: LdapRequest, res): Promise<LdapObject[]> {
-    const withPhoto = req.attributes.some((el) => el.toLowerCase() === 'jpegphoto')
     const users = await this.findUsers(req)
-    const promises = users.map(async (userLocal) => {
-      const user = await this.toLdapObject(userLocal, withPhoto)
-      if (!user) return
+    const filteredUsers = users.filter((user) => {
       const isMatched =
         (req.scope === LdapRequestScope.Base && req.dn?.equals(user.dn)) ||
         (req.scope !== LdapRequestScope.Base && req.filter.matches(user.attributes))
@@ -64,40 +73,47 @@ export class SearchDnUserService {
         object: user,
         req: req.json,
       })
-      if (isMatched) {
-        res.send(user)
-        return user
-      }
+      if (isMatched) res.send(user)
+      return isMatched
     })
-    const ldapUsers = await Promise.all(promises)
-    return ldapUsers.filter((el) => !!el)
+    return filteredUsers
   }
 
   @Span()
-  async toLdapObject(user: UserLocalModel, withPhoto = false): Promise<LdapObject | undefined> {
-    if (
-      user._id &&
-      isDocument(user.profile) &&
-      isDocumentArray(user.profile.names) &&
-      user.profile.names.length &&
-      user.profile.emails?.length
-    )
-      return {
-        dn: parseDN(`uid=${user.username}, ou=users, ${this.baseDn}`),
-        attributes: {
-          cn: `${user.profile.names[0].firstname} ${user.profile.names[0].lastname}`,
-          uid: user.username,
-          uidNumber: user._id + SearchDnUserService.USER_PADDING,
-          gidNumber: user._id + SearchDnUserService.USER_PADDING,
-          mail: user.profile.emails[0],
-          givenName: user.profile.names[0].firstname,
-          sn: user.profile.names[0].lastname,
-          objectclass: ['top', 'posixAccount', 'sambaDomain'],
-          sambaDomainName: 'nudchannel',
-          jpegPhoto: withPhoto
-            ? await this.profilePhotoService.getPhotoBuffer(user.profile.photo, ImageFormat.jpeg).catch(() => null)
-            : null,
-        },
-      }
+  async toLdapObject(
+    user: UserLocalUserEntity,
+    profileMap: Map<string, ProfileModel>,
+    profileNameMap: ProfileNameMap,
+    withPhoto = false,
+  ): Promise<LdapObject | null> {
+    const profileOid = ObjectIdUuidConverter.toHexString(user.profileId)
+    const profile = profileMap.get(profileOid)
+    const profileName = profileNameMap.get(profileOid)
+    if (!profileName || !profile) {
+      this.logger.error({ message: 'Profile not found', user })
+      return null
+    }
+    if (!profile.emails?.length) {
+      this.logger.error({ message: 'Profile email not found', user })
+      return null
+    }
+
+    return {
+      dn: parseDN(`uid=${user.username}, ou=users, ${this.baseDn}`),
+      attributes: {
+        cn: `${profileName.firstname} ${profileName.lastname}`,
+        uid: user.username,
+        uidNumber: user.id + SearchDnUserService.USER_PADDING,
+        gidNumber: user.id + SearchDnUserService.USER_PADDING,
+        mail: profile.emails[0],
+        givenName: profileName.firstname,
+        sn: profileName.lastname,
+        objectclass: ['top', 'posixAccount', 'sambaDomain'],
+        sambaDomainName: 'nudchannel',
+        jpegPhoto: withPhoto
+          ? await this.profilePhotoService.getPhotoBuffer(profile.photo, ImageFormat.jpeg).catch(() => null)
+          : null,
+      },
+    }
   }
 }

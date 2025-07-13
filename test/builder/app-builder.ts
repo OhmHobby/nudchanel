@@ -14,6 +14,7 @@ import { AppModule } from 'src/app.module'
 import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
+import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
 import { GroupModel } from 'src/models/accounts/group.model'
@@ -24,7 +25,6 @@ import { TeamGroupModel } from 'src/models/accounts/team-group.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
 import { UserGroupModel } from 'src/models/accounts/user-group.model'
-import { UserLocalModel } from 'src/models/accounts/user-local.model'
 import { ApiKeyModel } from 'src/models/api-key.model'
 import { MailSenderAddressModel } from 'src/models/delivery/mail-sender.model'
 import { MailTemplateModel } from 'src/models/delivery/mail-template.model'
@@ -86,8 +86,16 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(UploadTaskModel)))
       .overrideProvider(getModelToken(UserGroupModel.name))
       .useValue(resetMockModel(getModelForClass(UserGroupModel)))
-      .overrideProvider(getModelToken(UserLocalModel.name))
-      .useValue(resetMockModel(getModelForClass(UserLocalModel)))
+      .overrideProvider(getRepositoryToken(UserLocalUserEntity))
+      .useValue({
+        find: jest.fn(),
+        findOne: jest.fn(),
+        create: jest.fn(),
+        save: jest.fn(),
+        update: jest.fn(),
+        count: jest.fn(),
+        createQueryBuilder: jest.fn(),
+      })
       .overrideProvider(getConnectionToken())
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Accounts))
