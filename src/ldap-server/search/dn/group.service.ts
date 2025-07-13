@@ -8,9 +8,11 @@ import { Span } from 'nestjs-otel'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { Config } from 'src/enums/config.enum'
 import { LdapRequestScope } from 'src/enums/ldap-request-scope.enum'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { LdapObject } from 'src/ldap-server/types/ldap-object.type'
 import { LdapRequest } from 'src/ldap-server/types/ldap-request.type'
 import { GroupModel } from 'src/models/accounts/group.model'
+import { ProfileId } from 'src/models/types'
 import { In, Repository } from 'typeorm'
 
 @Injectable()
@@ -46,22 +48,22 @@ export class SearchDnGroupService {
     const groups = await query
       .populate({
         path: 'users',
-        select: ['profile', 'user'],
+        select: ['profile'],
       })
       .select(['name'])
       .exec()
-    const userIds = groups.flatMap((group) => this.getUserIds(group))
-    const userIdUsernameMap = await this.userIdUsernameMap(userIds)
-    return groups.map((group) => this.toLdapObject(group, userIdUsernameMap))
+    const profileIds = groups.flatMap((group) => this.getProfileIds(group))
+    const profileIdUsernameMap = await this.profileIdUsernameMap(profileIds)
+    return groups.map((group) => this.toLdapObject(group, profileIdUsernameMap))
   }
 
   @Span()
-  async userIdUsernameMap(userIds: number[]): Promise<Map<number, string>> {
+  async profileIdUsernameMap(profileId: string[]): Promise<Map<string, string>> {
     const users = await this.userLocalUserRepository.find({
-      where: { id: In(userIds) },
-      select: ['id', 'username'],
+      where: { profileId: In(profileId) },
+      select: { profileId: true, username: true },
     })
-    return new Map(users.map((el) => [el.id, el.username]))
+    return new Map(users.map((el) => [el.profileId, el.username]))
   }
 
   @Span()
@@ -86,25 +88,25 @@ export class SearchDnGroupService {
     return filteredGroups
   }
 
-  toLdapObject(group: GroupModel, userIdUsernameMap: Map<number, string>): LdapObject {
+  toLdapObject(group: GroupModel, profileIdUsernameMap: Map<string, string>): LdapObject {
     return {
       dn: parseDN(`cn=${group.name}, ou=groups, ${this.baseDn}`),
       attributes: {
         cn: group.name,
         gidNumber: (group._id ?? 0) + SearchDnGroupService.GROUP_PADDING,
-        memberUid: this.getUserIds(group)
-          ?.map((userId) => userIdUsernameMap.get(userId))
+        memberUid: this.getProfileIds(group)
+          ?.map((profileId) => profileIdUsernameMap.get(profileId))
           .filter((el) => el),
         objectclass: ['top', 'posixGroup'],
       },
     }
   }
 
-  private getUserIds(group: GroupModel): number[] {
+  private getProfileIds(group: GroupModel): string[] {
     return (
       group.users
         ?.map((userGroup) =>
-          isDocument(userGroup) && !!userGroup.user ? (userGroup.user as unknown as number[]).at(0) : undefined,
+          isDocument(userGroup) ? ObjectIdUuidConverter.toUuid(userGroup.profile as ProfileId) : undefined,
         )
         ?.filter((el) => el !== undefined) ?? []
     )
