@@ -100,11 +100,10 @@ export class UserLocalService {
   }
 
   async verifyAndChangePassword(profileId: ProfileId, currentPassword: string, newPassword: string) {
-    const user = await this.userLocalUserRepository
-      .createQueryBuilder('user')
-      .select(['username', 'password'])
-      .where({ profileId: ObjectIdUuidConverter.toUuid(profileId) })
-      .getOne()
+    const user = await this.userLocalUserRepository.findOne({
+      where: { profileId: ObjectIdUuidConverter.toUuid(profileId) },
+      select: ['username', 'password'],
+    })
     if (!user) throw new ForbiddenException('Current profile has no local user')
     const isValidPassword = await verify(user.password, currentPassword)
     if (!isValidPassword) throw new BadRequestException('Invalid current password')
