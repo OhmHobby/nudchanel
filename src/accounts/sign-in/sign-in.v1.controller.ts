@@ -28,6 +28,7 @@ import { SignInProviderCodeDto } from './dto/sign-in-provider-code.dto'
 import { SignInProviderDto } from './dto/sign-in-provider.dto'
 import { DiscordOauth2ProviderService } from './oidc/discord/discord-oauth2-provider.service'
 import { GoogleOauth2ProviderService } from './oidc/google/google-oauth2-provider.service'
+import { GitlabOauth2ProviderService } from './oidc/gitlab/gitlab-oauth2-provider.service'
 import { SignInService } from './sign-in.service'
 
 @Controller({ path: 'accounts/sign-in', version: '1' })
@@ -41,6 +42,7 @@ export class SignInV1Controller {
     private readonly userLocalService: UserLocalService,
     private readonly googleOauth2ProviderService: GoogleOauth2ProviderService,
     private readonly discordOauth2ProviderService: DiscordOauth2ProviderService,
+    private readonly gitlabOauth2ProviderService: GitlabOauth2ProviderService,
   ) {}
 
   @Get('providers')
@@ -50,6 +52,7 @@ export class SignInV1Controller {
     return [
       this.googleOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
       this.discordOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
+      this.gitlabOauth2ProviderService.getProviderInfo(this.getBaseUrl(headers.host)),
     ]
   }
 
@@ -89,6 +92,7 @@ export class SignInV1Controller {
     const providerService = {
       [OidcProvider.Google]: this.googleOauth2ProviderService,
       [OidcProvider.Discord]: this.discordOauth2ProviderService,
+      [OidcProvider.GitLab]: this.gitlabOauth2ProviderService,
     }[provider]
     if (!providerService) throw new NotFoundException('Unknown provider')
     try {
