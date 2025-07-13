@@ -7,4 +7,5 @@ export enum DataMigration {
   ProfilePhoto = 'ProfilePhoto',
   PhotoUploadTask = 'PhotoUploadTask',
   NudStudent = 'NudStudent',
+  UserLocal = 'UserLocal',
 }
