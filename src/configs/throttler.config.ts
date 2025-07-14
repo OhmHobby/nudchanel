@@ -25,7 +25,7 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
         {
           name: 'second',
           ttl: seconds(1),
-          limit: 5,
+          limit: 50,
         },
         {
           name: 'minute',
