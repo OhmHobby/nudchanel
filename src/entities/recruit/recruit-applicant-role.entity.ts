@@ -54,8 +54,8 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', select: false })
   updatedAt: Date
 
-  determineOfferResponse(isAnnounce: boolean, now = new Date()): RecruitOfferResponseEnum {
-    if (!isAnnounce) return RecruitOfferResponseEnum.tba
+  determineOfferResponse(isAnnounce: boolean, isModerator: boolean, now = new Date()): RecruitOfferResponseEnum {
+    if (!isAnnounce && !isModerator) return RecruitOfferResponseEnum.tba
     if (this.offerResponseAt || this.offerAccepted) {
       return this.offerAccepted ? RecruitOfferResponseEnum.accepted : RecruitOfferResponseEnum.declined
     }
@@ -64,6 +64,6 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
         ? RecruitOfferResponseEnum.pending
         : RecruitOfferResponseEnum.declined
     }
-    return RecruitOfferResponseEnum.rejected
+    return !isAnnounce && isModerator ? RecruitOfferResponseEnum.tba : RecruitOfferResponseEnum.rejected
   }
 }

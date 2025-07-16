@@ -6,22 +6,30 @@ describe(RecruitApplicantRoleEntity.name, () => {
     const now = new Date('2025-07-07T00:00:00.000Z')
     it('should return tba when not announced', () => {
       const entity = new RecruitApplicantRoleEntity()
-      expect(entity.determineOfferResponse(false, now)).toBe(RecruitOfferResponseEnum.tba)
+      expect(entity.determineOfferResponse(false, false, now)).toBe(RecruitOfferResponseEnum.tba)
+    })
+
+    it('should return tba when not announced but moderator', () => {
+      const entity = new RecruitApplicantRoleEntity()
+      expect(entity.determineOfferResponse(false, true, now)).toBe(RecruitOfferResponseEnum.tba)
     })
 
     it('should return rejected when announced but no offer info', () => {
       const entity = new RecruitApplicantRoleEntity()
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.rejected)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.rejected)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.rejected)
     })
 
     it('should return rejected when announced, offerAccepted is false and no expiry or response', () => {
       const entity = new RecruitApplicantRoleEntity({ offerAccepted: false })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.rejected)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.rejected)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.rejected)
     })
 
     it('should return accepted when announced and offerAccepted is true', () => {
       const entity = new RecruitApplicantRoleEntity({ offerAccepted: true })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.accepted)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.accepted)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.accepted)
     })
 
     it('should return accepted when announced, offerAccepted is true with response time', () => {
@@ -29,7 +37,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: true,
         offerResponseAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.accepted)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.accepted)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.accepted)
     })
 
     it('should return declined when announced, offerAccepted is false with response time', () => {
@@ -37,7 +46,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: false,
         offerResponseAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
 
     it('should return declined when announced, offer has expired and offerAccepted is false', () => {
@@ -45,7 +55,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: false,
         offerExpireAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
 
     it('should return pending when announced, offerAccepted is false, has expiry, and has not expired yet', () => {
@@ -53,7 +64,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: false,
         offerExpireAt: new Date('2025-07-08T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.pending)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.pending)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.pending)
     })
 
     it('should return declined when announced, offerAccepted is false, no expiry, but has response time', () => {
@@ -61,7 +73,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: false,
         offerResponseAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
 
     it('should return declined when announced, offerAccepted is false, has expiry, has response time, and has not expired yet', () => {
@@ -70,7 +83,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerResponseAt: new Date('2025-07-06T00:00:00.000Z'),
         offerExpireAt: new Date('2025-07-08T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
 
     it('should return declined when announced, offerAccepted is false, has expiry, has response time, and has expired', () => {
@@ -79,7 +93,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerResponseAt: new Date('2025-07-06T00:00:00.000Z'),
         offerExpireAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
 
     it('should return declined when announced, offerAccepted is false, has expiry, no response time, and has expired', () => {
@@ -87,7 +102,8 @@ describe(RecruitApplicantRoleEntity.name, () => {
         offerAccepted: false,
         offerExpireAt: new Date('2025-07-06T00:00:00.000Z'),
       })
-      expect(entity.determineOfferResponse(true, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, false, now)).toBe(RecruitOfferResponseEnum.declined)
+      expect(entity.determineOfferResponse(true, true, now)).toBe(RecruitOfferResponseEnum.declined)
     })
   })
 })

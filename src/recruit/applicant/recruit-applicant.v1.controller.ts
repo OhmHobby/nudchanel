@@ -73,6 +73,7 @@ export class RecruitApplicantV1Controller {
       undefined,
       ctx.currentSettingId,
       undefined,
+      ctx.currentSetting.isAnnounced(),
       true,
     )
     return new RecruitApplicantsModel({ applicants })
@@ -192,7 +193,11 @@ export class RecruitApplicantV1Controller {
       ctx.currentSetting.isAnnounced() || ctx.hasPermission(),
     )
     if (!applicant) throw new NotFoundException()
-    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(applicant, true)
+    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(
+      applicant,
+      ctx.currentSetting.isAnnounced(),
+      ctx.hasPermission(),
+    )
   }
 
   @Get(':id/notes')

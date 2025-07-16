@@ -31,6 +31,7 @@ export class RecruitApplicantModel {
     profileNameMap: ProfileNameMap = new Map(),
     completionMap?: Map<string, boolean>,
     isAnnounce = false,
+    isModerator = false,
   ) {
     const profileIdHex = ObjectIdUuidConverter.toHexString(entity.profileId)
     return new RecruitApplicantModel({
@@ -40,7 +41,7 @@ export class RecruitApplicantModel {
       roles:
         entity.roles
           ?.map((role) =>
-            RecruitApplicantRoleModel.fromEntity(role, isAnnounce)
+            RecruitApplicantRoleModel.fromEntity(role, isAnnounce, isModerator)
               .withSelectedPriority(role.rank)
               .withIsCompleted(
                 role.role?.collectionId ? (completionMap?.get(role.role?.collectionId) ?? false) : undefined,
