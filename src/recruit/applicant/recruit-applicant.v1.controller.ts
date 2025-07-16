@@ -28,6 +28,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger'
 import { User } from '@nudchannel/auth'
+import { AuditLog } from 'src/audit-log/audit-log.decorator'
 import { AuthGroups } from 'src/auth/auth-group.decorator'
 import { UserCtx } from 'src/auth/user.decorator'
 import { RECRUIT_SETTING_ID } from 'src/constants/headers.constants'
@@ -39,6 +40,7 @@ import { ApplicantOfferResponseDto } from '../dto/applicant-offer-response-dto'
 import { ApplicantOfferDto } from '../dto/applicant-offer.dto'
 import { RecruitNoteBodyDto } from '../dto/recruit-note-body.dto'
 import { RecruitNoteParamDto } from '../dto/recruit-note-param.dto'
+import { RecruitInterviewService } from '../interview/recruit-interview.service'
 import { RecruitApplicantNoteModel } from '../models/recruit-applicant-note.model'
 import { RecruitApplicantNotesModel } from '../models/recruit-applicant-notes.model'
 import { RecruitApplicantModel } from '../models/recruit-applicant.model'
@@ -46,8 +48,6 @@ import { RecruitApplicantsModel } from '../models/recruit-applicants.model'
 import { RecruitModeratorService } from '../moderator/recruit-moderator.service'
 import { RecruitNoteService } from '../note/recruit-note.service'
 import { RecruitApplicantService } from './recruit-applicant.service'
-import { RecruitInterviewService } from '../interview/recruit-interview.service'
-import { AuditLog } from 'src/audit-log/audit-log.decorator'
 
 @Controller({ path: 'recruit/applicants', version: '1' })
 @ApiTags('RecruitApplicantV1')
@@ -73,6 +73,7 @@ export class RecruitApplicantV1Controller {
       undefined,
       ctx.currentSettingId,
       undefined,
+      ctx.currentSetting.isAnnounced(),
       true,
     )
     return new RecruitApplicantsModel({ applicants })
@@ -165,7 +166,10 @@ export class RecruitApplicantV1Controller {
   @ApiOkResponse({ type: RecruitApplicantModel })
   @ApiForbiddenResponse({ description: 'No registration found' })
   async getMyRecruitApplicantInfo(@RecruitCtx() ctx: RecruitContext): Promise<RecruitApplicantModel> {
-    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(ctx.applicantOrThrow)
+    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(
+      ctx.applicantOrThrow,
+      ctx.currentSetting.isAnnounced(),
+    )
   }
 
   @Get(':id')
@@ -189,7 +193,11 @@ export class RecruitApplicantV1Controller {
       ctx.currentSetting.isAnnounced() || ctx.hasPermission(),
     )
     if (!applicant) throw new NotFoundException()
-    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(applicant)
+    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(
+      applicant,
+      ctx.currentSetting.isAnnounced(),
+      ctx.hasPermission(),
+    )
   }
 
   @Get(':id/notes')

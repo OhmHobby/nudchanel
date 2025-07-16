@@ -38,12 +38,12 @@ export class RecruitApplicantRoleModel {
     return this
   }
 
-  static fromEntity(entity: RecruitApplicantRoleEntity) {
+  static fromEntity(entity: RecruitApplicantRoleEntity, isAnnounce = false, isModerator = false) {
     return new RecruitApplicantRoleModel({
       id: entity.role?.id,
       name: entity.role?.name,
       icon: entity.role?.icon,
-      offerResponse: entity.determineOfferResponse(),
+      offerResponse: entity.determineOfferResponse(isAnnounce, isModerator),
       offerExpireAt: entity.offerExpireAt ?? undefined,
     })
   }
