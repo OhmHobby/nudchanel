@@ -69,16 +69,23 @@ export class RecruitApplicantService {
     settingId?: string,
     profileId?: string,
     isAnnounce = false,
+    isModerator = false,
   ): Promise<RecruitApplicantModel[]> {
     const applicants = await this.find(applicantId, settingId, profileId, isAnnounce)
     const profileNameMap = await this.profileNameService.getProfilesNameMap(
       applicants.map((el) => ObjectIdUuidConverter.toObjectId(el.profileId)),
       'th',
     )
-    return applicants.map((applicant) => RecruitApplicantModel.fromEntity(applicant, profileNameMap))
+    return applicants.map((applicant) =>
+      RecruitApplicantModel.fromEntity(applicant, profileNameMap, undefined, isAnnounce, isModerator),
+    )
   }
 
-  async getRecruitApplicantModelWithInfo(applicant: RecruitApplicantEntity): Promise<RecruitApplicantModel> {
+  async getRecruitApplicantModelWithInfo(
+    applicant: RecruitApplicantEntity,
+    isAnnounce = false,
+    isModerator = false,
+  ): Promise<RecruitApplicantModel> {
     const [completionMap, profileNameMap] = await Promise.all([
       this.recruitFormService.getCompletionMap(
         applicant.id,
@@ -86,7 +93,7 @@ export class RecruitApplicantService {
       ),
       this.profileNameService.getProfilesNameMap([ObjectIdUuidConverter.toObjectId(applicant.profileId)], 'th'),
     ])
-    return RecruitApplicantModel.fromEntity(applicant, profileNameMap, completionMap)
+    return RecruitApplicantModel.fromEntity(applicant, profileNameMap, completionMap, isAnnounce, isModerator)
   }
 
   async createApplicant(settingId: string, profileId: string): Promise<RecruitApplicantEntity> {
