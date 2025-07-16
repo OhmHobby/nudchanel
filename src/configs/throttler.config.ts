@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { seconds, ThrottlerModuleOptions, ThrottlerOptionsFactory } from '@nestjs/throttler'
+import { ThrottlerModuleOptions, ThrottlerOptions, ThrottlerOptionsFactory } from '@nestjs/throttler'
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis'
 import { Config } from 'src/enums/config.enum'
 
@@ -11,6 +11,14 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
 
   createThrottlerOptions(): ThrottlerModuleOptions {
     const redisHost = this.configService.get(Config.REDIS_DEFAULT_HOST)
+    const rateLimiterEnabled = this.configService.get(Config.RATE_LIMITER_ENABLED, false)
+
+    if (!rateLimiterEnabled) {
+      return {
+        storage: undefined,
+        throttlers: [],
+      }
+    }
 
     return {
       storage: redisHost
@@ -21,18 +29,7 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
             db: +this.configService.get(Config.REDIS_DEFAULT_DB),
           })
         : undefined,
-      throttlers: [
-        {
-          name: 'second',
-          ttl: seconds(1),
-          limit: 50,
-        },
-        {
-          name: 'minute',
-          ttl: seconds(60),
-          limit: 90,
-        },
-      ],
+      throttlers: [this.configService.getOrThrow<ThrottlerOptions>(Config.RATE_LIMITER_DEFAULT)],
     }
   }
 }
