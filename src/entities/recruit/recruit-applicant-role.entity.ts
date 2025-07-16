@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   DeepPartial,
+  Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -13,6 +14,7 @@ import { uuidv7 } from 'uuidv7'
 import { RecruitApplicantEntity } from './recruit-applicant.entity'
 import { RecruitRoleEntity } from './recruit-role.entity'
 
+@Entity('recruit_applicant_roles')
 @Unique('applicant_role_unique', ['applicantId', 'roleId'])
 export class RecruitApplicantRoleEntity extends BaseEntity {
   constructor(entity?: DeepPartial<RecruitApplicantRoleEntity>) {
@@ -54,11 +56,14 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
 
   determineOfferResponse(isAnnounce: boolean, now = new Date()): RecruitOfferResponseEnum {
     if (!isAnnounce) return RecruitOfferResponseEnum.tba
-    if (this.offerResponseAt) {
+    if (this.offerResponseAt || this.offerAccepted) {
       return this.offerAccepted ? RecruitOfferResponseEnum.accepted : RecruitOfferResponseEnum.declined
     }
-    return this.offerExpireAt && now.getTime() < this.offerExpireAt.getTime()
-      ? RecruitOfferResponseEnum.pending
-      : RecruitOfferResponseEnum.rejected
+    if (this.offerExpireAt) {
+      return now.getTime() < this.offerExpireAt.getTime()
+        ? RecruitOfferResponseEnum.pending
+        : RecruitOfferResponseEnum.declined
+    }
+    return RecruitOfferResponseEnum.rejected
   }
 }
