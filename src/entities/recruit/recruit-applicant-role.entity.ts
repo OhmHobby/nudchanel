@@ -55,6 +55,7 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
   updatedAt: Date
 
   determineOfferResponse(now = new Date()): RecruitOfferResponseEnum {
+    const announcedAt = now // TODO: Should be announce at time but hotfix
     if (
       this.offerResponseAt ||
       this.offerAccepted ||
@@ -63,7 +64,7 @@ export class RecruitApplicantRoleEntity extends BaseEntity {
       return this.offerAccepted ? RecruitOfferResponseEnum.accepted : RecruitOfferResponseEnum.declined
     } else if (
       this.offerAccepted === false &&
-      ((this.offerExpireAt && now.getTime() >= this.offerExpireAt.getTime()) || this.offerResponseAt)
+      ((this.offerExpireAt && now.getTime() >= announcedAt.getTime()) || this.offerResponseAt)
     ) {
       return this.offerExpireAt ? RecruitOfferResponseEnum.pending : RecruitOfferResponseEnum.rejected
     } else return RecruitOfferResponseEnum.tba
