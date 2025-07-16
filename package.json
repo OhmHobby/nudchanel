@@ -97,7 +97,7 @@
     "@types/config": "3.3.5",
     "@types/cookie-parser": "1.4.8",
     "@types/etag": "1.8.3",
-    "@types/express": "5.0.0",
+    "@types/express": "5.0.1",
     "@types/get-image-colors": "4.0.5",
     "@types/jest": "29.5.14",
     "@types/ldapjs": "2.2.5",
