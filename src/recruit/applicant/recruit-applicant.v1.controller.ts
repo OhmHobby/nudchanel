@@ -192,10 +192,7 @@ export class RecruitApplicantV1Controller {
       ctx.currentSetting.isAnnounced() || ctx.hasPermission(),
     )
     if (!applicant) throw new NotFoundException()
-    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(
-      applicant,
-      ctx.currentSetting.isAnnounced(),
-    )
+    return await this.recruitApplicantService.getRecruitApplicantModelWithInfo(applicant, true)
   }
 
   @Get(':id/notes')
