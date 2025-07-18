@@ -13,8 +13,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "generate:openapi": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit --runInBand --silent --logHeapUsage -t swagger --testPathPattern swagger",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --config eslint.config.mjs",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --config eslint.config.mjs",
     "test": "jest --ci --colors --runInBand --logHeapUsage",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -107,13 +107,11 @@
     "@types/node": "20.16.10",
     "@types/nodemailer": "6.4.17",
     "@types/supertest": "6.0.3",
-    "@typescript-eslint/eslint-plugin": "6.21.0",
-    "@typescript-eslint/parser": "6.21.0",
     "cucumber-junit": "1.7.1",
     "cucumber-tsflow": "4.4.4",
-    "eslint": "8.57.1",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-prettier": "5.2.2",
+    "eslint": "9.29.0",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-prettier": "5.5.0",
     "jest": "29.7.0",
     "jest-junit": "16.0.0",
     "prettier": "3.3.3",
@@ -123,6 +121,7 @@
     "ts-loader": "9.5.2",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.34.1"
   }
 }

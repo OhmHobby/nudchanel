@@ -79,7 +79,7 @@ describe('RegistrationService', () => {
 
     it('should return default base url correctly', () => {
       const result = service.redirectToAppRegistrationUrl(registrationToken)
-      expect(result).toBe(`/register?code=registration-token`)
+      expect(result).toBe('/register?code=registration-token')
     })
   })
 })

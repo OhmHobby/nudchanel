@@ -46,7 +46,7 @@ describe('API Key', () => {
     expect(result.body.service).toBe('test')
   })
 
-  afterAll(() => {
-    app.close()
+  afterAll(async () => {
+    await app.close()
   })
 })

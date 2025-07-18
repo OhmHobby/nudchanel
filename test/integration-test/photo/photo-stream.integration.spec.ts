@@ -105,7 +105,9 @@ describe('Photo stream', () => {
     beforeAll(async () => {
       try {
         await storageService.removeFile(target)
-      } catch (err) {}
+      } catch (err) {
+        /* empty */
+      }
       await uploadBatchFileModel.deleteOne({ uuid })
       await uploadBatchJobModel.deleteOne({ _id: batch._id })
       await uploadTaskModel.deleteOne({ _id: task._id })
