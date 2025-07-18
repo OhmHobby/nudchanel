@@ -155,3 +155,12 @@ recruit:
       meet: false
       title: "NUD Channel: Interview"
       description: ""
+
+rateLimiter:
+  enabled: true
+  default:
+    ttl: 60000
+    limit: 300
+  protected:
+    ttl: 60000
+    limit: 10
