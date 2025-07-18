@@ -146,5 +146,5 @@ gitlab:
 
 rateLimiter:
   default:
-    ttl: 60000
+    ttl: 1000
     limit: 50
