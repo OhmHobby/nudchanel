@@ -88,4 +88,6 @@ export enum Config {
   RECRUIT_INTERVIEW_CALENDAR_MEET = 'recruit.interview.calendar.meet',
   RECRUIT_INTERVIEW_CALENDAR_TITLE = 'recruit.interview.calendar.title',
   RECRUIT_INTERVIEW_CALENDAR_DESCRIPTION = 'recruit.interview.calendar.description',
+  RATE_LIMITER_ENABLED = 'rateLimiter.enabled',
+  RATE_LIMITER_DEFAULT = 'rateLimiter.default',
 }

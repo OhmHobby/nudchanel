@@ -4,6 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConditionalModule, ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import config from 'config'
 import { WinstonModule } from 'nest-winston'
@@ -28,6 +29,7 @@ import { clsConfigFactory } from './configs/cls.config'
 import { configuration } from './configs/configuration'
 import { OpenTelemetryConfigService } from './configs/open-telemetry.config'
 import { SwaggerConfigBuilder } from './configs/swagger.config'
+import { ThrottlerConfigService } from './configs/throttler.config'
 import { TypegooseConfigBuilderService } from './configs/typegoose.config'
 import { TypeormConfigService } from './configs/typeorm.config'
 import { WinstonConfig } from './configs/winston.config'
@@ -65,6 +67,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
     BullModule.forRootAsync({ imports: [ConfigModule], useClass: BullConfig, inject: [ConfigService] }),
     CacheModule.registerAsync({ isGlobal: true, useClass: CacheConfig }),
     OpenTelemetryModule.forRootAsync({ useClass: OpenTelemetryConfigService }),
+    ThrottlerModule.forRootAsync({ useClass: ThrottlerConfigService }),
     TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build()),
     TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
@@ -96,6 +99,7 @@ const isRegisterLdapServer = () => config.get<boolean>(Config.LDAP_ENABLED)
   ],
   controllers: [AppController, BaseV1Controller],
   providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AuthGroupGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogger },
