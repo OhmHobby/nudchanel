@@ -15,6 +15,7 @@ import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { ThrottlerConfigService } from 'src/configs/throttler.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
@@ -67,6 +68,8 @@ export class AppBuilder {
       .useValue(() => mockDiscordRestClient)
       .overrideProvider(BullConfig)
       .useValue({ createSharedConfiguration: jest.fn() })
+      .overrideProvider(ThrottlerConfigService)
+      .useValue({ createThrottlerOptions: jest.fn().mockReturnValue({ storage: undefined, throttlers: [] }) })
       .overrideProvider(getModelToken(ApiKeyModel.name))
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
       .overrideProvider(getModelToken(GroupModel.name))
