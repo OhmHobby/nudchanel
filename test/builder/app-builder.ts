@@ -1,8 +1,10 @@
 import { getConnectionToken, getModelToken } from '@m8a/nestjs-typegoose'
 import { BullModule } from '@nestjs/bullmq'
+import { CacheModule } from '@nestjs/cache-manager'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
+import { ThrottlerModule } from '@nestjs/throttler'
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm'
 import { getModelForClass } from '@typegoose/typegoose'
 import { useContainer } from 'class-validator'
@@ -13,6 +15,7 @@ import { AmqpModule } from 'src/amqp/amqp.module'
 import { AppModule } from 'src/app.module'
 import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
+import { ThrottlerConfigService } from 'src/configs/throttler.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
@@ -33,10 +36,13 @@ import { UploadBatchJobModel } from 'src/models/photo/upload-batch-job.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
 import { resetMockModel } from 'test/helpers/mock-model'
 import { MockBullModule } from './mock-bull-module.ts'
+import { MockCacheModule } from './mock-cache-module'
 import { mockDiscordRestClient } from './mock-discord-rest-client'
 import { MockOpenTelemetryModule } from './mock-opentelemetry-module'
 import { MockRabbitMQModule } from './mock-rabbitmq-module'
+import { MockThrottlerModule } from './mock-throttler-module'
 import { mockTypegooseConnection } from './mock-typegoose-connection'
+
 export class AppBuilder {
   private readonly moduleFixture: TestingModuleBuilder
 
@@ -48,6 +54,10 @@ export class AppBuilder {
 
   withDefaultMockModules() {
     this.moduleFixture
+      .overrideModule(CacheModule)
+      .useModule(MockCacheModule)
+      .overrideModule(ThrottlerModule)
+      .useModule(MockThrottlerModule)
       .overrideModule(AmqpModule)
       .useModule(MockRabbitMQModule)
       .overrideModule(OpenTelemetryModule)
@@ -58,6 +68,8 @@ export class AppBuilder {
       .useValue(() => mockDiscordRestClient)
       .overrideProvider(BullConfig)
       .useValue({ createSharedConfiguration: jest.fn() })
+      .overrideProvider(ThrottlerConfigService)
+      .useValue({ createThrottlerOptions: jest.fn().mockReturnValue({ storage: undefined, throttlers: [] }) })
       .overrideProvider(getModelToken(ApiKeyModel.name))
       .useValue(resetMockModel(getModelForClass(ApiKeyModel)))
       .overrideProvider(getModelToken(GroupModel.name))
