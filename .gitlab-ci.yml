@@ -1,5 +1,6 @@
 include:
   - project: nudchannel/ci/gitlab-ci-templates
+    ref: buildkit
     file:
       - build/default.gitlab-ci.yml
       - client/typescript.gitlab-ci.yml
