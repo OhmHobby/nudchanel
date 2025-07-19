@@ -121,13 +121,14 @@ export class GalleryPhotoEntity extends BaseEntity {
     return typeof this.color === 'number' ? HexDecConverter.decToHex(this.color) : undefined
   }
 
-  get state(): GalleryPhotoState {
+  get state(): GalleryPhotoState | undefined {
     if (this.errorMessage) return GalleryPhotoState.failed
     if (this.rejectReason) return GalleryPhotoState.rejected
     if (this.reviewedBy) return GalleryPhotoState.approved
     if (this.processedAt) return GalleryPhotoState.processed
     if (this.validatedAt) return GalleryPhotoState.accepted
-    return GalleryPhotoState.created
+    if (this.createdBy) return GalleryPhotoState.created // Hide state from public requests
+    return undefined
   }
 
   get nextState(): GalleryPhotoNextState | undefined {

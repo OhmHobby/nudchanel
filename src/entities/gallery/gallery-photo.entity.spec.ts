@@ -1,3 +1,4 @@
+import { DEFAULT_UUID } from 'src/constants/uuid.constants'
 import { GalleryPhotoNextState } from 'src/enums/gallery-photo-pending-state.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
 import { GalleryPhotoState } from 'src/enums/gallery-photo-state.enum'
@@ -24,7 +25,7 @@ describe(GalleryPhotoEntity.name, () => {
 
   describe('state / pendingState', () => {
     test('created', () => {
-      const entity = new GalleryPhotoEntity()
+      const entity = new GalleryPhotoEntity({ createdBy: DEFAULT_UUID })
       expect(entity.state).toBe(GalleryPhotoState.created)
       expect(entity.nextState).toBe(GalleryPhotoNextState.validation)
     })
@@ -84,6 +85,12 @@ describe(GalleryPhotoEntity.name, () => {
       test('failed', () => {
         const entity = new GalleryPhotoEntity({ validatedAt: new Date(), errorMessage: 'No data' })
         expect(entity.state).toBe(GalleryPhotoState.failed)
+        expect(entity.nextState).toBe(undefined)
+      })
+
+      test('undefined', () => {
+        const entity = new GalleryPhotoEntity()
+        expect(entity.state).toBe(undefined)
         expect(entity.nextState).toBe(undefined)
       })
     })

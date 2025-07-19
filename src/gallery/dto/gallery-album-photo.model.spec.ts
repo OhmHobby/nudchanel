@@ -34,7 +34,7 @@ describe(GalleryAlbumPhotoModel.name, () => {
       expect(GalleryPhotoFlowState[flowProgress & state]).not.toBe(GalleryPhotoFlowState[state])
 
     beforeEach(() => {
-      entity = new GalleryPhotoEntity({ id: DEFAULT_UUID })
+      entity = new GalleryPhotoEntity({ id: DEFAULT_UUID, createdBy: DEFAULT_UUID })
       flowProgress = 0
     })
 
