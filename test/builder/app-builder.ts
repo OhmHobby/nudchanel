@@ -17,6 +17,7 @@ import { BullConfig } from 'src/configs/bull.config'
 import { SwaggerConfigBuilder } from 'src/configs/swagger.config'
 import { ThrottlerConfigService } from 'src/configs/throttler.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ServiceProvider } from 'src/enums/service-provider.enum'
@@ -98,16 +99,6 @@ export class AppBuilder {
       .useValue(resetMockModel(getModelForClass(UploadTaskModel)))
       .overrideProvider(getModelToken(UserGroupModel.name))
       .useValue(resetMockModel(getModelForClass(UserGroupModel)))
-      .overrideProvider(getRepositoryToken(UserLocalUserEntity))
-      .useValue({
-        find: jest.fn(),
-        findOne: jest.fn(),
-        create: jest.fn(),
-        save: jest.fn(),
-        update: jest.fn(),
-        count: jest.fn(),
-        createQueryBuilder: jest.fn(),
-      })
       .overrideProvider(getConnectionToken())
       .useValue(mockTypegooseConnection)
       .overrideProvider(getConnectionToken(MongoConnection.Accounts))
@@ -120,9 +111,17 @@ export class AppBuilder {
       .useValue({ getRepository: jest.fn() })
 
     for (const entity of TypeormConfigService.entities) {
-      this.moduleFixture
-        .overrideProvider(getRepositoryToken(entity))
-        .useValue({ save: jest.fn().mockImplementation((e) => Promise.resolve(e)) })
+      this.moduleFixture.overrideProvider(getRepositoryToken(entity)).useValue({
+        find: jest.fn(),
+        findOne: jest.fn(),
+        findOneBy: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        count: jest.fn(),
+        countBy: jest.fn(),
+        createQueryBuilder: jest.fn(),
+        save: jest.fn().mockImplementation((e) => Promise.resolve(e)),
+      })
     }
 
     return this
