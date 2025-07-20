@@ -51,12 +51,14 @@ export class GitlabOauth2ProviderService extends ExternalOauth2ProviderService<U
   }
 
   async findProfileId(user: ExpandedUserSchema): Promise<ProfileId | undefined> {
-    const profileById = await this.profileService.findByGitlabId(user.id.toString())
-    if (profileById?._id) {
-      return profileById._id
+    const profileById = await this.profileService.findByGitlabId(user.id)
+    if (profileById) {
+      await this.profileService.upsertGitlabProfile(user, profileById.profileOid)
+      return profileById.profileOid
     }
     const profileByEmail = await this.profileService.findByEmail(user.email)
     if (profileByEmail?._id) {
+      await this.profileService.upsertGitlabProfile(user, profileByEmail._id)
       return profileByEmail._id
     }
     return undefined
