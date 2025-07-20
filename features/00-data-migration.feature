@@ -6,7 +6,6 @@ Feature: Data migration
     And user profileId 5b794c41fd533e3b2f61cf05
     And user groups nudch, it
     When migrate data "ProfileDiscord"
-    And migrate data "ProfileGitlab"
     Then data migration "GalleryActivity" should be success
     And data migration "GalleryAlbum" should be success
     And data migration "GalleryYouTube" should be success
@@ -15,4 +14,3 @@ Feature: Data migration
     # And data migration "PhotoUploadTask" should be success
     And data migration "UserLocal" should be success
     And data migration "ProfileDiscord" should be success
-    And data migration "ProfileGitlab" should be success

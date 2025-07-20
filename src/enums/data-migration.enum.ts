@@ -9,5 +9,4 @@ export enum DataMigration {
   NudStudent = 'NudStudent',
   UserLocal = 'UserLocal',
   ProfileDiscord = 'ProfileDiscord',
-  ProfileGitlab = 'ProfileGitlab',
 }
