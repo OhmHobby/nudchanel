@@ -5,6 +5,7 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bullmq'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ProfileGitlabEntity } from 'src/entities/accounts/profile-gitlab.entity'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
@@ -46,6 +47,8 @@ export class DataMigrationProcessorService extends WorkerHost {
         return this.migrateNudStudent()
       } else if (job.name === DataMigration.ProfileDiscord) {
         return this.migrateProfileDiscord()
+      } else if (job.name === DataMigration.ProfileGitlab) {
+        return this.migrateProfileGitlab()
       }
       throw new Error(`${job.name} not found`)
     } catch (err) {
@@ -138,6 +141,27 @@ export class DataMigrationProcessorService extends WorkerHost {
               rank: index,
             })
             await manager.save(discordProfile)
+          }) ?? [],
+        )
+      }
+    })
+  }
+
+  private migrateProfileGitlab() {
+    return this.dataSource.transaction(async (manager) => {
+      const profiles = await this.profileModel.find().exec()
+      await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.ProfileGitlab }), {
+        conflictPaths: ['id'],
+      })
+      for (const profile of profiles) {
+        await Promise.all(
+          profile.gitlab_ids?.map(async (gitlabId) => {
+            const gitlabProfile = new ProfileGitlabEntity({
+              id: Number(gitlabId),
+              profileId: ObjectIdUuidConverter.toUuid(profile._id),
+              mfaEnabled: false,
+            })
+            await manager.save(gitlabProfile)
           }) ?? [],
         )
       }

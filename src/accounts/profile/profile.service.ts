@@ -1,3 +1,4 @@
+import { ExpandedUserSchema } from '@gitbeaker/rest'
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -6,6 +7,7 @@ import { ReturnModelType } from '@typegoose/typegoose'
 import { APIUser, Snowflake } from 'discord.js'
 import { Span } from 'nestjs-otel'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ProfileGitlabEntity } from 'src/entities/accounts/profile-gitlab.entity'
 import { Config } from 'src/enums/config.enum'
 import { Encryption } from 'src/helpers/encryption'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
@@ -20,6 +22,8 @@ export class ProfileService extends Encryption {
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
     @InjectRepository(ProfileDiscordEntity)
     private readonly profileDiscordRepository: Repository<ProfileDiscordEntity>,
+    @InjectRepository(ProfileGitlabEntity)
+    private readonly profileGitlabRepository: Repository<ProfileGitlabEntity>,
     configService: ConfigService,
   ) {
     super(configService.getOrThrow(Config.ENCRYPTION_KEY))
@@ -73,8 +77,23 @@ export class ProfileService extends Encryption {
   }
 
   @Span()
-  findByGitlabId(gitlabId: string) {
-    return this.profileModel.findOne({ gitlab_ids: gitlabId }).exec()
+  findByGitlabId(gitlabId: number) {
+    return this.profileGitlabRepository.findOneBy({ id: gitlabId })
+  }
+
+  @Span()
+  async upsertGitlabProfile(gitlab: ExpandedUserSchema, profileId: ProfileId) {
+    const profileUid = ObjectIdUuidConverter.toUuid(profileId)
+    const gitlabProfile = await this.profileGitlabRepository.findOneBy({ id: gitlab.id })
+    if (gitlabProfile) {
+      return this.profileGitlabRepository.update({ id: gitlab.id }, { mfaEnabled: gitlab.two_factor_enabled })
+    } else {
+      return this.profileGitlabRepository.create({
+        id: gitlab.id,
+        profileId: profileUid,
+        mfaEnabled: gitlab.two_factor_enabled,
+      })
+    }
   }
 
   @Span()
