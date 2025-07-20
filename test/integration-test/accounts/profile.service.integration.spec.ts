@@ -9,6 +9,7 @@ import { ProfileService } from 'src/accounts/profile/profile.service'
 import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
+import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
@@ -29,6 +30,7 @@ describe('Profile service', () => {
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
         TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
+        TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
         TypeOrmModule.forFeature([ProfileDiscordEntity]),
       ],
       providers: [ProfileService],
