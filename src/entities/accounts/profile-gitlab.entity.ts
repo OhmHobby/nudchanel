@@ -1,25 +1,18 @@
-import { Snowflake } from 'discord.js'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { BaseEntity, Column, CreateDateColumn, DeepPartial, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 
-@Entity('profile_discords')
-export class ProfileDiscordEntity extends BaseEntity {
-  constructor(entity?: DeepPartial<ProfileDiscordEntity>) {
+@Entity('profile_gitlabs')
+export class ProfileGitlabEntity extends BaseEntity {
+  constructor(entity?: DeepPartial<ProfileGitlabEntity>) {
     super()
     Object.assign(this, entity)
   }
 
-  @PrimaryColumn({ type: 'bigint', comment: 'Discord user ID (Snowflake uint64)' })
-  id: Snowflake
+  @PrimaryColumn({ type: 'int', comment: 'GitLab user ID' })
+  id: number
 
   @Column({ name: 'profile_id', type: 'uuid' })
   profileId: string
-
-  @Column({ name: 'rank', type: 'integer', default: 0 })
-  rank: number
-
-  @Column({ type: 'text', nullable: true })
-  avatar: string | null
 
   @Column({ name: 'mfa_enabled', type: 'boolean', default: false })
   mfaEnabled: boolean
