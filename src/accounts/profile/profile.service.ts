@@ -1,18 +1,25 @@
 import { InjectModel } from '@m8a/nestjs-typegoose'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { InjectRepository } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
+import { APIUser, Snowflake } from 'discord.js'
 import { Span } from 'nestjs-otel'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { Config } from 'src/enums/config.enum'
 import { Encryption } from 'src/helpers/encryption'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { ProfileId } from 'src/models/types'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class ProfileService extends Encryption {
   constructor(
     @InjectModel(ProfileModel)
     private readonly profileModel: ReturnModelType<typeof ProfileModel>,
+    @InjectRepository(ProfileDiscordEntity)
+    private readonly profileDiscordRepository: Repository<ProfileDiscordEntity>,
     configService: ConfigService,
   ) {
     super(configService.getOrThrow(Config.ENCRYPTION_KEY))
@@ -40,8 +47,29 @@ export class ProfileService extends Encryption {
   }
 
   @Span()
-  findByDiscordId(discordId: string) {
-    return this.profileModel.findOne({ discord_ids: discordId }).exec()
+  findByDiscordId(discordId: Snowflake) {
+    return this.profileDiscordRepository.findOne({ where: { id: discordId } })
+  }
+
+  @Span()
+  async upsertDiscordProfile(discord: APIUser, profileId: ProfileId) {
+    const profileUid = ObjectIdUuidConverter.toUuid(profileId)
+    const discordProfile = await this.profileDiscordRepository.findOneBy({ id: discord.id })
+    if (discordProfile) {
+      return this.profileDiscordRepository.update(
+        { id: discord.id },
+        { avatar: discord.avatar, mfaEnabled: discord.mfa_enabled },
+      )
+    } else {
+      const profileCount = await this.profileDiscordRepository.countBy({ profileId: profileUid })
+      return this.profileDiscordRepository.create({
+        id: discord.id,
+        profileId: profileUid,
+        avatar: discord.avatar,
+        mfaEnabled: discord.mfa_enabled,
+        rank: profileCount,
+      })
+    }
   }
 
   @Span()

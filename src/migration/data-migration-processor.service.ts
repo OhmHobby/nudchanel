@@ -4,6 +4,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { ReturnModelType } from '@typegoose/typegoose'
 import { Job } from 'bullmq'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { DataMigrationEntity } from 'src/entities/data-migration.entity'
 import { GalleryAlbumEntity } from 'src/entities/gallery/gallery-album.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
@@ -11,6 +12,7 @@ import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { DataMigration } from 'src/enums/data-migration.enum'
 import { AlbumPhotoUploadRule } from 'src/gallery/photo/rules/album-photo-upload-rule'
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
+import { ProfileModel } from 'src/models/accounts/profile.model'
 import { StudentInformationModel } from 'src/models/accounts/student-information.model'
 import { StudentProfileModel } from 'src/models/accounts/student-profile.model'
 import { UploadTaskModel } from 'src/models/photo/upload-task.model'
@@ -30,6 +32,8 @@ export class DataMigrationProcessorService extends WorkerHost {
     private readonly studentInformationModel: ReturnModelType<typeof StudentInformationModel>,
     @InjectModel(StudentProfileModel)
     private readonly studentProfileModel: ReturnModelType<typeof StudentProfileModel>,
+    @InjectModel(ProfileModel)
+    private readonly profileModel: ReturnModelType<typeof ProfileModel>,
   ) {
     super()
   }
@@ -40,6 +44,8 @@ export class DataMigrationProcessorService extends WorkerHost {
         return this.migratePhotoUploadTask()
       } else if (job.name === DataMigration.NudStudent) {
         return this.migrateNudStudent()
+      } else if (job.name === DataMigration.ProfileDiscord) {
+        return this.migrateProfileDiscord()
       }
       throw new Error(`${job.name} not found`)
     } catch (err) {
@@ -113,6 +119,27 @@ export class DataMigrationProcessorService extends WorkerHost {
           await nudStudentRepository.save(studentEntity)
           this.logger.log({ message: `Migrated student ${studentDoc._id}`, studentEntity })
         }
+      }
+    })
+  }
+
+  private migrateProfileDiscord() {
+    return this.dataSource.transaction(async (manager) => {
+      const profiles = await this.profileModel.find().exec()
+      await manager.upsert(DataMigrationEntity, new DataMigrationEntity({ id: DataMigration.ProfileDiscord }), {
+        conflictPaths: ['id'],
+      })
+      for (const profile of profiles) {
+        await Promise.all(
+          profile.discord_ids?.map(async (discordId, index) => {
+            const discordProfile = new ProfileDiscordEntity({
+              id: discordId,
+              profileId: ObjectIdUuidConverter.toUuid(profile._id),
+              rank: index,
+            })
+            await manager.save(discordProfile)
+          }) ?? [],
+        )
       }
     })
   }

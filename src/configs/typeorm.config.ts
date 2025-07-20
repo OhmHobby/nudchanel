@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { ApplicationSettingEntity } from 'src/entities/application-setting.entity'
@@ -37,6 +38,7 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
     GalleryTagEntity,
     GalleryYouTubeVideoEntity,
     NudStudentEntity,
+    ProfileDiscordEntity,
     ProfilePhotoEntity,
     RecruitApplicantEntity,
     RecruitApplicantRoleEntity,
