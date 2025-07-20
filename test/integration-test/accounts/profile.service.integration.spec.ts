@@ -2,6 +2,7 @@ import { TypegooseModule } from '@m8a/nestjs-typegoose'
 import { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston'
 import { ClsModule } from 'nestjs-cls'
 import { ProfileService } from 'src/accounts/profile/profile.service'
@@ -9,6 +10,7 @@ import { clsConfigFactory } from 'src/configs/cls.config'
 import { configuration } from 'src/configs/configuration'
 import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
 import { WinstonConfig } from 'src/configs/winston.config'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 
@@ -27,6 +29,7 @@ describe('Profile service', () => {
         WinstonModule.forRootAsync({ useClass: WinstonConfig }),
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
         TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
+        TypeOrmModule.forFeature([ProfileDiscordEntity]),
       ],
       providers: [ProfileService],
     }).compile()
