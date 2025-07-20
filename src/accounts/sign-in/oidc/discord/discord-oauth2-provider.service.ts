@@ -49,12 +49,14 @@ export class DiscordOauth2ProviderService extends ExternalOauth2ProviderService<
   }
 
   async findProfileId(user: APIUser): Promise<ProfileId | undefined> {
-    const profileById = await this.profileService.findByDiscordId(user.id)
-    if (profileById?._id) {
-      return profileById._id
+    const discordProfile = await this.profileService.findByDiscordId(user.id)
+    if (discordProfile) {
+      this.profileService.upsertDiscordProfile(user, discordProfile.profileOid)
+      return discordProfile.profileOid
     }
     const profileByEmail = await this.profileService.findByEmail(String(user.email))
     if (profileByEmail?._id) {
+      this.profileService.upsertDiscordProfile(user, profileByEmail._id)
       return profileByEmail._id
     }
     return undefined

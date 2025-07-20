@@ -8,4 +8,5 @@ export enum DataMigration {
   PhotoUploadTask = 'PhotoUploadTask',
   NudStudent = 'NudStudent',
   UserLocal = 'UserLocal',
+  ProfileDiscord = 'ProfileDiscord',
 }
