@@ -12,7 +12,7 @@ export class ProfileDiscordEntity extends BaseEntity {
   @PrimaryColumn({ type: 'bigint', comment: 'Discord user ID (Snowflake uint64)' })
   id: Snowflake
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'profile_id', type: 'uuid' })
   profileId: string
 
   @Column({ name: 'rank', type: 'integer', default: 0 })

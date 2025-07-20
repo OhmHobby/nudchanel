@@ -1,7 +1,7 @@
 import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { BaseEntity, Column, CreateDateColumn, DeepPartial, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 
-@Entity('profile_gitlab')
+@Entity('profile_gitlabs')
 export class ProfileGitlabEntity extends BaseEntity {
   constructor(entity?: DeepPartial<ProfileGitlabEntity>) {
     super()
@@ -11,7 +11,7 @@ export class ProfileGitlabEntity extends BaseEntity {
   @PrimaryColumn({ type: 'int', comment: 'GitLab user ID' })
   id: number
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'profile_id', type: 'uuid' })
   profileId: string
 
   @Column({ name: 'mfa_enabled', type: 'boolean', default: false })
