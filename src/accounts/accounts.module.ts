@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { REST } from 'discord.js'
 import { Auth, google } from 'googleapis'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
@@ -37,8 +38,8 @@ import { RefreshTokenService } from './refresh-token/refresh-token.service'
 import { RegistrationService } from './registration/registration.service'
 import { RegistrationV1Controller } from './registration/registration.v1.controller'
 import { DiscordOauth2ProviderService } from './sign-in/oidc/discord/discord-oauth2-provider.service'
-import { GoogleOauth2ProviderService } from './sign-in/oidc/google/google-oauth2-provider.service'
 import { GitlabOauth2ProviderService } from './sign-in/oidc/gitlab/gitlab-oauth2-provider.service'
+import { GoogleOauth2ProviderService } from './sign-in/oidc/google/google-oauth2-provider.service'
 import {
   UnintializedGoogleOauth2,
   UnintializedGoogleOauth2Client,
@@ -67,7 +68,13 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
       ],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, NudStudentEntity, UserLocalUserEntity]),
+    TypeOrmModule.forFeature([
+      ProfilePhotoEntity,
+      RefreshTokenEntity,
+      NudStudentEntity,
+      UserLocalUserEntity,
+      ProfileDiscordEntity,
+    ]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     PhotoModule,

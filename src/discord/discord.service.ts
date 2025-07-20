@@ -39,14 +39,13 @@ export class DiscordService implements OnModuleDestroy {
 
   @Span()
   async triggerProfileNameSync(discordId: Snowflake) {
-    const profile = await this.profileService.findByDiscordId(discordId)
-    if (!profile) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
-    const nickname = await this.profileNameService.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(profile._id)
-    if (!nickname) return this.logger.warn(`Could not create nickname for profileId: "${profile._id}"`)
-    const promises = profile.discord_ids?.map((discordId, i) =>
-      this.discordBotService.setNickname(discordId, this.nicknameWithSuffix(nickname, i)),
+    const discord = await this.profileService.findByDiscordId(discordId)
+    if (!discord) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
+    const nickname = await this.profileNameService.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix(
+      discord.profileOid,
     )
-    await Promise.all(promises ?? [])
+    if (!nickname) return this.logger.warn(`Could not create nickname for profileId: "${discord.profileOid}"`)
+    await this.discordBotService.setNickname(discordId, this.nicknameWithSuffix(nickname, discord.rank))
   }
 
   @Span()
@@ -54,8 +53,8 @@ export class DiscordService implements OnModuleDestroy {
     const profile = await this.profileService.findByDiscordId(discordId)
     if (!profile) return this.logger.warn(`Could not find profile for discordId: "${discordId}"`)
     const [latestProfileRole, profileMembers, discordUser, guildRoles] = await Promise.all([
-      this.teamService.getLatestProfilePrimaryTeam(profile._id),
-      this.teamService.getProfilePrimaryTeams(profile._id),
+      this.teamService.getLatestProfilePrimaryTeam(profile.profileOid),
+      this.teamService.getProfilePrimaryTeams(profile.profileOid),
       this.discordBotService.getUserById(discordId),
       this.getSyncedDiscordRoles(),
     ])
