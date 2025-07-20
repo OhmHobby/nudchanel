@@ -157,7 +157,7 @@ recruit:
       description: ""
 
 rateLimiter:
-  enabled: true
+  enabled: false
   default:
     ttl: 60000
     limit: 300
