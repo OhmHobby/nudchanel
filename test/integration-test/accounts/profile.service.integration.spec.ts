@@ -12,6 +12,7 @@ import { TypegooseConfigBuilderService } from 'src/configs/typegoose.config'
 import { TypeormConfigService } from 'src/configs/typeorm.config'
 import { WinstonConfig } from 'src/configs/winston.config'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ProfileGitlabEntity } from 'src/entities/accounts/profile-gitlab.entity'
 import { MongoConnection } from 'src/enums/mongo-connection.enum'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 
@@ -31,7 +32,7 @@ describe('Profile service', () => {
         TypegooseModule.forRootAsync(TypegooseConfigBuilderService.build(MongoConnection.Accounts)),
         TypegooseModule.forFeature([ProfileModel], MongoConnection.Accounts),
         TypeOrmModule.forRootAsync({ useClass: TypeormConfigService }),
-        TypeOrmModule.forFeature([ProfileDiscordEntity]),
+        TypeOrmModule.forFeature([ProfileDiscordEntity, ProfileGitlabEntity]),
       ],
       providers: [ProfileService],
     }).compile()

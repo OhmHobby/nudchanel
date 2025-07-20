@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { REST } from 'discord.js'
 import { Auth, google } from 'googleapis'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ProfileGitlabEntity } from 'src/entities/accounts/profile-gitlab.entity'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { UserLocalUserEntity } from 'src/entities/accounts/user-local-user.entity'
 import { NudStudentEntity } from 'src/entities/nud-student/nud-student.entity'
@@ -74,6 +75,7 @@ import { LocalUserV1Controller } from './user/user-local.v1.controller'
       NudStudentEntity,
       UserLocalUserEntity,
       ProfileDiscordEntity,
+      ProfileGitlabEntity,
     ]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,

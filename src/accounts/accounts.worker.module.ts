@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AmqpModule } from 'src/amqp/amqp.module'
 import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ProfileGitlabEntity } from 'src/entities/accounts/profile-gitlab.entity'
 import { RefreshTokenEntity } from 'src/entities/accounts/refresh-token.entity'
 import { ProfilePhotoEntity } from 'src/entities/profile/profile-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
@@ -31,7 +32,7 @@ import { UserGroupService } from './user/user-group.service'
       [ProfileModel, ProfileNameModel, UserGroupModel, GroupModel, TeamMemberModel, TeamGroupModel, TeamRoleModel],
       MongoConnection.Accounts,
     ),
-    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, ProfileDiscordEntity]),
+    TypeOrmModule.forFeature([ProfilePhotoEntity, RefreshTokenEntity, ProfileDiscordEntity, ProfileGitlabEntity]),
     BullModule.registerQueue({ name: BullQueueName.Photo, defaultJobOptions: { attempts: 2 } }),
     StorageModule,
     AmqpModule,
