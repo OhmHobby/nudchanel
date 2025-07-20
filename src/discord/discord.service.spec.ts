@@ -1,10 +1,13 @@
 import { APIRole } from '@discordjs/core'
 import { getQueueToken } from '@nestjs/bullmq'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Types } from 'mongoose'
 import { ProfileNameService } from 'src/accounts/profile/profile-name.service'
 import { ProfileService } from 'src/accounts/profile/profile.service'
 import { TeamService } from 'src/accounts/team/team.service'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
+import { ProfileDiscordEntity } from 'src/entities/accounts/profile-discord.entity'
+import { ObjectIdUuidConverter } from 'src/helpers/objectid-uuid-converter'
 import { ProfileModel } from 'src/models/accounts/profile.model'
 import { TeamMemberModel } from 'src/models/accounts/team-member.model'
 import { TeamRoleModel } from 'src/models/accounts/team-role.model'
@@ -53,15 +56,16 @@ describe(DiscordService.name, () => {
       expect(botService.setNickname).not.toHaveBeenCalled()
     })
 
-    it('should trigger when profile has 2 discord ids', async () => {
-      const profile = new ProfileModel()
-      profile.discord_ids = ['1', '2']
-      profileService.findByDiscordId = jest.fn().mockResolvedValue(profile)
-      profileNameService.getNickNameWithInitials = jest.fn().mockResolvedValue('nickname')
-      profileNameService.getNickNameWithFirstNameAndInitial = jest.fn().mockResolvedValue('nickname')
+    it('should trigger when profile discord entity is found', async () => {
+      const discordProfile = new ProfileDiscordEntity()
+      discordProfile.id = 'discord-id'
+      discordProfile.profileId = ObjectIdUuidConverter.toUuid(new Types.ObjectId())
+      discordProfile.rank = 0
+      profileService.findByDiscordId = jest.fn().mockResolvedValue(discordProfile)
       profileNameService.getNickNameWithFirstNameAndInitialWithRoleEmojiPrefix = jest.fn().mockResolvedValue('nickname')
       await service.triggerProfileNameSync('discord-id')
-      expect(botService.setNickname).toHaveBeenCalledTimes(2)
+      expect(botService.setNickname).toHaveBeenCalledTimes(1)
+      expect(botService.setNickname).toHaveBeenCalledWith('discord-id', 'nickname')
     })
   })
 
