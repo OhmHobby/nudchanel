@@ -1,0 +1,4 @@
+runMode: server
+
+rateLimiter:
+  enabled: true
