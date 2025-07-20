@@ -66,13 +66,15 @@ export class ProfileService extends Encryption {
       )
     } else {
       const profileCount = await this.profileDiscordRepository.countBy({ profileId: profileUid })
-      return this.profileDiscordRepository.create({
-        id: discord.id,
-        profileId: profileUid,
-        avatar: discord.avatar,
-        mfaEnabled: discord.mfa_enabled,
-        rank: profileCount,
-      })
+      return this.profileDiscordRepository.save(
+        new ProfileDiscordEntity({
+          id: discord.id,
+          profileId: profileUid,
+          avatar: discord.avatar,
+          mfaEnabled: discord.mfa_enabled,
+          rank: profileCount,
+        }),
+      )
     }
   }
 
@@ -88,11 +90,13 @@ export class ProfileService extends Encryption {
     if (gitlabProfile) {
       return this.profileGitlabRepository.update({ id: gitlab.id }, { mfaEnabled: gitlab.two_factor_enabled })
     } else {
-      return this.profileGitlabRepository.create({
-        id: gitlab.id,
-        profileId: profileUid,
-        mfaEnabled: gitlab.two_factor_enabled,
-      })
+      return this.profileGitlabRepository.save(
+        new ProfileGitlabEntity({
+          id: gitlab.id,
+          profileId: profileUid,
+          mfaEnabled: gitlab.two_factor_enabled,
+        }),
+      )
     }
   }
 
