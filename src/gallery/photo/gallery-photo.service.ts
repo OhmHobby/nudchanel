@@ -13,7 +13,7 @@ import { ProfileIdModel } from 'src/accounts/models/profile-id.model'
 import { GalleryPhotoEntity } from 'src/entities/gallery/gallery-photo.entity'
 import { BullQueueName } from 'src/enums/bull-queue-name.enum'
 import { GalleryPhotoRejectReason } from 'src/enums/gallery-photo-reject-reason.enum'
-import { Repository } from 'typeorm'
+import { Repository, In } from 'typeorm'
 
 @Injectable()
 export class GalleryPhotoService implements OnModuleDestroy {
@@ -79,6 +79,11 @@ export class GalleryPhotoService implements OnModuleDestroy {
 
   async deletePhoto(id: string) {
     await this.photoRepository.softDelete({ id })
+  }
+
+  async movePhotos(ids: string[], albumId: string) {
+    if (!ids.length) return
+    await this.photoRepository.update({ id: In(ids) }, { albumId })
   }
 
   async onModuleDestroy() {

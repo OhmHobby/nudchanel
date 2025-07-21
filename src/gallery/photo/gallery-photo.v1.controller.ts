@@ -27,6 +27,7 @@ import { GalleryAlbumPhotoModel } from '../dto/gallery-album-photo.model'
 import { GalleryPhotoRejectionDto } from '../dto/gallery-photo-rejection.dto'
 import { UuidParamDto } from '../dto/uuid-param.dto'
 import { UuidsBodyDto } from '../dto/uuids-body.dto'
+import { GalleryPhotoMoveDto } from '../dto/gallery-photo-move.dto'
 import { GalleryPhotoService } from './gallery-photo.service'
 
 @Controller({ path: 'gallery/photos', version: '1' })
@@ -64,6 +65,16 @@ export class GalleryPhotoV1Controller {
   @ApiAcceptedResponse()
   async reprocessGalleryPhoto(@Param() { id }: UuidParamDto) {
     await this.galleryPhotoService.reprocess(id)
+  }
+
+  @Patch('move')
+  @AuthGroups('pr')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiNoContentResponse()
+  async moveGalleryPhotos(@Body() { ids, albumId }: GalleryPhotoMoveDto) {
+    await this.galleryPhotoService.movePhotos(ids, albumId)
   }
 
   @Patch(':id/approve')
